@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/11 21:32:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/12 12:26:22 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,10 @@ int	exit_game(void)
 }
 
 
+void	create_image(void *mlx_ptr, void *win_ptr, void *img_ptr, int x, int y)
+{	
+	mlx_put_image_to_window(mlx_ptr, win_ptr, img_ptr, x, y);
+}
 int	key_loop(int key)
 {
 	if (key == XK_w)
@@ -46,9 +50,10 @@ int	key_loop(int key)
 	if (key == XK_Escape)
 		exit_game();
 	mlx_clear_window(get_game()->mlx, get_game()->win);
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->player.img, get_game()->player.x, get_game()->player.y);
+	create_image(get_game()->mlx, get_game()->win, get_game()->player.img, get_game()->player.x, get_game()->player.y);
 	return (0);
 }
+
 
 int	main(void)
 {
@@ -64,7 +69,7 @@ int	main(void)
 	get_game()->player = pl;
 	mlx_key_hook(get_game()->win, key_loop, NULL);
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->player.img, get_game()->player.x, get_game()->player.y);
+	create_image(get_game()->mlx, get_game()->win, get_game()->player.img, get_game()->player.x, get_game()->player.y);
 	mlx_loop(get_game()->mlx);
 	free(get_game()->mlx);
 }

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/11 21:32:56 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/12 14:17:00 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,8 @@ typedef struct s_img
 	int		endian;
 	int		x;
 	int		y;
+	int		width;
+	int		height;
 }			t_img;
 
 typedef struct s_game
@@ -37,11 +39,13 @@ typedef struct s_game
 	void    *win;
 	t_img	canvas;
 	t_img	player;
+	t_img	floor;
 }			t_game;
 
 # define WINDOW_WIDTH 500
 # define WINDOW_HEIGHT 500
 
 int	ft_printf(const char *input, ...);
+t_game	*get_game(void);
 
 #endif

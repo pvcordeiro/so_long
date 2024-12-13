@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 19:24:52 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 21:47:56 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ typedef struct s_game
 	void    *win;
 	t_img	canvas;
 	t_img	player;
+	t_img	player2;
 	t_img	floor;
 	t_img	floor2;
 	t_img	wall;

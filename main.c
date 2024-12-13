@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 19:31:36 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 21:47:57 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,7 @@ t_img	make_sprite(char *path)
 	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len, &sprite.endian);
 	return (sprite);
 }
+
 int	game_loop(void)
 {
 	static struct	timeval last_frame = {0, 0};
@@ -117,7 +118,6 @@ int	game_loop(void)
         return (0);
     }
     last_frame = current_time;
-	clear_background();
 	if (get_game()->move_up)
 		get_game()->player.y -= 3;
 	if (get_game()->move_down)
@@ -126,22 +126,41 @@ int	game_loop(void)
 		get_game()->player.x -= 3;
 	if (get_game()->move_right)
 		get_game()->player.x += 3;
+	clear_background();
 	draw_image(&get_game()->player, &get_game()->canvas, get_game()->player.x, get_game()->player.y);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }
 
-int	main(void)
+static void	init_window(void)
 {
 	get_game()->mlx = mlx_init();
 	get_game()->win = mlx_new_window(get_game()->mlx, WINDOW_WIDTH, WINDOW_HEIGHT, "so_long");
+	if (!get_game()->mlx || !get_game()->win)
+		exit_game();
+}
+
+static void	init_sprites(void)
+{
 	get_game()->canvas = make_sprite(NULL);
-	get_game()->player = make_sprite("textures/player.xpm");
-	get_game()->floor = make_sprite("textures/floor_grey.xpm");
-	get_game()->floor2 = make_sprite("textures/floor_white.xpm");
+	get_game()->player = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
+	get_game()->floor = make_sprite("assets/floor/floor00.xpm");
+	get_game()->floor2 = make_sprite("assets/floor/floor01.xpm");
+	get_game()->wall = make_sprite("assets/walls/walls00.xpm");
+}
+
+static void	setup_hooks(void)
+{
 	mlx_loop_hook(get_game()->mlx, game_loop, NULL);
 	mlx_hook(get_game()->win, KeyPress, KeyPressMask, key_loop, "p");
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
+}
+
+int	main(void)
+{
+	init_window();
+	init_sprites();
+	setup_hooks();
 	mlx_loop(get_game()->mlx);
 }

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/12 23:40:59 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 19:31:36 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ int	exit_game(void)
 	mlx_destroy_window(get_game()->mlx, get_game()->win);
 	mlx_destroy_display(get_game()->mlx);
 	free(get_game()->mlx);
+	ft_printf("Game closed\n");
 	exit(EXIT_SUCCESS);
 }
 
@@ -89,7 +90,11 @@ t_img	make_sprite(char *path)
 	t_img	sprite;
 	
 	if (path)
+	{
 		sprite.img = mlx_xpm_file_to_image(get_game()->mlx, path, &sprite.width, &sprite.height);
+		if (!sprite.img)
+			exit_game();
+	}
 	else
 		sprite.img = mlx_new_image(get_game()->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
 	sprite.x = 0;
@@ -97,18 +102,30 @@ t_img	make_sprite(char *path)
 	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len, &sprite.endian);
 	return (sprite);
 }
-#include <stdio.h>
 int	game_loop(void)
 {
+	static struct	timeval last_frame = {0, 0};
+    struct timeval	current_time;
+    long			elapsed_us;
+
+	gettimeofday(&current_time, NULL);
+	elapsed_us = (current_time.tv_sec - last_frame.tv_sec) * 1000000 +
+                (current_time.tv_usec - last_frame.tv_usec);
+	if (elapsed_us < FRAME_DELAY)
+    {
+        usleep(FRAME_DELAY - elapsed_us);
+        return (0);
+    }
+    last_frame = current_time;
 	clear_background();
 	if (get_game()->move_up)
-		get_game()->player.y -= 1;
+		get_game()->player.y -= 3;
 	if (get_game()->move_down)
-		get_game()->player.y += 1;
+		get_game()->player.y += 3;
 	if (get_game()->move_left)
-		get_game()->player.x -= 1;
+		get_game()->player.x -= 3;
 	if (get_game()->move_right)
-		get_game()->player.x += 1;
+		get_game()->player.x += 3;
 	draw_image(&get_game()->player, &get_game()->canvas, get_game()->player.x, get_game()->player.y);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
@@ -127,5 +144,4 @@ int	main(void)
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 	mlx_loop(get_game()->mlx);
-	free(get_game()->mlx);
 }

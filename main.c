@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:27:31 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 23:53:33 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,79 +77,58 @@ void	draw_image(t_img *src, t_img *dst, int x, int y)
 	}
 }
 
+void init_animation(t_animation *anim, int frame_count, int speed)
+{
+    anim->current_frame = 0;
+    anim->anim_counter = 0;
+    anim->anim_speed = speed;
+    anim->frame_count = frame_count;
+}
+
+void update_animation(t_animation *anim)
+{
+    anim->anim_counter++;
+    if (anim->anim_counter >= anim->anim_speed)
+    {
+        anim->anim_counter = 0;
+        anim->current_frame = (anim->current_frame + 1) % anim->frame_count;
+    }
+}
+
+void draw_animation(t_animation *anim, t_img *canvas)
+{
+    draw_image(&anim->sprites[anim->current_frame], canvas, anim->x, anim->y);
+}
+
 static void init_collectible(void)
 {
     t_collectible *collectible;
 
     collectible = &get_game()->collectible;
-    collectible->sprite[0] = make_sprite("assets/collect/collect00.xpm");
-    collectible->sprite[1] = make_sprite("assets/collect/collect01.xpm");
-    collectible->sprite[2] = make_sprite("assets/collect/collect02.xpm");
-    collectible->sprite[3] = make_sprite("assets/collect/collect03.xpm");
-    collectible->current_frame = 0;
-    collectible->anim_counter = 0;
-    collectible->anim_speed = 15;
-    collectible->x = 100;
-    collectible->y = 100;
+    collectible->base.sprites[0] = make_sprite("assets/collect/collect00.xpm");
+    collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
+    collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
+    collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
+    init_animation(&collectible->base, 4, 15);
+    collectible->base.x = 100;
+    collectible->base.y = 100;
 }
 
-static void update_collectible_animation(void)
-{
-    t_collectible *collectible;
-
-    collectible = &get_game()->collectible;
-    collectible->anim_counter++;
-    if (collectible->anim_counter >= collectible->anim_speed)
-    {
-        collectible->anim_counter = 0;
-        collectible->current_frame = (collectible->current_frame + 1) % 4;
-    }
-}
-
-static void draw_collectible(void)
-{
-    t_collectible *collectible;
-
-    collectible = &get_game()->collectible;
-    draw_image(&collectible->sprite[collectible->current_frame], 
-               &get_game()->canvas, collectible->x, collectible->y);
-}
 
 static void init_wall(void)
 {
     t_wall *wall;
 
     wall = &get_game()->wall;
-    wall->sprite[0] = make_sprite("assets/wall/wall00.xpm");
-    wall->sprite[1] = make_sprite("assets/wall/wall01.xpm");
-    wall->current_frame = 0;
-    wall->anim_counter = 0;
-    wall->anim_speed = 30;  // Slower than collectible/player
-    wall->x = 200;  // Initial position
-    wall->y = 200;
+    wall->base.sprites[0] = make_sprite("assets/wall/wall00.xpm");
+    wall->base.sprites[1] = make_sprite("assets/wall/wall01.xpm");
+    init_animation(&wall->base, 2, 25);
+    wall->base.x = 200;
+    wall->base.y = 200;
 }
 
-static void update_wall_animation(void)
-{
-    t_wall *wall;
 
-    wall = &get_game()->wall;
-    wall->anim_counter++;
-    if (wall->anim_counter >= wall->anim_speed)
-    {
-        wall->anim_counter = 0;
-        wall->current_frame = !wall->current_frame;  // Toggle between 0 and 1
-    }
-}
 
-static void draw_wall(void)
-{
-    t_wall *wall;
-
-    wall = &get_game()->wall;
-    draw_image(&wall->sprite[wall->current_frame], 
-               &get_game()->canvas, wall->x, wall->y);
-}
 
 void	clear_background(void)
 {
@@ -190,24 +169,26 @@ static void init_player(void)
     t_player *player;
 
     player = &get_game()->player;
-    player->idle_right[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
-    player->idle_right[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
-    player->idle_left[0] = make_sprite("assets/player/idle_left/player_idle_left00.xpm");
-    player->idle_left[1] = make_sprite("assets/player/idle_left/player_idle_left01.xpm");
-    player->move_right[0] = make_sprite("assets/player/move_right/player_move_right00.xpm");
-    player->move_right[1] = make_sprite("assets/player/move_right/player_move_right01.xpm");
-    player->move_left[0] = make_sprite("assets/player/move_left/player_move_left00.xpm");
-    player->move_left[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
+    player->idle_right.sprites[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
+	player->idle_right.sprites[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
+	init_animation(&player->idle_right, 2, 20);
+	player->idle_left.sprites[0] = make_sprite("assets/player/idle_left/player_idle_left00.xpm");
+	player->idle_left.sprites[1] = make_sprite("assets/player/idle_left/player_idle_left01.xpm");
+	init_animation(&player->idle_left, 2, 20);
+	player->move_right.sprites[0] = make_sprite("assets/player/move_right/player_move_right00.xpm");
+	player->move_right.sprites[1] = make_sprite("assets/player/move_right/player_move_right01.xpm");
+	init_animation(&player->move_right, 2, 10);
+	player->move_left.sprites[0] = make_sprite("assets/player/move_left/player_move_left00.xpm");
+	player->move_left.sprites[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
+	init_animation(&player->move_left, 2, 10);
     player->state = IDLE_RIGHT;
-    player->current_frame = 0;
-    player->anim_counter = 0;
-    player->anim_speed = 20;
     player->x = 0;
     player->y = 0;
 }
-static void update_player_state(void)
+static void update_player(void)
 {
     t_player *player;
+    t_animation *current_anim;
 
     player = &get_game()->player;
     if (get_game()->move_right)
@@ -218,34 +199,36 @@ static void update_player_state(void)
         player->state = IDLE_RIGHT;
     else if (player->state == MOVE_LEFT)
         player->state = IDLE_LEFT;
-}
-static void update_player_animation(void)
-{
-    t_player *player;
 
-    player = &get_game()->player;
-    player->anim_counter++;
-    if (player->anim_counter >= player->anim_speed)
-    {
-        player->anim_counter = 0;
-        player->current_frame = !player->current_frame;
-    }
+    if (player->state == IDLE_RIGHT)
+        current_anim = &player->idle_right;
+    else if (player->state == IDLE_LEFT)
+        current_anim = &player->idle_left;
+    else if (player->state == MOVE_RIGHT)
+        current_anim = &player->move_right;
+    else
+        current_anim = &player->move_left;
+    
+    update_animation(current_anim);
 }
 static void draw_player(void)
 {
     t_player *player;
-    t_img    *current_sprite;
+    t_animation *current_anim;
 
     player = &get_game()->player;
     if (player->state == IDLE_RIGHT)
-        current_sprite = &player->idle_right[player->current_frame];
+        current_anim = &player->idle_right;
     else if (player->state == IDLE_LEFT)
-        current_sprite = &player->idle_left[player->current_frame];
+        current_anim = &player->idle_left;
     else if (player->state == MOVE_RIGHT)
-        current_sprite = &player->move_right[player->current_frame];
+        current_anim = &player->move_right;
     else
-        current_sprite = &player->move_left[player->current_frame];
-    draw_image(current_sprite, &get_game()->canvas, player->x, player->y);
+        current_anim = &player->move_left;
+
+    current_anim->x = player->x;
+    current_anim->y = player->y;
+    draw_animation(current_anim, &get_game()->canvas);
 }
 
 int	game_loop(void)
@@ -271,14 +254,13 @@ int	game_loop(void)
 		get_game()->player.x -= 3;
 	if (get_game()->move_right)
 		get_game()->player.x += 3;
-	update_player_state();
-	update_player_animation();
-	update_collectible_animation();
-	update_wall_animation();
+	update_player();
+	update_animation(&get_game()->collectible.base);
+	update_animation(&get_game()->wall.base);
 	clear_background();
 	draw_player();
-	draw_collectible();
-	draw_wall();
+	draw_animation(&get_game()->collectible.base, &get_game()->canvas);
+	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }
@@ -308,6 +290,8 @@ static void	setup_hooks(void)
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 }
+
+
 
 int	main(void)
 {

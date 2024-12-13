@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 22:28:15 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 23:07:10 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,10 +78,11 @@ typedef struct s_game
 # define WINDOW_HEIGHT 400
 # define FPS 60
 # define FRAME_DELAY (1000000 / FPS)
-// # define _POSIX_C_SOURCE 200809L
 # define ANIMATION_SPEED 15
+# define BUFFER_SIZE 10
 
 int	ft_printf(const char *input, ...);
+char	*get_next_line(int fd);
 t_game	*get_game(void);
 
 #endif

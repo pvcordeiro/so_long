@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 21:47:57 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 22:29:26 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,6 +102,68 @@ t_img	make_sprite(char *path)
 	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len, &sprite.endian);
 	return (sprite);
 }
+static void init_player(void)
+{
+    t_player *player;
+
+    player = &get_game()->player;
+    player->idle_right[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
+    player->idle_right[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
+    player->idle_left[0] = make_sprite("assets/player/idle_left/player_idle_left00.xpm");
+    player->idle_left[1] = make_sprite("assets/player/idle_left/player_idle_left01.xpm");
+    player->move_right[0] = make_sprite("assets/player/move_right/player_move_right00.xpm");
+    player->move_right[1] = make_sprite("assets/player/move_right/player_move_right01.xpm");
+    player->move_left[0] = make_sprite("assets/player/move_left/player_move_left00.xpm");
+    player->move_left[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
+    player->state = IDLE_RIGHT;
+    player->current_frame = 0;
+    player->anim_counter = 0;
+    player->anim_speed = 20;
+    player->x = 0;
+    player->y = 0;
+}
+static void update_player_state(void)
+{
+    t_player *player;
+
+    player = &get_game()->player;
+    if (get_game()->move_right)
+        player->state = MOVE_RIGHT;
+    else if (get_game()->move_left)
+        player->state = MOVE_LEFT;
+    else if (player->state == MOVE_RIGHT)
+        player->state = IDLE_RIGHT;
+    else if (player->state == MOVE_LEFT)
+        player->state = IDLE_LEFT;
+}
+static void update_player_animation(void)
+{
+    t_player *player;
+
+    player = &get_game()->player;
+    player->anim_counter++;
+    if (player->anim_counter >= player->anim_speed)
+    {
+        player->anim_counter = 0;
+        player->current_frame = !player->current_frame;
+    }
+}
+static void draw_player(void)
+{
+    t_player *player;
+    t_img    *current_sprite;
+
+    player = &get_game()->player;
+    if (player->state == IDLE_RIGHT)
+        current_sprite = &player->idle_right[player->current_frame];
+    else if (player->state == IDLE_LEFT)
+        current_sprite = &player->idle_left[player->current_frame];
+    else if (player->state == MOVE_RIGHT)
+        current_sprite = &player->move_right[player->current_frame];
+    else
+        current_sprite = &player->move_left[player->current_frame];
+    draw_image(current_sprite, &get_game()->canvas, player->x, player->y);
+}
 
 int	game_loop(void)
 {
@@ -126,8 +188,10 @@ int	game_loop(void)
 		get_game()->player.x -= 3;
 	if (get_game()->move_right)
 		get_game()->player.x += 3;
+	update_player_state();
+	update_player_animation();
 	clear_background();
-	draw_image(&get_game()->player, &get_game()->canvas, get_game()->player.x, get_game()->player.y);
+	draw_player();
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }
@@ -143,10 +207,10 @@ static void	init_window(void)
 static void	init_sprites(void)
 {
 	get_game()->canvas = make_sprite(NULL);
-	get_game()->player = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
 	get_game()->floor = make_sprite("assets/floor/floor00.xpm");
 	get_game()->floor2 = make_sprite("assets/floor/floor01.xpm");
 	get_game()->wall = make_sprite("assets/walls/walls00.xpm");
+	init_player();
 }
 
 static void	setup_hooks(void)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:06:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 23:27:31 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ unsigned int	*get_pixel(t_img *data, int x, int y)
 	return ((unsigned int*)(data->addr + (y * data->line_len + x * (data->bpp / 8))));
 }
 
+
 int	exit_game(void)
 {
 	mlx_destroy_window(get_game()->mlx, get_game()->win);
@@ -30,6 +31,31 @@ int	exit_game(void)
 	free(get_game()->mlx);
 	ft_printf("Game closed\n");
 	exit(EXIT_SUCCESS);
+}
+int	exit_error(void)
+{
+	mlx_destroy_window(get_game()->mlx, get_game()->win);
+	mlx_destroy_display(get_game()->mlx);
+	free(get_game()->mlx);
+	ft_printf("Error\n");
+	exit(EXIT_FAILURE);
+}
+t_img	make_sprite(char *path)
+{
+	t_img	sprite;
+	
+	if (path)
+	{
+		sprite.img = mlx_xpm_file_to_image(get_game()->mlx, path, &sprite.width, &sprite.height);
+		if (!sprite.img)
+			exit_error();
+	}
+	else
+		sprite.img = mlx_new_image(get_game()->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
+	sprite.x = 0;
+	sprite.y = 0;
+	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len, &sprite.endian);
+	return (sprite);
 }
 
 void	draw_image(t_img *src, t_img *dst, int x, int y)
@@ -49,6 +75,80 @@ void	draw_image(t_img *src, t_img *dst, int x, int y)
 		}
 		sy++;
 	}
+}
+
+static void init_collectible(void)
+{
+    t_collectible *collectible;
+
+    collectible = &get_game()->collectible;
+    collectible->sprite[0] = make_sprite("assets/collect/collect00.xpm");
+    collectible->sprite[1] = make_sprite("assets/collect/collect01.xpm");
+    collectible->sprite[2] = make_sprite("assets/collect/collect02.xpm");
+    collectible->sprite[3] = make_sprite("assets/collect/collect03.xpm");
+    collectible->current_frame = 0;
+    collectible->anim_counter = 0;
+    collectible->anim_speed = 15;
+    collectible->x = 100;
+    collectible->y = 100;
+}
+
+static void update_collectible_animation(void)
+{
+    t_collectible *collectible;
+
+    collectible = &get_game()->collectible;
+    collectible->anim_counter++;
+    if (collectible->anim_counter >= collectible->anim_speed)
+    {
+        collectible->anim_counter = 0;
+        collectible->current_frame = (collectible->current_frame + 1) % 4;
+    }
+}
+
+static void draw_collectible(void)
+{
+    t_collectible *collectible;
+
+    collectible = &get_game()->collectible;
+    draw_image(&collectible->sprite[collectible->current_frame], 
+               &get_game()->canvas, collectible->x, collectible->y);
+}
+
+static void init_wall(void)
+{
+    t_wall *wall;
+
+    wall = &get_game()->wall;
+    wall->sprite[0] = make_sprite("assets/wall/wall00.xpm");
+    wall->sprite[1] = make_sprite("assets/wall/wall01.xpm");
+    wall->current_frame = 0;
+    wall->anim_counter = 0;
+    wall->anim_speed = 30;  // Slower than collectible/player
+    wall->x = 200;  // Initial position
+    wall->y = 200;
+}
+
+static void update_wall_animation(void)
+{
+    t_wall *wall;
+
+    wall = &get_game()->wall;
+    wall->anim_counter++;
+    if (wall->anim_counter >= wall->anim_speed)
+    {
+        wall->anim_counter = 0;
+        wall->current_frame = !wall->current_frame;  // Toggle between 0 and 1
+    }
+}
+
+static void draw_wall(void)
+{
+    t_wall *wall;
+
+    wall = &get_game()->wall;
+    draw_image(&wall->sprite[wall->current_frame], 
+               &get_game()->canvas, wall->x, wall->y);
 }
 
 void	clear_background(void)
@@ -85,23 +185,6 @@ int	key_loop(int key, char *action)
 	return (0);
 }
 
-t_img	make_sprite(char *path)
-{
-	t_img	sprite;
-	
-	if (path)
-	{
-		sprite.img = mlx_xpm_file_to_image(get_game()->mlx, path, &sprite.width, &sprite.height);
-		if (!sprite.img)
-			exit_game();
-	}
-	else
-		sprite.img = mlx_new_image(get_game()->mlx, WINDOW_WIDTH, WINDOW_HEIGHT);
-	sprite.x = 0;
-	sprite.y = 0;
-	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len, &sprite.endian);
-	return (sprite);
-}
 static void init_player(void)
 {
     t_player *player;
@@ -190,8 +273,12 @@ int	game_loop(void)
 		get_game()->player.x += 3;
 	update_player_state();
 	update_player_animation();
+	update_collectible_animation();
+	update_wall_animation();
 	clear_background();
 	draw_player();
+	draw_collectible();
+	draw_wall();
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }
@@ -209,8 +296,9 @@ static void	init_sprites(void)
 	get_game()->canvas = make_sprite(NULL);
 	get_game()->floor = make_sprite("assets/floor/floor00.xpm");
 	get_game()->floor2 = make_sprite("assets/floor/floor01.xpm");
-	get_game()->wall = make_sprite("assets/walls/walls00.xpm");
 	init_player();
+	init_collectible();
+	init_wall();
 }
 
 static void	setup_hooks(void)

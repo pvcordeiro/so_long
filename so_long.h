@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:07:10 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 23:27:52 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,17 +57,38 @@ typedef struct s_player
     int     x;
     int     y;
 } t_player;
+
+typedef struct s_collectible
+{
+    t_img   sprite[4];
+    int     current_frame;
+    int     anim_counter;
+    int     anim_speed;
+    int     x;
+    int     y;
+} t_collectible;
+
+typedef struct s_wall
+{
+    t_img   sprite[2];
+    int     current_frame;
+    int     anim_counter;
+    int     anim_speed;
+    int     x;
+    int     y;
+} t_wall;
+
 typedef struct s_game
 {
 	void    *mlx;
 	void    *win;
 	t_img	canvas;
 	t_player	player;
+	t_collectible	collectible;
+	t_wall	wall;
 	t_img	floor;
 	t_img	floor2;
-	t_img	wall;
 	t_img	exit;
-	t_img	collectible;
 	int		move_up;
 	int		move_down;
 	int		move_left;

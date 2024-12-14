@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 00:44:43 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 00:51:36 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,47 +25,9 @@ unsigned int	ft_abs(int n)
 	return (n);
 }
 
-static int check_collision(int x1, int y1, int x2, int y2, unsigned int coord)
+static int check_collision(int x1, int y1, int x2, int y2, unsigned int size)
 {
-	return (ft_abs(x1 - x2) < coord && ft_abs(y1 - y2) < coord);
-}
-
-static void update_player_position(void)
-{
-    int prev_x;
-    int prev_y;
-    t_player *player;
-    t_wall *wall;
-	int	wall_collision;
-
-    player = &get_game()->player;
-    wall = &get_game()->wall;
-    prev_x = player->x;
-    prev_y = player->y;
-	wall_collision = 0;
-
-    if (get_game()->move_up)
-        player->y -= 2;
-    if (get_game()->move_down)
-        player->y += 2;
-    if (get_game()->move_left)
-        player->x -= 2;
-    if (get_game()->move_right)
-        player->x += 2;
-
-    if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 40))
-    {
-        player->x = prev_x;
-        player->y = prev_y;
-		wall_collision = 1;
-    }
-	if (wall_collision)
-	{
-		if (player->state == MOVE_RIGHT)
-			player->state = IDLE_RIGHT;
-		else if (player->state == MOVE_LEFT)
-			player->state = IDLE_LEFT;
-	}
+	return (ft_abs(x1 - x2) < size && ft_abs(y1 - y2) < size);
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
@@ -321,33 +283,50 @@ static void init_player(void)
     player->x = 0;
     player->y = 0;
 }
+
+
+static void update_player_position(void)
+{
+    int prev_x;
+    int prev_y;
+    t_player *player;
+    t_wall *wall;
+
+    player = &get_game()->player;
+    wall = &get_game()->wall;
+    prev_x = player->x;
+    prev_y = player->y;
+
+    if (get_game()->move_up)
+        player->y -= 2;
+    if (get_game()->move_down)
+        player->y += 2;
+    if (get_game()->move_left)
+        player->x -= 2;
+    if (get_game()->move_right)
+        player->x += 2;
+
+    if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 40))
+    {
+        player->x = prev_x;
+        player->y = prev_y;
+    }
+}
+
 static void update_player(void)
 {
     t_player *player;
     t_animation *current_anim;
-	int	wall_collision;
 
     player = &get_game()->player;
-	wall_collision = check_collision(player->x, player->y, get_game()->wall.base.x, get_game()->wall.base.y, 40);
-    if (!wall_collision)
-	{
-		if (get_game()->move_right)
-			player->state = MOVE_RIGHT;
-		else if (get_game()->move_left)
-			player->state = MOVE_LEFT;
-		else if (player->state == MOVE_RIGHT)
-			player->state = IDLE_RIGHT;
-		else if (player->state == MOVE_LEFT)
-			player->state = IDLE_LEFT;
-	}
-	else
-	{
-		if (player->state == MOVE_RIGHT)
-			player->state = IDLE_RIGHT;
-		else if (player->state == MOVE_LEFT)
-			player->state = IDLE_LEFT;
-		
-	}
+    if (get_game()->move_right)
+        player->state = MOVE_RIGHT;
+    else if (get_game()->move_left)
+        player->state = MOVE_LEFT;
+    else if (player->state == MOVE_RIGHT)
+        player->state = IDLE_RIGHT;
+    else if (player->state == MOVE_LEFT)
+        player->state = IDLE_LEFT;
 
     if (player->state == IDLE_RIGHT)
         current_anim = &player->idle_right;

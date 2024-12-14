@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 09:24:52 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:45:42 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -285,6 +285,7 @@ static void init_player(void)
     t_player *player;
 
     player = &get_game()->player;
+	get_game()->move_count = 0;
     player->idle_right.sprites[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
 	player->idle_right.sprites[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
 	init_animation(&player->idle_right, 2, 20);
@@ -318,20 +319,25 @@ static void update_player_position(void)
     prev_x = player->x;
     prev_y = player->y;
 
-    if (get_game()->move_up)
-        player->y -= 2;
-    if (get_game()->move_down)
-        player->y += 2;
-    if (get_game()->move_left)
-        player->x -= 2;
-    if (get_game()->move_right)
-        player->x += 2;
+	if (get_game()->move_up || get_game()->move_down || get_game()->move_left || get_game()->move_right)
+	{
+		if (get_game()->move_up)
+			player->y -= 2;
+		if (get_game()->move_down)
+			player->y += 2;
+		if (get_game()->move_left)
+			player->x -= 2;
+		if (get_game()->move_right)
+			player->x += 2;
+	}
 
     if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 30, 25))
     {
         player->x = prev_x;
         player->y = prev_y;
     }
+	else if (prev_x != player->x || prev_y != player->y)
+		get_game()->move_count++;
 }
 
 static void update_player(void)
@@ -405,6 +411,8 @@ static void	fps_limitter(void)
 
 int	game_loop(void)
 {
+	char	*print_move;
+
 	fps_limitter();
 	if (get_game()->player.invincibility_frames > 0)
         get_game()->player.invincibility_frames--;
@@ -446,6 +454,11 @@ int	game_loop(void)
         }
     }
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
+	print_move = ft_itoa(get_game()->move_count);
+	mlx_string_put(get_game()->mlx, get_game()->win, 10, 20, 0x00000000, "Moves:");
+	mlx_string_put(get_game()->mlx, get_game()->win, 70, 20, 0x00000000, print_move);
+	ft_printf("Moves: %s\n", print_move);
+	free(print_move);
 	return (0);
 }
 

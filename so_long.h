@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 03:38:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:39:55 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,7 @@ typedef struct s_game
 	int		move_down;
 	int		move_left;
 	int		move_right;
+	int		move_count;
 }			t_game;
 
 # define WINDOW_WIDTH 800
@@ -145,5 +146,6 @@ int	ft_printf(const char *input, ...);
 char	*get_next_line(int fd);
 t_game	*get_game(void);
 t_map *parse_map(char *filename);
+char *ft_itoa(int n);
 
 #endif

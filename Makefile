@@ -2,7 +2,7 @@ NAME = so_long
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
 MLX_FLAGS = -Lmlx_linux -lmlx_Linux -Imlx_linux -lXext -lX11 -lm -lz
-SRCS = main.c ft_printf.c get_next_line.c
+SRCS = main.c ft_printf.c get_next_line.c libft.c
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)

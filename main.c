@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 00:51:36 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 03:02:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,9 @@ unsigned int	ft_abs(int n)
 	return (n);
 }
 
-static int check_collision(int x1, int y1, int x2, int y2, unsigned int size)
+static int check_collision(int x1, int y1, int x2, int y2, unsigned int width, unsigned int height)
 {
-	return (ft_abs(x1 - x2) < size && ft_abs(y1 - y2) < size);
+    return (ft_abs(x1 - x2) < width && ft_abs((y1 + 20) - y2) < height);
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
@@ -122,7 +122,7 @@ static void update_collectible(void)
 
     if (!collectible->collected && 
         check_collision(player->x, player->y, 
-                       collectible->base.x, collectible->base.y, 20))
+                       collectible->base.x, collectible->base.y, 20, 20))
     {
         collectible->collected = 1;
         get_game()->collectible_count++;
@@ -306,7 +306,7 @@ static void update_player_position(void)
     if (get_game()->move_right)
         player->x += 2;
 
-    if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 40))
+    if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 30, 25))
     {
         player->x = prev_x;
         player->y = prev_y;
@@ -375,23 +375,23 @@ int	game_loop(void)
     }
     last_frame = current_time;
 
-	if (check_collision(get_game()->player.x, get_game()->player.y, get_game()->enemy.x, get_game()->enemy.y, 20))
+	if (check_collision(get_game()->player.x, get_game()->player.y, get_game()->enemy.x, get_game()->enemy.y, 10, 20))
 	{
 		ft_printf("Game Over\n");
 		exit_game();
 	}
-	update_player_position();
-	update_player();
-	update_collectible();
-	update_enemy();
-	update_animation(&get_game()->collectible.base);
-	update_animation(&get_game()->wall.base);
 	clear_background();
-	draw_player();
+	update_collectible();
+	update_animation(&get_game()->collectible.base);
 	if(!get_game()->collectible.collected)
 		draw_animation(&get_game()->collectible.base, &get_game()->canvas);
+	update_enemy();
 	draw_enemy();
+	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
+	update_player_position();
+	update_player();
+	draw_player();
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 03:02:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 03:19:19 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -262,6 +262,24 @@ int	key_loop(int key, char *action)
 	return (0);
 }
 
+static void init_exit(void)
+{
+    t_exit *exit;
+
+    exit = &get_game()->exit;
+    exit->sprite = make_sprite("assets/exit.xpm");
+    exit->x = 400;
+    exit->y = 400;
+}
+
+static void draw_exit(void)
+{
+    t_exit *exit;
+
+    exit = &get_game()->exit;
+    draw_image(&exit->sprite, &get_game()->canvas, exit->x, exit->y);
+}
+
 static void init_player(void)
 {
     t_player *player;
@@ -387,11 +405,21 @@ int	game_loop(void)
 		draw_animation(&get_game()->collectible.base, &get_game()->canvas);
 	update_enemy();
 	draw_enemy();
+	draw_exit();
 	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	update_player_position();
 	update_player();
 	draw_player();
+	if (get_game()->collectible.collected)
+    {
+        if (check_collision(get_game()->player.x, get_game()->player.y, 
+                       get_game()->exit.x, get_game()->exit.y, 20, 20))
+        {
+            ft_printf("Victory!\n");
+            exit_game();
+        }
+    }
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
 }
@@ -409,10 +437,11 @@ static void	init_sprites(void)
 	get_game()->canvas = make_sprite(NULL);
 	get_game()->floor = make_sprite("assets/floor/floor00.xpm");
 	get_game()->floor2 = make_sprite("assets/floor/floor01.xpm");
-	init_player();
 	init_collectible();
 	init_wall();
+	init_player();
 	init_enemy();
+	init_exit();
 }
 
 static void	setup_hooks(void)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 00:44:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 03:16:32 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,13 @@ typedef struct s_wall
 	t_animation  base;
 } t_wall;
 
+typedef struct s_exit
+{
+    t_img   sprite;
+    int     x;
+    int     y;
+} t_exit;
+
 typedef struct s_game
 {
 	void    *mlx;
@@ -104,8 +111,9 @@ typedef struct s_game
 	t_enemy	enemy;
 	t_img	floor;
 	t_img	floor2;
-	t_img	exit;
+	t_exit	exit;
 	int		collectible_count;
+	int		total_collectibles;
 	int		game_over;
 	int		move_up;
 	int		move_down;
@@ -114,7 +122,7 @@ typedef struct s_game
 }			t_game;
 
 # define WINDOW_WIDTH 800
-# define WINDOW_HEIGHT 400
+# define WINDOW_HEIGHT 800
 # define FPS 60
 # define FRAME_DELAY (1000000 / FPS)
 # define ANIMATION_SPEED 15

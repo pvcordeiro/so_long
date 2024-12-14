@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 03:16:32 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 03:38:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,9 @@ typedef struct s_player
     int     current_frame;
     int     anim_counter;
     int     anim_speed;
+	int		lives;
+	int		invincibility_frames;
+	int		is_visible;
     int     x;
     int     y;
 } t_player;
@@ -100,6 +103,16 @@ typedef struct s_exit
     int     y;
 } t_exit;
 
+typedef struct s_map {
+    char **map;
+    int width;
+    int height;
+    int collectibles;
+    int collectibles_reachable;
+    int exit_reachable;
+} t_map;
+
+
 typedef struct s_game
 {
 	void    *mlx;
@@ -131,5 +144,6 @@ typedef struct s_game
 int	ft_printf(const char *input, ...);
 char	*get_next_line(int fd);
 t_game	*get_game(void);
+t_map *parse_map(char *filename);
 
 #endif

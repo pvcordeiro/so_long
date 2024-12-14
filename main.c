@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 03:19:19 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 03:40:53 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -300,6 +300,9 @@ static void init_player(void)
     player->state = IDLE_RIGHT;
     player->x = 0;
     player->y = 0;
+	player->lives = 3;
+	player->invincibility_frames = 0;
+	player->is_visible = 1;
 }
 
 
@@ -363,6 +366,12 @@ static void draw_player(void)
     t_animation *current_anim;
 
     player = &get_game()->player;
+	if (player->invincibility_frames > 0)
+	{
+		player->is_visible = !player->is_visible;
+		if (!player->is_visible)
+			return ;
+	}
     if (player->state == IDLE_RIGHT)
         current_anim = &player->idle_right;
     else if (player->state == IDLE_LEFT)
@@ -393,11 +402,23 @@ int	game_loop(void)
     }
     last_frame = current_time;
 
-	if (check_collision(get_game()->player.x, get_game()->player.y, get_game()->enemy.x, get_game()->enemy.y, 10, 20))
-	{
-		ft_printf("Game Over\n");
-		exit_game();
-	}
+	if (get_game()->player.invincibility_frames > 0)
+        get_game()->player.invincibility_frames--;
+
+    if (check_collision(get_game()->player.x, get_game()->player.y, 
+        get_game()->enemy.x, get_game()->enemy.y, 10, 20) && 
+        get_game()->player.invincibility_frames == 0)
+    {
+        get_game()->player.lives--;
+        get_game()->player.invincibility_frames = 60;
+        
+        if (get_game()->player.lives <= 0)
+        {
+            ft_printf("Game Over\n");
+            exit_game();
+        }
+        ft_printf("Lives remaining: %d\n", get_game()->player.lives);
+    }
 	clear_background();
 	update_collectible();
 	update_animation(&get_game()->collectible.base);
@@ -452,7 +473,29 @@ static void	setup_hooks(void)
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 }
 
+// int main(int argc, char **argv)
+// {
+//     t_map *map_info;
 
+//     if (argc != 2) {
+//         ft_printf("Error\nUsage: ./so_long [map.ber]\n");
+//         return (1);
+//     }
+
+//     map_info = parse_map(argv[1]);
+//     if (!map_info) {
+//         ft_printf("Error\nInvalid map\n");
+//         return (1);
+//     }
+
+//     init_window();
+//     init_sprites();
+
+//     setup_hooks();
+//     mlx_loop(get_game()->mlx);
+
+//     return (0);
+// }
 
 int	main(void)
 {

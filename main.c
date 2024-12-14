@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 00:04:01 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 00:12:56 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,18 @@ t_game	*get_game(void)
 
 	return (&game);
 }
+unsigned int	ft_abs(int n)
+{
+	if (n < 0)
+		return (-n);
+	return (n);
+}
+
+static int check_collision(int x1, int y1, int x2, int y2)
+{
+	return (ft_abs(x1 - x2) < 20 && ft_abs(y1 - y2) < 20);
+}
+
 unsigned int	*get_pixel(t_img *data, int x, int y)
 {
 	return ((unsigned int*)(data->addr + (y * data->line_len + x * (data->bpp / 8))));
@@ -100,6 +112,25 @@ void draw_animation(t_animation *anim, t_img *canvas)
     draw_image(&anim->sprites[anim->current_frame], canvas, anim->x, anim->y);
 }
 
+static void update_collectible(void)
+{
+    t_collectible *collectible;
+    t_player *player;
+
+    collectible = &get_game()->collectible;
+    player = &get_game()->player;
+
+    if (!collectible->collected && 
+        check_collision(player->x, player->y, 
+                       collectible->base.x, collectible->base.y))
+    {
+        collectible->collected = 1;
+        get_game()->collectible_count++;
+    }
+    if (!collectible->collected)
+        update_animation(&collectible->base);
+}
+
 static void init_collectible(void)
 {
     t_collectible *collectible;
@@ -112,6 +143,8 @@ static void init_collectible(void)
     init_animation(&collectible->base, 4, 15);
     collectible->base.x = 100;
     collectible->base.y = 100;
+	collectible->collected = 0;
+	get_game()->collectible_count = 0;
 }
 
 static void init_wall(void)
@@ -320,12 +353,14 @@ int	game_loop(void)
 	if (get_game()->move_right)
 		get_game()->player.x += 2;
 	update_player();
+	update_collectible();
 	update_enemy();
 	update_animation(&get_game()->collectible.base);
 	update_animation(&get_game()->wall.base);
 	clear_background();
-	draw_animation(&get_game()->collectible.base, &get_game()->canvas);
 	draw_player();
+	if(!get_game()->collectible.collected)
+		draw_animation(&get_game()->collectible.base, &get_game()->canvas);
 	draw_enemy();
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);

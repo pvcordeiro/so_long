@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:57:31 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 00:06:45 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,17 +85,12 @@ typedef struct s_enemy
 typedef struct s_collectible
 {
 	t_animation  base;
-    int     current_frame;
-    int     anim_counter;
-    int     anim_speed;
+	int		collected;
 } t_collectible;
 
 typedef struct s_wall
 {
 	t_animation  base;
-    int     current_frame;
-    int     anim_counter;
-    int     anim_speed;
 } t_wall;
 
 typedef struct s_game
@@ -110,6 +105,7 @@ typedef struct s_game
 	t_img	floor;
 	t_img	floor2;
 	t_img	exit;
+	int		collectible_count;
 	int		move_up;
 	int		move_down;
 	int		move_left;

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 15:07:41 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 15:23:33 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,25 @@ int	exit_error(void)
 	ft_printf("Error\n");
 	exit(EXIT_FAILURE);
 }
+
+static void draw_text_background(void)
+{
+    int x;
+    int y;
+    
+    y = WINDOW_HEIGHT - 30;
+    while (y < WINDOW_HEIGHT - 15)
+    {
+        x = 25;
+        while (x < 100)
+        {
+            *get_pixel(&get_game()->canvas, x, y) = 0x00000000;
+            x++;
+        }
+        y++;
+    }
+}
+
 t_img	make_sprite(char *path)
 {
 	t_img	sprite;
@@ -522,10 +541,11 @@ int	game_loop(void)
             exit_game();
         }
     }
+	draw_text_background();
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	print_move = ft_itoa(get_game()->move_count);
-	mlx_string_put(get_game()->mlx, get_game()->win, 10, 20, 0x00000000, "Moves:");
-	mlx_string_put(get_game()->mlx, get_game()->win, 70, 20, 0x00000000, print_move);
+	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18, 0x00FFFFFF, "Moves:");
+	mlx_string_put(get_game()->mlx, get_game()->win, 70, WINDOW_HEIGHT - 18, 0x00FFFFFF, print_move);
 	ft_printf("Moves: %s\n", print_move);
 	free(print_move);
 	return (0);

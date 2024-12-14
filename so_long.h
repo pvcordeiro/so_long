@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 09:39:55 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:50:35 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,11 @@ typedef struct s_map {
     int exit_reachable;
 } t_map;
 
+typedef struct s_map {
+    char **tiles;
+    int width;
+    int height;
+} t_map;
 
 typedef struct s_game
 {
@@ -122,9 +127,10 @@ typedef struct s_game
 	t_collectible	collectible;
 	t_wall	wall;
 	t_enemy	enemy;
+	t_exit	exit;
+	t_map	map;
 	t_img	floor;
 	t_img	floor2;
-	t_exit	exit;
 	int		collectible_count;
 	int		total_collectibles;
 	int		game_over;
@@ -147,5 +153,10 @@ char	*get_next_line(int fd);
 t_game	*get_game(void);
 t_map *parse_map(char *filename);
 char *ft_itoa(int n);
+size_t ft_strlen(const char *s);
+char *ft_strchr(const char *s, int c);
+char *ft_strrchr(const char *s, int c);
+int ft_strcmp(const char *s1, const char *s2);
+char *ft_strdup(const char *s);
 
 #endif

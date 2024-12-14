@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 04:52:18 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:09:00 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,8 +152,8 @@ static void init_wall(void)
     t_wall *wall;
 
     wall = &get_game()->wall;
-    wall->base.sprites[0] = make_sprite("assets/wall/wall00.xpm");
-    wall->base.sprites[1] = make_sprite("assets/wall/wall01.xpm");
+    wall->base.sprites[0] = make_sprite("assets/stage/lava00.xpm");
+    wall->base.sprites[1] = make_sprite("assets/stage/lava01.xpm");
     init_animation(&wall->base, 2, 25);
     wall->base.x = 200;
     wall->base.y = 200;
@@ -267,7 +267,7 @@ static void init_exit(void)
     t_exit *exit;
 
     exit = &get_game()->exit;
-    exit->sprite = make_sprite("assets/exit.xpm");
+    exit->sprite = make_sprite("assets/stage/exit.xpm");
     exit->x = 400;
     exit->y = 400;
 }
@@ -456,8 +456,8 @@ static void	init_window(void)
 static void	init_sprites(void)
 {
 	get_game()->canvas = make_sprite(NULL);
-	get_game()->floor = make_sprite("assets/floor/floor00.xpm");
-	get_game()->floor2 = make_sprite("assets/floor/floor01.xpm");
+	get_game()->floor = make_sprite("assets/stage/floor00.xpm");
+	get_game()->floor2 = make_sprite("assets/stage/floor01.xpm");
 	init_collectible();
 	init_wall();
 	init_player();

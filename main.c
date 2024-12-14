@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 03:40:53 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 04:52:18 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ unsigned int	ft_abs(int n)
 
 static int check_collision(int x1, int y1, int x2, int y2, unsigned int width, unsigned int height)
 {
-    return (ft_abs(x1 - x2) < width && ft_abs((y1 + 20) - y2) < height);
+    return (ft_abs(x1 - x2) < width && ft_abs((y1 + 15) - y2) < height);
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)

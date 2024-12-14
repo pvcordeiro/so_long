@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 09:14:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:24:52 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -386,22 +386,26 @@ static void draw_player(void)
     draw_animation(current_anim, &get_game()->canvas);
 }
 
-int	game_loop(void)
+static void	fps_limitter(void)
 {
 	static struct	timeval last_frame = {0, 0};
-    struct timeval	current_time;
-    long			elapsed_us;
+	struct timeval	current_time;
+	long			elapsed_us;
 
 	gettimeofday(&current_time, NULL);
 	elapsed_us = (current_time.tv_sec - last_frame.tv_sec) * 1000000 +
-                (current_time.tv_usec - last_frame.tv_usec);
+				(current_time.tv_usec - last_frame.tv_usec);
 	if (elapsed_us < FRAME_DELAY)
-    {
-        usleep(FRAME_DELAY - elapsed_us);
-        return (0);
-    }
-    last_frame = current_time;
+	{
+		usleep(FRAME_DELAY - elapsed_us);
+		return ;
+	}
+	last_frame = current_time;
+}
 
+int	game_loop(void)
+{
+	fps_limitter();
 	if (get_game()->player.invincibility_frames > 0)
         get_game()->player.invincibility_frames--;
 

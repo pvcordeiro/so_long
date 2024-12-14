@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 09:09:00 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 09:14:02 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -228,7 +228,7 @@ static void draw_enemy(void)
     draw_animation(current_anim, &get_game()->canvas);
 }
 
-void	clear_background(void)
+void	draw_floor(void)
 {
 	int	x;
 	int	y;
@@ -419,7 +419,7 @@ int	game_loop(void)
         }
         ft_printf("Lives remaining: %d\n", get_game()->player.lives);
     }
-	clear_background();
+	draw_floor();
 	update_collectible();
 	update_animation(&get_game()->collectible.base);
 	if(!get_game()->collectible.collected)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 09:50:35 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 14:04:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,11 +112,6 @@ typedef struct s_map {
     int exit_reachable;
 } t_map;
 
-typedef struct s_map {
-    char **tiles;
-    int width;
-    int height;
-} t_map;
 
 typedef struct s_game
 {

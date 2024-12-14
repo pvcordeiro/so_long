@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:53:33 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 00:04:01 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,7 +114,6 @@ static void init_collectible(void)
     collectible->base.y = 100;
 }
 
-
 static void init_wall(void)
 {
     t_wall *wall;
@@ -127,8 +126,74 @@ static void init_wall(void)
     wall->base.y = 200;
 }
 
+static void init_enemy(void)
+{
+    t_enemy *enemy;
 
+    enemy = &get_game()->enemy;
+    enemy->idle_right.sprites[0] = make_sprite("assets/enemy/idle_right/enemy_idle_right00.xpm");
+    enemy->idle_right.sprites[1] = make_sprite("assets/enemy/idle_right/enemy_idle_right01.xpm");
+    init_animation(&enemy->idle_right, 2, 20);
+    
+    enemy->idle_left.sprites[0] = make_sprite("assets/enemy/idle_left/enemy_idle_left00.xpm");
+    enemy->idle_left.sprites[1] = make_sprite("assets/enemy/idle_left/enemy_idle_left01.xpm");
+    init_animation(&enemy->idle_left, 2, 20);
+    
+    enemy->move_right.sprites[0] = make_sprite("assets/enemy/move_right/enemy_move_right00.xpm");
+    enemy->move_right.sprites[1] = make_sprite("assets/enemy/move_right/enemy_move_right01.xpm");
+    init_animation(&enemy->move_right, 2, 10);
+    
+    enemy->move_left.sprites[0] = make_sprite("assets/enemy/move_left/enemy_move_left00.xpm");
+    enemy->move_left.sprites[1] = make_sprite("assets/enemy/move_left/enemy_move_left01.xpm");
+    init_animation(&enemy->move_left, 2, 10);
+    
+    enemy->state = MOVE_RIGHT;
+    enemy->x = 300;
+    enemy->y = 300;
+    enemy->direction = 1;
+    enemy->move_counter = 0;
+}
 
+static void update_enemy(void)
+{
+    t_enemy *enemy;
+    t_animation *current_anim;
+
+    enemy = &get_game()->enemy;
+    enemy->move_counter++;
+    
+    if (enemy->move_counter >= 100)
+    {
+        enemy->direction *= -1;
+        enemy->move_counter = 0;
+        enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+    }
+    
+    enemy->x += enemy->direction * 2;
+
+    if (enemy->state == MOVE_RIGHT)
+        current_anim = &enemy->move_right;
+    else
+        current_anim = &enemy->move_left;
+    
+    update_animation(current_anim);
+}
+
+static void draw_enemy(void)
+{
+    t_enemy *enemy;
+    t_animation *current_anim;
+
+    enemy = &get_game()->enemy;
+    if (enemy->state == MOVE_RIGHT)
+        current_anim = &enemy->move_right;
+    else
+        current_anim = &enemy->move_left;
+
+    current_anim->x = enemy->x;
+    current_anim->y = enemy->y;
+    draw_animation(current_anim, &get_game()->canvas);
+}
 
 void	clear_background(void)
 {
@@ -247,19 +312,21 @@ int	game_loop(void)
     }
     last_frame = current_time;
 	if (get_game()->move_up)
-		get_game()->player.y -= 3;
+		get_game()->player.y -= 2;
 	if (get_game()->move_down)
-		get_game()->player.y += 3;
+		get_game()->player.y += 2;
 	if (get_game()->move_left)
-		get_game()->player.x -= 3;
+		get_game()->player.x -= 2;
 	if (get_game()->move_right)
-		get_game()->player.x += 3;
+		get_game()->player.x += 2;
 	update_player();
+	update_enemy();
 	update_animation(&get_game()->collectible.base);
 	update_animation(&get_game()->wall.base);
 	clear_background();
-	draw_player();
 	draw_animation(&get_game()->collectible.base, &get_game()->canvas);
+	draw_player();
+	draw_enemy();
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	return (0);
@@ -281,6 +348,7 @@ static void	init_sprites(void)
 	init_player();
 	init_collectible();
 	init_wall();
+	init_enemy();
 }
 
 static void	setup_hooks(void)

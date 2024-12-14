@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:48:23 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/13 23:57:31 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,19 @@ typedef struct s_player
     int     y;
 } t_player;
 
+typedef struct s_enemy
+{
+    t_animation  idle_right;
+    t_animation  idle_left;
+    t_animation  move_right;
+    t_animation  move_left;
+    t_player_state state;
+    int direction;
+    int move_counter;
+    int x;
+    int y;
+} t_enemy;
+
 typedef struct s_collectible
 {
 	t_animation  base;
@@ -85,7 +98,6 @@ typedef struct s_wall
     int     anim_speed;
 } t_wall;
 
-
 typedef struct s_game
 {
 	void    *mlx;
@@ -94,6 +106,7 @@ typedef struct s_game
 	t_player	player;
 	t_collectible	collectible;
 	t_wall	wall;
+	t_enemy	enemy;
 	t_img	floor;
 	t_img	floor2;
 	t_img	exit;

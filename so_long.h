@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 14:04:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 14:52:26 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,9 @@ typedef enum e_player_state
     IDLE_RIGHT,
     IDLE_LEFT,
     MOVE_RIGHT,
-    MOVE_LEFT
+    MOVE_LEFT,
+	MOVE_UP,
+	MOVE_DOWN
 } t_player_state;
 
 typedef struct s_img
@@ -62,6 +64,7 @@ typedef struct s_player
 	t_animation  move_right;
 	t_animation  move_left;
     t_player_state state;
+	int		last_direction;
     int     current_frame;
     int     anim_counter;
     int     anim_speed;
@@ -79,6 +82,7 @@ typedef struct s_enemy
     t_animation  move_right;
     t_animation  move_left;
     t_player_state state;
+	int	y_direction;
     int direction;
     int move_counter;
     int x;
@@ -112,6 +116,12 @@ typedef struct s_map {
     int exit_reachable;
 } t_map;
 
+typedef struct s_health
+{
+	t_img	health1;
+	t_img	health2;
+	t_img	health3;
+}	t_health;
 
 typedef struct s_game
 {
@@ -124,6 +134,7 @@ typedef struct s_game
 	t_enemy	enemy;
 	t_exit	exit;
 	t_map	map;
+	t_health	health;
 	t_img	floor;
 	t_img	floor2;
 	int		collectible_count;

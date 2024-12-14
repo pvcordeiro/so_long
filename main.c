@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 14:04:12 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/14 15:07:41 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,26 +164,28 @@ static void init_enemy(void)
     t_enemy *enemy;
 
     enemy = &get_game()->enemy;
-    enemy->idle_right.sprites[0] = make_sprite("assets/enemy/idle_right/enemy_idle_right00.xpm");
-    enemy->idle_right.sprites[1] = make_sprite("assets/enemy/idle_right/enemy_idle_right01.xpm");
-    init_animation(&enemy->idle_right, 2, 20);
+    // enemy->idle_right.sprites[0] = make_sprite("assets/enemy/idle_right/enemy_idle_right00.xpm");
+    // enemy->idle_right.sprites[1] = make_sprite("assets/enemy/idle_right/enemy_idle_right01.xpm");
+    // init_animation(&enemy->idle_right, 2, 20);
     
-    enemy->idle_left.sprites[0] = make_sprite("assets/enemy/idle_left/enemy_idle_left00.xpm");
-    enemy->idle_left.sprites[1] = make_sprite("assets/enemy/idle_left/enemy_idle_left01.xpm");
-    init_animation(&enemy->idle_left, 2, 20);
+    // enemy->idle_left.sprites[0] = make_sprite("assets/enemy/idle_left/enemy_idle_left00.xpm");
+    // enemy->idle_left.sprites[1] = make_sprite("assets/enemy/idle_left/enemy_idle_left01.xpm");
+    // init_animation(&enemy->idle_left, 2, 20);
     
     enemy->move_right.sprites[0] = make_sprite("assets/enemy/move_right/enemy_move_right00.xpm");
     enemy->move_right.sprites[1] = make_sprite("assets/enemy/move_right/enemy_move_right01.xpm");
-    init_animation(&enemy->move_right, 2, 10);
+    init_animation(&enemy->move_right, 2, 20);
     
     enemy->move_left.sprites[0] = make_sprite("assets/enemy/move_left/enemy_move_left00.xpm");
     enemy->move_left.sprites[1] = make_sprite("assets/enemy/move_left/enemy_move_left01.xpm");
-    init_animation(&enemy->move_left, 2, 10);
+    init_animation(&enemy->move_left, 2, 20);
     
-    enemy->state = MOVE_RIGHT;
+	srand(time(NULL));
+	enemy->direction = (rand() % 2) * 2 - 1;
+	enemy->y_direction = (rand() % 3) - 1;
+    enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
     enemy->x = 300;
     enemy->y = 300;
-    enemy->direction = 1;
     enemy->move_counter = 0;
 }
 
@@ -191,18 +193,44 @@ static void update_enemy(void)
 {
     t_enemy *enemy;
     t_animation *current_anim;
+	int	prev_x;
+	int	prev_y;
 
     enemy = &get_game()->enemy;
+	prev_x = enemy->x;
+	prev_y = enemy->y;
     enemy->move_counter++;
     
     if (enemy->move_counter >= 100)
     {
         enemy->direction *= -1;
+		enemy->y_direction = (rand() % 3) - 1;
         enemy->move_counter = 0;
         enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
     }
     
-    enemy->x += enemy->direction * 2;
+    enemy->x += enemy->direction * 1;
+	enemy->y += enemy->y_direction * 1;
+	
+	if (check_collision(enemy->x, enemy->y, get_game()->wall.base.x, get_game()->wall.base.y, 40, 40))
+	{
+		enemy->x = prev_x;
+		enemy->y = prev_y;
+		enemy->direction *= -1;
+		enemy->y_direction *= -1;
+		enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+	}
+
+	if (enemy->y < 0)
+	{
+		enemy->y = 0;
+		enemy->y_direction *= 1;
+	}
+	if (enemy->y > WINDOW_HEIGHT - 40)
+	{
+		enemy->y = WINDOW_HEIGHT - 40;
+		enemy->y_direction *= 1;
+	}
 
     if (enemy->state == MOVE_RIGHT)
         current_anim = &enemy->move_right;
@@ -280,6 +308,33 @@ static void draw_exit(void)
     draw_image(&exit->sprite, &get_game()->canvas, exit->x, exit->y);
 }
 
+static void init_health(void)
+{
+    t_health *health;
+
+    health = &get_game()->health;
+    health->health1 = make_sprite("assets/health/health1.xpm");
+    health->health2 = make_sprite("assets/health/health2.xpm");
+    health->health3 = make_sprite("assets/health/health3.xpm");
+}
+
+static void draw_health(void)
+{
+    t_health *health;
+    t_img *current_sprite;
+
+    health = &get_game()->health;
+    if (get_game()->player.lives == 3)
+        current_sprite = &health->health3;
+    else if (get_game()->player.lives == 2)
+        current_sprite = &health->health2;
+    else if (get_game()->player.lives == 1)
+        current_sprite = &health->health1;
+    else
+        return;
+    draw_image(current_sprite, &get_game()->canvas, WINDOW_WIDTH - 100, 20);
+}
+
 static void init_player(void)
 {
     t_player *player;
@@ -299,6 +354,7 @@ static void init_player(void)
 	player->move_left.sprites[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
 	init_animation(&player->move_left, 2, 10);
     player->state = IDLE_RIGHT;
+	player->last_direction = MOVE_RIGHT;
     player->x = 0;
     player->y = 0;
 	player->lives = 3;
@@ -347,9 +403,22 @@ static void update_player(void)
 
     player = &get_game()->player;
     if (get_game()->move_right)
+	{
         player->state = MOVE_RIGHT;
+		player->last_direction = MOVE_RIGHT;
+	}
     else if (get_game()->move_left)
+	{
         player->state = MOVE_LEFT;
+		player->last_direction = MOVE_LEFT;
+	}
+	else if (get_game()->move_up || get_game()->move_down)
+	{
+		if (player->last_direction == MOVE_RIGHT)
+			player->state = MOVE_RIGHT;
+		else
+			player->state = MOVE_LEFT;
+	}
     else if (player->state == MOVE_RIGHT)
         player->state = IDLE_RIGHT;
     else if (player->state == MOVE_LEFT)
@@ -392,7 +461,7 @@ static void draw_player(void)
     draw_animation(current_anim, &get_game()->canvas);
 }
 
-static void	fps_limitter(void)
+static void	fps_cap(void)
 {
 	static struct	timeval last_frame = {0, 0};
 	struct timeval	current_time;
@@ -413,7 +482,6 @@ int	game_loop(void)
 {
 	char	*print_move;
 
-	fps_limitter();
 	if (get_game()->player.invincibility_frames > 0)
         get_game()->player.invincibility_frames--;
 
@@ -429,8 +497,8 @@ int	game_loop(void)
             ft_printf("Game Over\n");
             exit_game();
         }
-        ft_printf("Lives remaining: %d\n", get_game()->player.lives);
     }
+	fps_cap();
 	draw_floor();
 	update_collectible();
 	update_animation(&get_game()->collectible.base);
@@ -444,6 +512,7 @@ int	game_loop(void)
 	update_player_position();
 	update_player();
 	draw_player();
+	draw_health();
 	if (get_game()->collectible.collected)
     {
         if (check_collision(get_game()->player.x, get_game()->player.y, 
@@ -480,6 +549,7 @@ static void	init_sprites(void)
 	init_player();
 	init_enemy();
 	init_exit();
+	init_health();
 }
 
 static void	setup_hooks(void)

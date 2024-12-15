@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/14 14:52:26 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 16:35:46 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -153,6 +153,7 @@ typedef struct s_game
 # define FRAME_DELAY (1000000 / FPS)
 # define ANIMATION_SPEED 15
 # define BUFFER_SIZE 10
+# define COLLISION_Y_OFFSET 5
 
 int	ft_printf(const char *input, ...);
 char	*get_next_line(int fd);

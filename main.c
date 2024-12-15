@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 18:52:36 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 19:06:29 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -351,7 +351,7 @@ static void draw_health(void)
         current_sprite = &health->health1;
     else
         return;
-    draw_image(current_sprite, &get_game()->canvas, WINDOW_WIDTH - 100, 20);
+    draw_image(current_sprite, &get_game()->canvas, 30, 0);
 }
 
 static void init_player(void)
@@ -493,10 +493,7 @@ static void	fps_cap(void)
 	elapsed_us = (current_time.tv_sec - last_frame.tv_sec) * 1000000 +
 				(current_time.tv_usec - last_frame.tv_usec);
 	if (elapsed_us < FRAME_DELAY)
-	{
 		usleep(FRAME_DELAY - elapsed_us);
-		return ;
-	}
 	last_frame = current_time;
 }
 

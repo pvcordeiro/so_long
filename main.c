@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 19:06:29 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 19:17:49 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -388,6 +388,7 @@ static void update_player_position(void)
     int prev_y;
     t_player *player;
     t_wall *wall;
+	static int 	move_counter = 0;
 
     player = &get_game()->player;
     wall = &get_game()->wall;
@@ -413,8 +414,13 @@ static void update_player_position(void)
     }
 	else if (prev_x != player->x || prev_y != player->y)
 	{
-		get_game()->move_count++;
-		ft_printf("Moves: %d\n", get_game()->move_count);
+		move_counter++;
+		if (move_counter >= 10)
+		{
+			get_game()->move_count++;
+			ft_printf("Moves: %d\n", get_game()->move_count);
+			move_counter = 0;
+		}
 	}
 }
 

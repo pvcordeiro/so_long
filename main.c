@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 16:41:59 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 16:51:46 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -583,23 +583,15 @@ static void	setup_hooks(void)
 // {
 //     t_map *map_info;
 
-//     if (argc != 2) {
-//         ft_printf("Error\nUsage: ./so_long [map.ber]\n");
-//         return (1);
-//     }
-
+//     if (argc != 2)
+//         return (ft_printf("Error\nUsage: ./so_long [map.ber]\n"));
 //     map_info = parse_map(argv[1]);
-//     if (!map_info) {
-//         ft_printf("Error\nInvalid map\n");
-//         return (1);
-//     }
-
+//     if (!map_info)
+//         return (ft_printf("Error\nInvalid map\n"));
 //     init_window();
 //     init_sprites();
-
 //     setup_hooks();
 //     mlx_loop(get_game()->mlx);
-
 //     return (0);
 // }
 

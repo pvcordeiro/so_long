@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 16:51:46 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 18:52:36 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -412,7 +412,10 @@ static void update_player_position(void)
         player->y = prev_y;
     }
 	else if (prev_x != player->x || prev_y != player->y)
+	{
 		get_game()->move_count++;
+		ft_printf("Moves: %d\n", get_game()->move_count);
+	}
 }
 
 static void update_player(void)
@@ -500,7 +503,7 @@ static void	fps_cap(void)
 int	game_loop(void)
 {
 	char	*print_move;
-
+	
 	if (get_game()->player.invincibility_frames > 0)
         get_game()->player.invincibility_frames--;
 
@@ -545,7 +548,6 @@ int	game_loop(void)
 	print_move = ft_itoa(get_game()->move_count);
 	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18, 0x00FFFFFF, "MOVES:");
 	mlx_string_put(get_game()->mlx, get_game()->win, 70, WINDOW_HEIGHT - 18, 0x00FFFFFF, print_move);
-	ft_printf("Moves: %s\n", print_move);
 	free(print_move);
 	return (0);
 }

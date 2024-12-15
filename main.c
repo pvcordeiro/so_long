@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 19:17:49 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 19:31:58 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -503,26 +503,31 @@ static void	fps_cap(void)
 	last_frame = current_time;
 }
 
+static void	handle_game_state(void)
+{
+	t_player	*player;
+
+	player = &get_game()->player;
+	if (player->invincibility_frames > 0)
+		player->invincibility_frames--;
+	if (check_collision(player->x, player->y, get_game()->enemy.x, get_game()->enemy.y, 10, 20) && player->invincibility_frames == 0)
+	{
+		player->lives--;
+		player->invincibility_frames = 60;
+		if (player->lives <= 0)
+		{
+			ft_printf("Game Over\n");
+			exit_game();
+		}
+	}
+}
+
 int	game_loop(void)
 {
 	char	*print_move;
 	
-	if (get_game()->player.invincibility_frames > 0)
-        get_game()->player.invincibility_frames--;
-
-    if (check_collision(get_game()->player.x, get_game()->player.y, 
-        get_game()->enemy.x, get_game()->enemy.y, 10, 20) && 
-        get_game()->player.invincibility_frames == 0)
-    {
-        get_game()->player.lives--;
-        get_game()->player.invincibility_frames = 60;
-        if (get_game()->player.lives <= 0)
-        {
-            ft_printf("Game Over\n");
-            exit_game();
-        }
-    }
 	fps_cap();
+	handle_game_state();
 	draw_floor();
 	update_collectible();
 	update_animation(&get_game()->collectible.base);
@@ -537,18 +542,16 @@ int	game_loop(void)
 	update_player();
 	draw_player();
 	draw_health();
-	if (get_game()->collectible.collected)
-    {
-        if (check_collision(get_game()->player.x, get_game()->player.y, 
+	if (get_game()->collectible.collected && 
+        check_collision(get_game()->player.x, get_game()->player.y, 
                        get_game()->exit.x, get_game()->exit.y, 20, 20))
-        {
-            ft_printf("Victory!\n");
-            exit_game();
-        }
-    }
+	{
+		ft_printf("Victory!\n");
+		exit_game();
+	}
 	draw_text_background();
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	print_move = ft_itoa(get_game()->move_count);
+	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18, 0x00FFFFFF, "MOVES:");
 	mlx_string_put(get_game()->mlx, get_game()->win, 70, WINDOW_HEIGHT - 18, 0x00FFFFFF, print_move);
 	free(print_move);

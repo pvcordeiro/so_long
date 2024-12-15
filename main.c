@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 16:33:10 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/15 16:41:59 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -510,7 +510,6 @@ int	game_loop(void)
     {
         get_game()->player.lives--;
         get_game()->player.invincibility_frames = 60;
-        
         if (get_game()->player.lives <= 0)
         {
             ft_printf("Game Over\n");
@@ -544,7 +543,7 @@ int	game_loop(void)
 	draw_text_background();
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win, get_game()->canvas.img, 0, 0);
 	print_move = ft_itoa(get_game()->move_count);
-	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18, 0x00FFFFFF, "Moves:");
+	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18, 0x00FFFFFF, "MOVES:");
 	mlx_string_put(get_game()->mlx, get_game()->win, 70, WINDOW_HEIGHT - 18, 0x00FFFFFF, print_move);
 	ft_printf("Moves: %s\n", print_move);
 	free(print_move);

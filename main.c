@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:27:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:41:32 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -771,7 +771,6 @@ static void	update_player_position(void)
 		if (move_counter >= 10)
 		{
 			get_game()->move_count++;
-			ft_printf("Moves: %d\n", get_game()->move_count);
 			move_counter = 0;
 		}
 	}
@@ -999,6 +998,159 @@ static void	setup_hooks(void)
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 }
+// static bool is_map_rectangular(t_map *map)
+// {
+//     int i;
+//     size_t len;
+
+//     len = ft_strlen(map->map[0]);
+//     i = 0;
+//     while (i < map->height)
+//     {
+//         if (ft_strlen(map->map[i]) != len)
+//             return (false);
+//         i++;
+//     }
+//     return (true);
+// }
+
+static bool is_map_surrounded(t_map *map)
+{
+    int i;
+
+    i = -1;
+    while (++i < map->width)
+        if (map->map[0][i] != '1' || map->map[map->height - 1][i] != '1')
+            return (false);
+    i = -1;
+    while (++i < map->height)
+        if (map->map[i][0] != '1' || map->map[i][map->width - 1] != '1')
+            return (false);
+    return (true);
+}
+
+static bool count_entities(t_map *map, int *player, int *exit, int *collect)
+{
+    int i;
+    int j;
+
+    *player = 0;
+    *exit = 0;
+    *collect = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+        {
+            if (map->map[i][j] == 'P')
+                (*player)++;
+            else if (map->map[i][j] == 'E')
+                (*exit)++;
+            else if (map->map[i][j] == 'C')
+                (*collect)++;
+        }
+    }
+    return (*player == 1 && *exit == 1 && *collect > 0);
+}
+
+static void flood_fill(char **map, int x, int y, int *collect)
+{
+    if (map[y][x] == '1' || map[y][x] == 'X')
+        return;
+    if (map[y][x] == 'C')
+        (*collect)--;
+    map[y][x] = 'X';
+    flood_fill(map, x + 1, y, collect);
+    flood_fill(map, x - 1, y, collect);
+    flood_fill(map, x, y + 1, collect);
+    flood_fill(map, x, y - 1, collect);
+}
+
+static bool check_path(t_map *map)
+{
+    char **temp_map;
+    int i, j, collect, px, py;
+    bool exit_found;
+
+    // Create temp map
+    temp_map = malloc(sizeof(char *) * map->height);
+    i = -1;
+    while (++i < map->height)
+    {
+        temp_map[i] = ft_strdup(map->map[i]);
+        if (!temp_map[i])
+        {
+            while (--i >= 0)
+                free(temp_map[i]);
+            free(temp_map);
+            return (false);
+        }
+    }
+
+    // Find player position
+    px = py = -1;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+            if (map->map[i][j] == 'P')
+            {
+                px = j;
+                py = i;
+                break;
+            }
+    }
+
+    // Count collectibles
+    collect = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+            if (map->map[i][j] == 'C')
+                collect++;
+    }
+
+    // Flood fill from player position
+    flood_fill(temp_map, px, py, &collect);
+
+    // Check if exit is reachable and all collectibles were found
+    exit_found = false;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+            if (map->map[i][j] == 'E' && temp_map[i][j] == 'X')
+                exit_found = true;
+    }
+
+    // Cleanup
+    i = -1;
+    while (++i < map->height)
+        free(temp_map[i]);
+    free(temp_map);
+
+    return (exit_found && collect == 0);
+}
+
+static bool validate_map(t_map *map)
+{
+    int player, exit, collect;
+
+    // if (!is_map_rectangular(map))
+    //     return (false);
+    if (!is_map_surrounded(map))
+        return (false);
+    if (!count_entities(map, &player, &exit, &collect))
+        return (false);
+    if (!check_path(map))
+        return (false);
+    return (true);
+}
 
 t_map *parse_map(char *filename)
 {
@@ -1044,6 +1196,15 @@ t_map *parse_map(char *filename)
     map_info->collectibles = 0;
     map_info->collectibles_reachable = 0;
     map_info->exit_reachable = 0;
+	if (!validate_map(map_info))
+	{
+		i = -1;
+		while (++i < map_info->height)
+			free(map_info->map[i]);
+		free(map_info->map);
+		free(map_info);
+		return (NULL);
+	}
 
     return (map_info);
 }

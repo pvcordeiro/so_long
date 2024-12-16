@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 14:29:44 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 16:30:59 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,10 +80,10 @@ static void	check_bounds(t_player *player)
 		player->x = 0;
 	if (player->y < 0)
 		player->y = 0;
-	if (player->x > WINDOW_WIDTH - SPRITE_SIZE)
-		player->x = WINDOW_WIDTH - SPRITE_SIZE;
-	if (player->y > WINDOW_HEIGHT - SPRITE_SIZE)
-		player->y = WINDOW_HEIGHT - SPRITE_SIZE;
+	if (player->x > get_game()->window_width - SPRITE_SIZE)
+		player->x = get_game()->window_width - SPRITE_SIZE;
+	if (player->y > get_game()->window_height - SPRITE_SIZE)
+		player->y = get_game()->window_height - SPRITE_SIZE;
 }
 
 static void	cleanup_sprites(void)
@@ -141,8 +141,8 @@ static void	draw_text_background(void)
 	int	x;
 	int	y;
 
-	y = WINDOW_HEIGHT - 30;
-	while (y < WINDOW_HEIGHT - 15)
+	y = get_game()->window_height - 30;
+	while (y < get_game()->window_height - 15)
 	{
 		x = 25;
 		while (x < 100)
@@ -166,8 +166,8 @@ t_img	make_sprite(char *path)
 			exit_error();
 	}
 	else
-		sprite.img = mlx_new_image(get_game()->mlx, WINDOW_WIDTH,
-				WINDOW_HEIGHT);
+		sprite.img = mlx_new_image(get_game()->mlx, get_game()->window_width,
+				get_game()->window_height);
 	sprite.x = 0;
 	sprite.y = 0;
 	sprite.addr = mlx_get_data_addr(sprite.img, &sprite.bpp, &sprite.line_len,
@@ -186,7 +186,7 @@ void	draw_image(t_img *src, t_img *dst, int x, int y)
 		sx = 0;
 		while (sx < src->width)
 		{
-			if (!(sx + x > WINDOW_WIDTH || sy + y > WINDOW_HEIGHT || sx + x < 0
+			if (!(sx + x > get_game()->window_width || sy + y > get_game()->window_height || sx + x < 0
 					|| sy + y < 0) && (*get_pixel(src, sx, sy) != 0xFF000000))
 				*get_pixel(dst, x + sx, y + sy) = *get_pixel(src, sx, sy);
 			sx++;
@@ -335,9 +335,9 @@ static void	update_enemy(void)
 		enemy->y = 0;
 		enemy->y_direction = -enemy->y_direction;
 	}
-	if (enemy->y > WINDOW_HEIGHT - 40)
+	if (enemy->y > get_game()->window_height - 40)
 	{
-		enemy->y = WINDOW_HEIGHT - 40;
+		enemy->y = get_game()->window_height - 40;
 		enemy->y_direction = -enemy->y_direction;
 	}
 	if (enemy->state == MOVE_RIGHT)
@@ -376,10 +376,10 @@ void	draw_floor(void)
 	int	y;
 
 	y = -1;
-	while (++y <= WINDOW_HEIGHT / 40)
+	while (++y <= get_game()->window_height / 40)
 	{
 		x = -1;
-		while (++x <= (WINDOW_WIDTH / 40))
+		while (++x <= (get_game()->window_width / 40))
 		{
 			if ((x + y) % 2 == 0)
 				draw_image(&get_game()->floor, &get_game()->canvas, x * 40, y
@@ -729,9 +729,9 @@ int	game_loop(void)
 	print_move = ft_itoa(get_game()->move_count);
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
 		get_game()->canvas.img, 0, 0);
-	mlx_string_put(get_game()->mlx, get_game()->win, 30, WINDOW_HEIGHT - 18,
+	mlx_string_put(get_game()->mlx, get_game()->win, 30, get_game()->window_height - 18,
 		0x00FFFFFF, "MOVES:");
-	mlx_string_put(get_game()->mlx, get_game()->win, 70, WINDOW_HEIGHT - 18,
+	mlx_string_put(get_game()->mlx, get_game()->win, 70, get_game()->window_height - 18,
 		0x00FFFFFF, print_move);
 	free(print_move);
 	return (0);
@@ -739,11 +739,16 @@ int	game_loop(void)
 
 static void	init_window(void)
 {
-	get_game()->mlx = mlx_init();
-	get_game()->win = mlx_new_window(get_game()->mlx, WINDOW_WIDTH,
-			WINDOW_HEIGHT, "so_long");
-	if (!get_game()->mlx || !get_game()->win)
-		exit_game();
+	t_game	*game;
+
+	game = get_game();
+	game->window_width = game->map.width * SPRITE_SIZE;
+	game->window_height = game->map.height * SPRITE_SIZE;
+	game->mlx = mlx_init();
+	game->win = mlx_new_window(game->mlx, game->window_width,
+			game->window_height, "so_long");
+	if (!game->mlx || !game->win)
+		exit_error();
 }
 
 static void	init_sprites(void)
@@ -767,26 +772,75 @@ static void	setup_hooks(void)
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 }
 
-// int main(int argc, char **argv)
-// {
-//     t_map *map_info;
-
-//     if (argc != 2)
-//         return (ft_printf("Error\nUsage: ./so_long [map.ber]\n"));
-//     map_info = parse_map(argv[1]);
-//     if (!map_info)
-//         return (ft_printf("Error\nInvalid map\n"));
-//     init_window();
-//     init_sprites();
-//     setup_hooks();
-//     mlx_loop(get_game()->mlx);
-//     return (0);
-// }
-
-int	main(void)
+t_map *parse_map(char *filename)
 {
-	init_window();
-	init_sprites();
-	setup_hooks();
-	mlx_loop(get_game()->mlx);
+    t_map *map_info;
+    char *line;
+    int fd;
+    int i;
+    map_info = malloc(sizeof(t_map));
+    if (!map_info)
+        return (NULL);
+    fd = open(filename, O_RDONLY);
+    if (fd < 0)
+    {
+        free(map_info);
+        return (NULL);
+    }
+    map_info->height = 0;
+    map_info->width = 0;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        if (map_info->height == 0)
+            map_info->width = ft_strlen(line) - 1;
+        map_info->height++;
+        free(line);
+    }
+    close(fd);
+    map_info->map = malloc(sizeof(char *) * (map_info->height + 1));
+    if (!map_info->map)
+    {
+        free(map_info);
+        return (NULL);
+    }
+    fd = open(filename, O_RDONLY);
+    i = 0;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        map_info->map[i] = line;
+        i++;
+    }
+    map_info->map[i] = NULL;
+    close(fd);
+
+    map_info->collectibles = 0;
+    map_info->collectibles_reachable = 0;
+    map_info->exit_reachable = 0;
+
+    return (map_info);
 }
+
+int main(int argc, char **argv)
+{
+    t_map *map_info;
+
+    if (argc != 2)
+        return (ft_printf("Error\nUsage: ./so_long [map.ber]\n"));
+    map_info = parse_map(argv[1]);
+    if (!map_info)
+		return (ft_printf("Error\nInvalid map\n"));
+	get_game()->map = *map_info;
+    init_window();
+    init_sprites();
+    setup_hooks();
+    mlx_loop(get_game()->mlx);
+    return (0);
+}
+
+// int	main(void)
+// {
+// 	init_window();
+// 	init_sprites();
+// 	setup_hooks();
+// 	mlx_loop(get_game()->mlx);
+// }

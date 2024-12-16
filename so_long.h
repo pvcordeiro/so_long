@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 14:17:54 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 15:44:34 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,8 @@ typedef struct s_game
 	int				move_left;
 	int				move_right;
 	int				move_count;
+	int				window_width;
+	int				window_height;
 }	t_game;
 
 int		ft_printf(const char *input, ...);

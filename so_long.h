@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 12:41:23 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 13:19:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,11 +103,11 @@ typedef struct s_player
     int				anim_speed;
 	int				lives;
 	int				invincibility_frames;
-	int				is_visible;
 	int				attack_cooldown;
 	int				max_attack_cooldown;
 	int				attack_frame;
 	int				attack_timer;
+	bool			is_visible;
 	bool			is_attacking;
     int				x;
     int				y;
@@ -123,6 +123,10 @@ typedef struct s_enemy
 	int				y_direction;
     int				direction;
     int				move_counter;
+	int				lives;
+	int				invincibility_frames;
+	bool			is_visible;
+	bool			is_dead;
     int				x;
     int				y;
 }	t_enemy;

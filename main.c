@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 12:59:54 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 13:21:28 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,28 @@ static int	check_collision(int x1, int y1, int x2, int y2, unsigned int width,
 {
 	return (ft_abs(x1 - x2) < width && ft_abs((y1 + COLLISION_Y_OFFSET)
 			- y2) < height);
+}
+
+static void	check_attack_collision(void)
+{
+	t_player	*player;
+	t_enemy		*enemy;
+
+	player = &get_game()->player;
+	enemy = &get_game()->enemy;
+	if (!enemy->is_dead && player->is_attacking && enemy->invincibility_frames == 0)
+	{
+		if ((player->state == ATTACK_RIGHT && enemy->x > player->x) || (player->state == ATTACK_LEFT && enemy->x < player->x))
+		{
+			if (check_collision(player->x, player->y, enemy->x, enemy->y, 40, 40))
+			{
+				enemy->lives--;
+				enemy->invincibility_frames = 30;
+				if (enemy->lives <= 0)
+					enemy->is_dead = true;
+			}
+		}
+	}
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
@@ -206,6 +228,9 @@ static void	init_enemy(void)
 	enemy->x = 300;
 	enemy->y = 300;
 	enemy->move_counter = 0;
+	enemy->lives = 3;
+	enemy->is_dead = false;
+	enemy->invincibility_frames = 0;
 }
 
 static void	update_enemy(void)
@@ -216,6 +241,10 @@ static void	update_enemy(void)
 	int			prev_y;
 
 	enemy = &get_game()->enemy;
+	if (enemy->is_dead)
+		return ;
+	if (enemy->invincibility_frames > 0)
+		enemy->invincibility_frames--;
 	prev_x = enemy->x;
 	prev_y = enemy->y;
 	enemy->move_counter++;
@@ -260,6 +289,14 @@ static void	draw_enemy(void)
 	t_animation	*current_anim;
 
 	enemy = &get_game()->enemy;
+	if (enemy->is_dead)
+		return ;
+	if (enemy->invincibility_frames > 0)
+	{
+		enemy->is_visible = !enemy->is_visible;
+		if (!enemy->is_visible)
+			return ;
+	}
 	if (enemy->state == MOVE_RIGHT)
 		current_anim = &enemy->move_right;
 	else
@@ -503,7 +540,6 @@ static void	update_player(void)
 			else
 				player->state = MOVE_LEFT;
 		}
-	}
 	else if (player->state == MOVE_RIGHT)
 		player->state = IDLE_RIGHT;
 	else if (player->state == MOVE_LEFT)
@@ -516,6 +552,7 @@ static void	update_player(void)
 		current_anim = &player->move_right;
 	else
 		current_anim = &player->move_left;
+	}
 	update_animation(current_anim);
 }
 static void	draw_player(void)
@@ -565,11 +602,13 @@ static void	fps_cap(void)
 static void	handle_game_state(void)
 {
 	t_player	*player;
+	t_enemy		*enemy;
 
 	player = &get_game()->player;
+	enemy = &get_game()->enemy;
 	if (player->invincibility_frames > 0)
 		player->invincibility_frames--;
-	if (check_collision(player->x, player->y, get_game()->enemy.x,
+	if (!enemy->is_dead && check_collision(player->x, player->y, get_game()->enemy.x,
 			get_game()->enemy.y, 10, 20) && player->invincibility_frames == 0)
 	{
 		player->lives--;
@@ -593,8 +632,12 @@ int	game_loop(void)
 	update_animation(&get_game()->collectible.base);
 	if (!get_game()->collectible.collected)
 		draw_animation(&get_game()->collectible.base, &get_game()->canvas);
-	update_enemy();
-	draw_enemy();
+	if (!get_game()->enemy.is_dead)
+	{
+		update_enemy();
+		check_attack_collision();		
+		draw_enemy();
+	}
 	draw_exit();
 	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);

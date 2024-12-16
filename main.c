@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 19:31:58 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 12:59:54 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -292,6 +292,9 @@ void	draw_floor(void)
 
 int	key_loop(int key, char *action)
 {
+	t_player	*player;
+
+	player = &get_game()->player;
 	if (key == XK_w)
 		get_game()->move_up = (*action == 'p');
 	if (key == XK_a)
@@ -300,6 +303,21 @@ int	key_loop(int key, char *action)
 		get_game()->move_down = (*action == 'p');
 	if (key == XK_d)
 		get_game()->move_right = (*action == 'p');
+	if (key == XK_space && *action == 'p' && !player->is_attacking && player->attack_cooldown == 0)
+	{
+        player->is_attacking = true;
+		player->attack_frame = 0;
+        if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
+        {
+			player->state = ATTACK_RIGHT;
+			player->attack_right.current_frame = 0;
+		}
+        else
+		{
+            player->state = ATTACK_LEFT;
+			player->attack_left.current_frame = 0;
+		}
+    }
 	if (key == XK_Escape)
 		exit_game();
 	return (0);
@@ -368,6 +386,12 @@ static void	init_player(void)
 	player->move_left.sprites[0] = make_sprite("assets/player/move_left/player_move_left00.xpm");
 	player->move_left.sprites[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
 	init_animation(&player->move_left, 2, 10);
+	player->attack_right.sprites[0] = make_sprite("assets/player/attack_right/player_attack_right00.xpm");
+	player->attack_right.sprites[1] = make_sprite("assets/player/attack_right/player_attack_right01.xpm");
+	init_animation(&player->attack_right, 2, 10);
+	player->attack_left.sprites[0] = make_sprite("assets/player/attack_left/player_attack_left00.xpm");
+	player->attack_left.sprites[1] = make_sprite("assets/player/attack_left/player_attack_left01.xpm");
+	init_animation(&player->attack_left, 2, 10);
 	player->state = IDLE_RIGHT;
 	player->last_direction = MOVE_RIGHT;
 	player->x = 0;
@@ -375,6 +399,12 @@ static void	init_player(void)
 	player->lives = 3;
 	player->invincibility_frames = 0;
 	player->is_visible = 1;
+	player->attack_cooldown = 0;
+	player->max_attack_cooldown = 40;
+	player->is_attacking = false;
+	player->attack_frame = 0;
+	init_animation(&player->attack_right, 2, 20);
+	init_animation(&player->attack_left, 2, 20);
 }
 
 static void	update_player_position(void)
@@ -389,17 +419,20 @@ static void	update_player_position(void)
 	wall = &get_game()->wall;
 	prev_x = player->x;
 	prev_y = player->y;
-	if (get_game()->move_up || get_game()->move_down || get_game()->move_left
-		|| get_game()->move_right)
+	if (!player->is_attacking)
 	{
-		if (get_game()->move_up)
-			player->y -= 2;
-		if (get_game()->move_down)
-			player->y += 2;
-		if (get_game()->move_left)
-			player->x -= 2;
-		if (get_game()->move_right)
-			player->x += 2;
+		if (get_game()->move_up || get_game()->move_down || get_game()->move_left
+			|| get_game()->move_right)
+		{
+			if (get_game()->move_up)
+				player->y -= 1;
+			if (get_game()->move_down)
+				player->y += 1;
+			if (get_game()->move_left)
+				player->x -= 1;
+			if (get_game()->move_right)
+				player->x += 1;
+		}
 	}
 	if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 30,
 			25))
@@ -425,22 +458,51 @@ static void	update_player(void)
 	t_animation	*current_anim;
 
 	player = &get_game()->player;
-	if (get_game()->move_right)
+
+	if (player->attack_cooldown > 0)
+		player->attack_cooldown--;
+	if (player->is_attacking)
 	{
-		player->state = MOVE_RIGHT;
-		player->last_direction = MOVE_RIGHT;
-	}
-	else if (get_game()->move_left)
-	{
-		player->state = MOVE_LEFT;
-		player->last_direction = MOVE_LEFT;
-	}
-	else if (get_game()->move_up || get_game()->move_down)
-	{
-		if (player->last_direction == MOVE_RIGHT)
-			player->state = MOVE_RIGHT;
+		player->attack_timer++;
+		if (player->state == ATTACK_RIGHT)
+			current_anim = &player->attack_right;
 		else
+			current_anim = &player->attack_left;
+		if (player->attack_timer < 10)
+			current_anim->current_frame = 0;
+		else if (player->attack_timer < 20)
+			current_anim->current_frame = 1;
+		else
+		{
+			player->is_attacking = false;
+			player->attack_cooldown = player->max_attack_cooldown;
+			player->attack_timer = 0;
+			if (player->state == ATTACK_RIGHT)
+				player->state = IDLE_RIGHT;
+			else
+				player->state = IDLE_LEFT;
+		}
+		return;
+	}
+	if (!player->is_attacking)
+	{
+		if (get_game()->move_right)
+		{
+			player->state = MOVE_RIGHT;
+			player->last_direction = MOVE_RIGHT;
+		}
+		else if (get_game()->move_left)
+		{
 			player->state = MOVE_LEFT;
+			player->last_direction = MOVE_LEFT;
+		}
+		else if (get_game()->move_up || get_game()->move_down)
+		{
+			if (player->last_direction == MOVE_RIGHT)
+				player->state = MOVE_RIGHT;
+			else
+				player->state = MOVE_LEFT;
+		}
 	}
 	else if (player->state == MOVE_RIGHT)
 		player->state = IDLE_RIGHT;
@@ -462,6 +524,7 @@ static void	draw_player(void)
 	t_animation	*current_anim;
 
 	player = &get_game()->player;
+	current_anim = NULL;
 	if (player->invincibility_frames > 0)
 	{
 		player->is_visible = !player->is_visible;
@@ -474,8 +537,12 @@ static void	draw_player(void)
 		current_anim = &player->idle_left;
 	else if (player->state == MOVE_RIGHT)
 		current_anim = &player->move_right;
-	else
+	else if (player->state == MOVE_LEFT)
 		current_anim = &player->move_left;
+	else if (player->state == ATTACK_RIGHT)
+		current_anim = &player->attack_right;
+	else if (player->state == ATTACK_LEFT)
+		current_anim = &player->attack_left;
 	current_anim->x = player->x;
 	current_anim->y = player->y;
 	draw_animation(current_anim, &get_game()->canvas);

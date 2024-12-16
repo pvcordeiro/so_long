@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/15 17:42:10 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 12:41:23 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <X11/keysym.h>
 # include <X11/X.h>
 # include <stdarg.h>
+# include <stdbool.h>
 
 # define WINDOW_WIDTH 800
 # define WINDOW_HEIGHT 800
@@ -38,7 +39,9 @@ typedef enum e_player_state
     MOVE_RIGHT,
     MOVE_LEFT,
 	MOVE_UP,
-	MOVE_DOWN
+	MOVE_DOWN,
+	ATTACK_RIGHT,
+	ATTACK_LEFT
 }	t_player_state;
 
 typedef enum e_sprite_type
@@ -91,6 +94,8 @@ typedef struct s_player
 	t_animation		idle_left;
 	t_animation		move_right;
 	t_animation		move_left;
+	t_animation		attack_right;
+	t_animation		attack_left;
     t_player_state	state;
 	int				last_direction;
     int				current_frame;
@@ -99,6 +104,11 @@ typedef struct s_player
 	int				lives;
 	int				invincibility_frames;
 	int				is_visible;
+	int				attack_cooldown;
+	int				max_attack_cooldown;
+	int				attack_frame;
+	int				attack_timer;
+	bool			is_attacking;
     int				x;
     int				y;
 }	t_player;

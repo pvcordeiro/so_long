@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:41:32 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:56:40 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static void check_attack_collision(void)
 				if (check_collision(player->x, player->y, enemy_list->enemies[i].x, enemy_list->enemies[i].y, ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
 				{
 					enemy_list->enemies[i].lives--;
-					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION / 2;
+					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION;
 					if (player->x < enemy_list->enemies[i].x)
 					{
 						enemy_list->enemies[i].direction = 1;
@@ -337,7 +337,7 @@ static void	init_wall(void)
 	init_animation(&wall->base, FRAME_COUNT, WALL_ANIMATION_SPEED);
 }
 
-static int check_wall_collisions(int x, int y)
+static int check_wall_collisions(int x, int y, unsigned int width, unsigned int height)
 {
 	t_wall	*wall;
 	int		i;
@@ -347,7 +347,7 @@ static int check_wall_collisions(int x, int y)
 	while (++i < wall->count)
 	{
 		if (check_collision(x, y, wall->x_positions[i], wall->y_positions[i],
-				WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+				width, height))
 			return (1);
 	}
 	return (0);
@@ -447,7 +447,7 @@ static void update_enemy(void)
         new_x = enemy_list->enemies[i].x + enemy_list->enemies[i].direction * ENEMY_SPEED;
         new_y = enemy_list->enemies[i].y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
 
-        if (!check_wall_collisions(new_x, new_y))
+        if (!check_wall_collisions(new_x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT))
         {
             enemy_list->enemies[i].x = new_x;
             enemy_list->enemies[i].y = new_y;
@@ -760,7 +760,7 @@ static void	update_player_position(void)
 		if (get_game()->move_right)
 			player->x += movement_speed;
 	}
-	if (check_wall_collisions(player->x, player->y))
+	if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
 	{
 		player->x = prev_x;
 		player->y = prev_y;

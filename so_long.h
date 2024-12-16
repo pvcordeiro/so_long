@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:04:24 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:58:02 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@
 # include <stdarg.h>
 # include <stdbool.h>
 
-# define FRAME_DELAY 16666
+# define FPS 60
+# define FRAME_DELAY (1000000 / FPS)
 # define COLLECTIBLE_ANIMATION_SPEED 15
 # define PLAYER_IDLE_ANIMATION_SPEED 20
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
@@ -41,7 +42,7 @@
 # define ATTACK_DURATION 20
 # define ATTACK_RANGE 60
 # define ATTACK_COOLDOWN 40
-# define INVINCIBILITY_DURATION 60
+# define INVINCIBILITY_DURATION 100
 # define MOVE_COUNT_THRESHOLD 10
 # define ENEMY_MOVE_THRESHOLD 50
 # define ENEMY_COLLISION_WIDTH 10
@@ -49,6 +50,8 @@
 # define COLLECTIBLE_SIZE 20
 # define WALL_COLLISION_WIDTH 30
 # define WALL_COLLISION_HEIGHT 25
+# define ENEMY_WALL_COLLISION_WIDTH 40
+# define ENEMY_WALL_COLLISION_HEIGHT 40
 # define SPRITE_SIZE 40
 
 typedef enum e_player_state

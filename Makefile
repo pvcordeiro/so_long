@@ -22,4 +22,4 @@ fclean: clean
 re: fclean all
 
 test: re
-	./$(NAME)
+	./$(NAME) maps/test.ber

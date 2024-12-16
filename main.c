@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 17:35:58 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:57:02 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,9 @@ static void	cleanup_sprites(void)
 	mlx_destroy_image(game->mlx, game->floor2.img);
 	free(game->wall.x_positions);
 	free(game->wall.y_positions);
+	free(game->collectible.x_positions);
+	free(game->collectible.y_positions);
+	free(game->collectible.collected);
 	i = -1;
 	while (++i < 4)
 		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
@@ -224,32 +227,70 @@ static void	update_collectible(void)
 {
 	t_collectible	*collectible;
 	t_player		*player;
+	int				i;
 
 	collectible = &get_game()->collectible;
 	player = &get_game()->player;
-	if (!collectible->collected && check_collision(player->x, player->y,
-			collectible->base.x, collectible->base.y, COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
+	i = -1;
+	while (++i < collectible->count)
 	{
-		collectible->collected = 1;
-		get_game()->collectible_count++;
+		if (!collectible->collected[i] && check_collision(player->x, player->y,
+            collectible->x_positions[i], collectible->y_positions[i],
+            COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
+		{
+			collectible->collected[i] = 1;
+			get_game()->collectible_count++;
+		}
 	}
-	if (!collectible->collected)
-		update_animation(&collectible->base);
+	update_animation(&collectible->base);
 }
 
 static void	init_collectible(void)
 {
 	t_collectible	*collectible;
+	t_map			*map;
+	int				i;
+	int				j;
+	int				count;
 
 	collectible = &get_game()->collectible;
+	map = &get_game()->map;
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'C')
+				count++;
+		}
+	}
+	collectible->count = count;
+	collectible->x_positions = malloc(sizeof(int) * count);
+	collectible->y_positions = malloc(sizeof(int) * count);
+	collectible->collected = malloc(sizeof(int) * count);
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'C')
+			{
+				collectible->x_positions[count] = j * SPRITE_SIZE;
+				collectible->y_positions[count] = i * SPRITE_SIZE;
+				collectible->collected[count] = 0;
+				count++;
+			}
+		}
+	}
 	collectible->base.sprites[0] = make_sprite("assets/collect/collect00.xpm");
 	collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
 	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
 	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
 	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
-	collectible->base.x = 360;
-	collectible->base.y = 100;
-	collectible->collected = 0;
 	get_game()->collectible_count = 0;
 }
 
@@ -448,6 +489,24 @@ void	draw_floor(void)
 	}
 }
 
+static void draw_collectibles(void)
+{
+	t_collectible	*collectible;
+	int				i;
+
+	collectible = &get_game()->collectible;
+	i = -1;
+	while (++i < collectible->count)
+	{
+		if (!collectible->collected[i])
+		{
+			collectible->base.x = collectible->x_positions[i];
+			collectible->base.y = collectible->y_positions[i];
+			draw_animation(&collectible->base, &get_game()->canvas);
+		}
+	}
+}
+
 static void	draw_walls(void)
 {
 	t_wall	*wall;
@@ -546,8 +605,26 @@ static void	draw_health(void)
 static void	init_player(void)
 {
 	t_player	*player;
+	t_map		*map;
+	int			i;
+	int			j;
 
 	player = &get_game()->player;
+	map = &get_game()->map;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'P')
+			{
+				player->x = j * SPRITE_SIZE;
+				player->y = i * SPRITE_SIZE;
+				break ;
+			}
+		}
+	}
 	get_game()->move_count = 0;
 	player->idle_right.sprites[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
 	player->idle_right.sprites[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
@@ -569,8 +646,6 @@ static void	init_player(void)
 	init_animation(&player->attack_left, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->state = IDLE_RIGHT;
 	player->last_direction = MOVE_RIGHT;
-	player->x = 50;
-	player->y = 100;
 	player->lives = 3;
 	player->invincibility_frames = 0;
 	player->is_visible = 1;
@@ -773,10 +848,8 @@ int	game_loop(void)
 	handle_game_state();
 	draw_floor();
 	update_collectible();
+	draw_collectibles();
 	draw_walls();
-	update_animation(&get_game()->collectible.base);
-	if (!get_game()->collectible.collected)
-		draw_animation(&get_game()->collectible.base, &get_game()->canvas);
 	if (!get_game()->enemy.is_dead)
 	{
 		update_enemy();
@@ -790,7 +863,7 @@ int	game_loop(void)
 	update_player();
 	draw_player();
 	draw_health();
-	if (get_game()->collectible.collected
+	if (get_game()->collectible_count == get_game()->collectible.count
 		&& check_collision(get_game()->player.x, get_game()->player.y,
 			get_game()->exit.x, get_game()->exit.y, 20, 20))
 	{

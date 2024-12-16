@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 17:16:25 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:47:39 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,6 @@
 # include <stdarg.h>
 # include <stdbool.h>
 
-# define WINDOW_WIDTH 800
-# define WINDOW_HEIGHT 800
 # define FPS 60
 # define FRAME_DELAY (1000000 / FPS)
 # define COLLECTIBLE_ANIMATION_SPEED 15
@@ -153,7 +151,10 @@ typedef struct s_enemy
 typedef struct s_collectible
 {
 	t_animation  base;
-	int		collected;
+	int		*x_positions;
+	int		*y_positions;
+	int		*collected;
+	int		count;
 }	t_collectible;
 
 typedef struct s_wall

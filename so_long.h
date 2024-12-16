@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 13:19:30 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 13:55:03 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,20 @@
 # define ANIMATION_SPEED 15
 # define BUFFER_SIZE 10
 # define COLLISION_Y_OFFSET 15
+# define PLAYER_SPEED 1
+# define ENEMY_SPEED 1
+# define ATTACK_DURATION 20
+# define ATTACK_RANGE 60
+# define ATTACK_COOLDOWN 40
+# define INVINCIBILITY_DURATION 60
+# define MOVE_COUNT_THRESHOLD 10
+# define ENEMY_MOVE_THRESHOLD 100
+# define ENEMY_COLLISION_WIDTH 10
+# define ENEMY_COLLISION_HEIGHT 20
+# define COLLECTIBLE_SIZE 20
+# define WALL_COLLISION_WIDTH 30
+# define WALL_COLLISION_HEIGHT 25
+# define SPRITE_SIZE 40
 
 typedef enum e_player_state
 {

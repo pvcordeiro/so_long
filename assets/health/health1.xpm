@@ -4,7 +4,7 @@ static char * health1_xpm[] = {
 " 	c None",
 ".	c #F4F4F4",
 "+	c #1A1C2C",
-"@	c #3B5DC9",
+"@	c #FF0505",
 "                                                                     ",
 "                                                                     ",
 "                                                                     ",

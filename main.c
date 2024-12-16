@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 14:08:14 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 14:29:44 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static void check_attack_collision(void)
                     enemy->direction = -1;
                     enemy->state = MOVE_LEFT;
                 }
-                enemy->x += enemy->direction * 40;
+                // enemy->x += enemy->direction * 40;
                 if (enemy->lives <= 0)
                     enemy->is_dead = true;
             }
@@ -226,7 +226,7 @@ static void	update_collectible(void)
 	collectible = &get_game()->collectible;
 	player = &get_game()->player;
 	if (!collectible->collected && check_collision(player->x, player->y,
-			collectible->base.x, collectible->base.y, 20, 20))
+			collectible->base.x, collectible->base.y, COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
 	{
 		collectible->collected = 1;
 		get_game()->collectible_count++;
@@ -244,7 +244,7 @@ static void	init_collectible(void)
 	collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
 	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
 	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
-	init_animation(&collectible->base, 4, 15);
+	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
 	collectible->base.x = 100;
 	collectible->base.y = 100;
 	collectible->collected = 0;
@@ -258,7 +258,7 @@ static void	init_wall(void)
 	wall = &get_game()->wall;
 	wall->base.sprites[0] = make_sprite("assets/terrain/lava00.xpm");
 	wall->base.sprites[1] = make_sprite("assets/terrain/lava01.xpm");
-	init_animation(&wall->base, 2, 25);
+	init_animation(&wall->base, FRAME_COUNT, WALL_ANIMATION_SPEED);
 	wall->base.x = 200;
 	wall->base.y = 200;
 }
@@ -270,10 +270,10 @@ static void	init_enemy(void)
 	enemy = &get_game()->enemy;
 	enemy->move_right.sprites[0] = make_sprite("assets/enemy/move_right/enemy_move_right00.xpm");
 	enemy->move_right.sprites[1] = make_sprite("assets/enemy/move_right/enemy_move_right01.xpm");
-	init_animation(&enemy->move_right, 2, 20);
+	init_animation(&enemy->move_right, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
 	enemy->move_left.sprites[0] = make_sprite("assets/enemy/move_left/enemy_move_left00.xpm");
 	enemy->move_left.sprites[1] = make_sprite("assets/enemy/move_left/enemy_move_left01.xpm");
-	init_animation(&enemy->move_left, 2, 20);
+	init_animation(&enemy->move_left, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
 	srand(time(NULL));
 	enemy->direction = (rand() % 2) * 2 - 1;
 	enemy->y_direction = (rand() % 3) - 1;
@@ -294,34 +294,41 @@ static void	update_enemy(void)
 {
 	t_enemy		*enemy;
 	t_animation	*current_anim;
-	int			prev_x;
-	int			prev_y;
+	int			new_x;
+	int			new_y;
 
 	enemy = &get_game()->enemy;
 	if (enemy->is_dead)
 		return ;
 	if (enemy->invincibility_frames > 0)
 		enemy->invincibility_frames--;
-	prev_x = enemy->x;
-	prev_y = enemy->y;
 	enemy->move_counter++;
 	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
 	{
 		enemy->direction *= -1;
 		enemy->y_direction = (rand() % 3) - 1;
 		enemy->move_counter = 0;
-		enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+		if (enemy->direction == 1)
+			enemy->state = MOVE_RIGHT;
+		else
+			enemy->state = MOVE_LEFT;
 	}
-	enemy->x += enemy->direction * ENEMY_SPEED;
-	enemy->y += enemy->y_direction * ENEMY_SPEED;
-	if (check_collision(enemy->x, enemy->y, get_game()->wall.base.x,
+	new_x = enemy->x + enemy->direction * ENEMY_SPEED;
+	new_y = enemy->y + enemy->y_direction * ENEMY_SPEED;
+	if (!check_collision(new_x, new_y, get_game()->wall.base.x,
 			get_game()->wall.base.y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
 	{
-		enemy->x = prev_x;
-		enemy->y = prev_y;
+		enemy->x = new_x;
+		enemy->y = new_y;
+	}
+	else
+	{
 		enemy->direction *= -1;
 		enemy->y_direction *= -1;
-		enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+		if (enemy->direction == 1)
+			enemy->state = MOVE_RIGHT;
+		else
+			enemy->state = MOVE_LEFT;
 	}
 	if (enemy->y < 0)
 	{
@@ -470,22 +477,22 @@ static void	init_player(void)
 	get_game()->move_count = 0;
 	player->idle_right.sprites[0] = make_sprite("assets/player/idle_right/player_idle_right00.xpm");
 	player->idle_right.sprites[1] = make_sprite("assets/player/idle_right/player_idle_right01.xpm");
-	init_animation(&player->idle_right, 2, 20);
+	init_animation(&player->idle_right, FRAME_COUNT, PLAYER_IDLE_ANIMATION_SPEED);
 	player->idle_left.sprites[0] = make_sprite("assets/player/idle_left/player_idle_left00.xpm");
 	player->idle_left.sprites[1] = make_sprite("assets/player/idle_left/player_idle_left01.xpm");
-	init_animation(&player->idle_left, 2, 20);
+	init_animation(&player->idle_left, FRAME_COUNT, PLAYER_IDLE_ANIMATION_SPEED);
 	player->move_right.sprites[0] = make_sprite("assets/player/move_right/player_move_right00.xpm");
 	player->move_right.sprites[1] = make_sprite("assets/player/move_right/player_move_right01.xpm");
-	init_animation(&player->move_right, 2, 10);
+	init_animation(&player->move_right, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->move_left.sprites[0] = make_sprite("assets/player/move_left/player_move_left00.xpm");
 	player->move_left.sprites[1] = make_sprite("assets/player/move_left/player_move_left01.xpm");
-	init_animation(&player->move_left, 2, 10);
+	init_animation(&player->move_left, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->attack_right.sprites[0] = make_sprite("assets/player/attack_right/player_attack_right00.xpm");
 	player->attack_right.sprites[1] = make_sprite("assets/player/attack_right/player_attack_right01.xpm");
-	init_animation(&player->attack_right, 2, 10);
+	init_animation(&player->attack_right, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->attack_left.sprites[0] = make_sprite("assets/player/attack_left/player_attack_left00.xpm");
 	player->attack_left.sprites[1] = make_sprite("assets/player/attack_left/player_attack_left01.xpm");
-	init_animation(&player->attack_left, 2, 10);
+	init_animation(&player->attack_left, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->state = IDLE_RIGHT;
 	player->last_direction = MOVE_RIGHT;
 	player->x = 0;
@@ -494,7 +501,7 @@ static void	init_player(void)
 	player->invincibility_frames = 0;
 	player->is_visible = 1;
 	player->attack_cooldown = 0;
-	player->max_attack_cooldown = 40;
+	player->max_attack_cooldown = ATTACK_COOLDOWN;
 	player->is_attacking = false;
 	player->attack_frame = 0;
 }

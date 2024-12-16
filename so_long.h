@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 13:55:03 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 14:17:54 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,12 @@
 # define WINDOW_HEIGHT 800
 # define FPS 60
 # define FRAME_DELAY (1000000 / FPS)
-# define ANIMATION_SPEED 15
+# define COLLECTIBLE_ANIMATION_SPEED 15
+# define PLAYER_IDLE_ANIMATION_SPEED 20
+# define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
+# define FRAME_COUNT 2
+# define ENEMY_ANIMATION_SPEED 20
+# define WALL_ANIMATION_SPEED 25
 # define BUFFER_SIZE 10
 # define COLLISION_Y_OFFSET 15
 # define PLAYER_SPEED 1

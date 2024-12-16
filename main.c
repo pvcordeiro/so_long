@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:16:09 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:27:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -599,11 +599,27 @@ int	key_loop(int key, char *action)
 static void	init_exit(void)
 {
 	t_exit	*exit;
+	t_map	*map;
+	int		i;
+	int		j;
 
 	exit = &get_game()->exit;
+	map = &get_game()->map;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'E')
+			{
+				exit->x = j * SPRITE_SIZE;
+				exit->y = i * SPRITE_SIZE;
+				break ;
+			}
+		}
+	}
 	exit->sprite = make_sprite("assets/exit.xpm");
-	exit->x = 600;
-	exit->y = 100;
 }
 
 static void	draw_exit(void)

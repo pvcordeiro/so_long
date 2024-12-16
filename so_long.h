@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 15:44:34 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:16:25 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,6 +159,9 @@ typedef struct s_collectible
 typedef struct s_wall
 {
 	t_animation 	base;
+	int				*x_positions;
+	int				*y_positions;
+	int				count;
 }	t_wall;
 
 typedef struct s_exit

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 16:30:59 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 17:35:58 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,8 @@ static void	cleanup_sprites(void)
 	mlx_destroy_image(game->mlx, game->canvas.img);
 	mlx_destroy_image(game->mlx, game->floor.img);
 	mlx_destroy_image(game->mlx, game->floor2.img);
+	free(game->wall.x_positions);
+	free(game->wall.y_positions);
 	i = -1;
 	while (++i < 4)
 		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
@@ -245,7 +247,7 @@ static void	init_collectible(void)
 	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
 	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
 	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
-	collectible->base.x = 100;
+	collectible->base.x = 360;
 	collectible->base.y = 100;
 	collectible->collected = 0;
 	get_game()->collectible_count = 0;
@@ -254,13 +256,61 @@ static void	init_collectible(void)
 static void	init_wall(void)
 {
 	t_wall	*wall;
+	int	i;
+	int	j;
+	int	count;
+	t_map *map;
 
 	wall = &get_game()->wall;
+	map = &get_game()->map;
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == '1')
+				count++;
+		}
+	}
+	wall->count = count;
+	wall->x_positions = malloc(sizeof(int) * count);
+	wall->y_positions = malloc(sizeof(int) * count);
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == '1')
+			{
+				wall->x_positions[count] = j * SPRITE_SIZE;
+				wall->y_positions[count] = i * SPRITE_SIZE;
+				count++;
+			}
+		}
+	}
 	wall->base.sprites[0] = make_sprite("assets/terrain/lava00.xpm");
 	wall->base.sprites[1] = make_sprite("assets/terrain/lava01.xpm");
 	init_animation(&wall->base, FRAME_COUNT, WALL_ANIMATION_SPEED);
-	wall->base.x = 200;
-	wall->base.y = 200;
+}
+
+static int check_wall_collisions(int x, int y)
+{
+	t_wall	*wall;
+	int		i;
+
+	wall = &get_game()->wall;
+	i = -1;
+	while (++i < wall->count)
+	{
+		if (check_collision(x, y, wall->x_positions[i], wall->y_positions[i],
+				WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+			return (1);
+	}
+	return (0);
 }
 
 static void	init_enemy(void)
@@ -281,8 +331,8 @@ static void	init_enemy(void)
 		enemy->state = MOVE_RIGHT;
 	else
 		enemy->state = MOVE_LEFT;
-	enemy->x = 300;
-	enemy->y = 300;
+	enemy->x = 150;
+	enemy->y = 100;
 	enemy->move_counter = 0;
 	enemy->lives = 3;
 	enemy->is_dead = false;
@@ -305,18 +355,25 @@ static void	update_enemy(void)
 	enemy->move_counter++;
 	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
 	{
-		enemy->direction *= -1;
-		enemy->y_direction = (rand() % 3) - 1;
-		enemy->move_counter = 0;
-		if (enemy->direction == 1)
-			enemy->state = MOVE_RIGHT;
+		if (rand() % 2 == 0)
+		{
+			enemy->direction = (rand() % 2) * 2 - 1;
+			enemy->y_direction = 0;
+		}
 		else
+		{
+			enemy->direction = 0;
+			enemy->y_direction = (rand() % 2) * 2 - 1;
+		}
+		enemy->move_counter = 0;
+		if (enemy->direction > 0)
+			enemy->state = MOVE_RIGHT;
+		else if (enemy->direction < 0)
 			enemy->state = MOVE_LEFT;
 	}
 	new_x = enemy->x + enemy->direction * ENEMY_SPEED;
 	new_y = enemy->y + enemy->y_direction * ENEMY_SPEED;
-	if (!check_collision(new_x, new_y, get_game()->wall.base.x,
-			get_game()->wall.base.y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+	if (!check_wall_collisions(new_x, new_y))
 	{
 		enemy->x = new_x;
 		enemy->y = new_y;
@@ -325,9 +382,9 @@ static void	update_enemy(void)
 	{
 		enemy->direction *= -1;
 		enemy->y_direction *= -1;
-		if (enemy->direction == 1)
+		if (enemy->direction > 0)
 			enemy->state = MOVE_RIGHT;
-		else
+		else if (enemy->direction < 0)
 			enemy->state = MOVE_LEFT;
 	}
 	if (enemy->y < 0)
@@ -335,9 +392,9 @@ static void	update_enemy(void)
 		enemy->y = 0;
 		enemy->y_direction = -enemy->y_direction;
 	}
-	if (enemy->y > get_game()->window_height - 40)
+	if (enemy->y > get_game()->window_height - SPRITE_SIZE)
 	{
-		enemy->y = get_game()->window_height - 40;
+		enemy->y = get_game()->window_height - SPRITE_SIZE;
 		enemy->y_direction = -enemy->y_direction;
 	}
 	if (enemy->state == MOVE_RIGHT)
@@ -391,6 +448,23 @@ void	draw_floor(void)
 	}
 }
 
+static void	draw_walls(void)
+{
+	t_wall	*wall;
+	int		i;
+
+	wall = &get_game()->wall;
+	update_animation(&wall->base);
+
+	i = -1;
+	while (++i < wall->count)
+	{
+		wall->base.x = wall->x_positions[i];
+		wall->base.y = wall->y_positions[i];
+		draw_animation(&wall->base, &get_game()->canvas);
+	}
+}
+
 int	key_loop(int key, char *action)
 {
 	t_player	*player;
@@ -430,8 +504,8 @@ static void	init_exit(void)
 
 	exit = &get_game()->exit;
 	exit->sprite = make_sprite("assets/exit.xpm");
-	exit->x = 400;
-	exit->y = 400;
+	exit->x = 600;
+	exit->y = 100;
 }
 
 static void	draw_exit(void)
@@ -495,8 +569,8 @@ static void	init_player(void)
 	init_animation(&player->attack_left, FRAME_COUNT, PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED);
 	player->state = IDLE_RIGHT;
 	player->last_direction = MOVE_RIGHT;
-	player->x = 0;
-	player->y = 0;
+	player->x = 50;
+	player->y = 100;
 	player->lives = 3;
 	player->invincibility_frames = 0;
 	player->is_visible = 1;
@@ -511,11 +585,9 @@ static void	update_player_position(void)
 	int			prev_x;
 	int			prev_y;
 	t_player	*player;
-	t_wall		*wall;
 	static int	move_counter = 0;
 
 	player = &get_game()->player;
-	wall = &get_game()->wall;
 	prev_x = player->x;
 	prev_y = player->y;
 	if (!player->is_attacking)
@@ -534,8 +606,7 @@ static void	update_player_position(void)
 		}
 		check_bounds(player);
 	}
-	if (check_collision(player->x, player->y, wall->base.x, wall->base.y, 30,
-			25))
+	if (check_wall_collisions(player->x, player->y))
 	{
 		player->x = prev_x;
 		player->y = prev_y;
@@ -702,6 +773,7 @@ int	game_loop(void)
 	handle_game_state();
 	draw_floor();
 	update_collectible();
+	draw_walls();
 	update_animation(&get_game()->collectible.base);
 	if (!get_game()->collectible.collected)
 		draw_animation(&get_game()->collectible.base, &get_game()->canvas);

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 17:57:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:16:09 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,37 +35,38 @@ static int	check_collision(int x1, int y1, int x2, int y2, unsigned int width,
 static void check_attack_collision(void)
 {
     t_player *player;
-    t_enemy *enemy;
+    t_enemy_list *enemy_list;
+	int	i;
 
     player = &get_game()->player;
-    enemy = &get_game()->enemy;
-
-    if (!enemy->is_dead && player->is_attacking && enemy->invincibility_frames == 0)
-    {
-        if ((player->state == ATTACK_RIGHT && enemy->x > player->x) || 
-            (player->state == ATTACK_LEFT && enemy->x < player->x))
-        {
-            if (check_collision(player->x, player->y, enemy->x, enemy->y, 
-                              ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
-            {
-                enemy->lives--;
-                enemy->invincibility_frames = INVINCIBILITY_DURATION / 2;
-                if (player->x < enemy->x)
-                {
-                    enemy->direction = 1;
-                    enemy->state = MOVE_RIGHT;
-                }
-                else
-                {
-                    enemy->direction = -1;
-                    enemy->state = MOVE_LEFT;
-                }
-                // enemy->x += enemy->direction * 40;
-                if (enemy->lives <= 0)
-                    enemy->is_dead = true;
-            }
-        }
-    }
+    enemy_list = &get_game()->enemy_list;
+	i = -1;
+	while (++i < enemy_list->count)
+	{
+		if (!enemy_list->enemies[i].is_dead && player->is_attacking && enemy_list->enemies[i].invincibility_frames == 0)
+		{
+			if ((player->state == ATTACK_RIGHT && enemy_list->enemies[i].x > player->x) || (player->state == ATTACK_LEFT && enemy_list->enemies[i].x < player->x))
+			{
+				if (check_collision(player->x, player->y, enemy_list->enemies[i].x, enemy_list->enemies[i].y, ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
+				{
+					enemy_list->enemies[i].lives--;
+					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION / 2;
+					if (player->x < enemy_list->enemies[i].x)
+					{
+						enemy_list->enemies[i].direction = 1;
+						enemy_list->enemies[i].state = MOVE_RIGHT;
+					}
+					else
+					{
+						enemy_list->enemies[i].direction = -1;
+						enemy_list->enemies[i].state = MOVE_LEFT;
+					}
+					if (enemy_list->enemies[i].lives <= 0)
+						enemy_list->enemies[i].is_dead = true;
+				}
+			}
+		}
+	}
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
@@ -74,22 +75,11 @@ unsigned int	*get_pixel(t_img *data, int x, int y)
 					/ 8))));
 }
 
-static void	check_bounds(t_player *player)
-{
-	if (player->x < 0)
-		player->x = 0;
-	if (player->y < 0)
-		player->y = 0;
-	if (player->x > get_game()->window_width - SPRITE_SIZE)
-		player->x = get_game()->window_width - SPRITE_SIZE;
-	if (player->y > get_game()->window_height - SPRITE_SIZE)
-		player->y = get_game()->window_height - SPRITE_SIZE;
-}
-
 static void	cleanup_sprites(void)
 {
 	t_game	*game;
 	int		i;
+	int		j;
 
 	game = get_game();
 	mlx_destroy_image(game->mlx, game->canvas.img);
@@ -100,6 +90,17 @@ static void	cleanup_sprites(void)
 	free(game->collectible.x_positions);
 	free(game->collectible.y_positions);
 	free(game->collectible.collected);
+	i = -1;
+	while (++i < game->enemy_list.count)
+	{
+		j = -1;
+		while (++j < 2)
+		{
+			mlx_destroy_image(game->mlx, game->enemy_list.enemies[i].move_right.sprites[j].img);
+			mlx_destroy_image(game->mlx, game->enemy_list.enemies[i].move_left.sprites[j].img);
+		}
+	}
+	free(game->enemy_list.enemies);
 	i = -1;
 	while (++i < 4)
 		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
@@ -113,8 +114,6 @@ static void	cleanup_sprites(void)
         mlx_destroy_image(game->mlx, game->player.move_left.sprites[i].img);
         mlx_destroy_image(game->mlx, game->player.attack_right.sprites[i].img);
         mlx_destroy_image(game->mlx, game->player.attack_left.sprites[i].img);
-        mlx_destroy_image(game->mlx, game->enemy.move_right.sprites[i].img);
-        mlx_destroy_image(game->mlx, game->enemy.move_left.sprites[i].img);
     }
 	mlx_destroy_image(game->mlx, game->exit.sprite.img);
     mlx_destroy_image(game->mlx, game->health.health1.img);
@@ -356,116 +355,149 @@ static int check_wall_collisions(int x, int y)
 
 static void	init_enemy(void)
 {
-	t_enemy	*enemy;
+	t_enemy_list	*enemy_list;
+	t_map			*map;
+	int				i;
+	int 		   	j;
+	int				count;
 
-	enemy = &get_game()->enemy;
-	enemy->move_right.sprites[0] = make_sprite("assets/enemy/move_right/enemy_move_right00.xpm");
-	enemy->move_right.sprites[1] = make_sprite("assets/enemy/move_right/enemy_move_right01.xpm");
-	init_animation(&enemy->move_right, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
-	enemy->move_left.sprites[0] = make_sprite("assets/enemy/move_left/enemy_move_left00.xpm");
-	enemy->move_left.sprites[1] = make_sprite("assets/enemy/move_left/enemy_move_left01.xpm");
-	init_animation(&enemy->move_left, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
-	srand(time(NULL));
-	enemy->direction = (rand() % 2) * 2 - 1;
-	enemy->y_direction = (rand() % 3) - 1;
-	if (enemy->direction == 1)
-		enemy->state = MOVE_RIGHT;
-	else
-		enemy->state = MOVE_LEFT;
-	enemy->x = 150;
-	enemy->y = 100;
-	enemy->move_counter = 0;
-	enemy->lives = 3;
-	enemy->is_dead = false;
-	enemy->invincibility_frames = 0;
-	enemy->is_visible = true;
+	enemy_list = &get_game()->enemy_list;
+	map = &get_game()->map;
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'X')
+				count++;
+		}
+	}
+	enemy_list->count = count;
+	enemy_list->enemies = malloc(sizeof(t_enemy) * count);
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'X')
+			{
+				enemy_list->enemies[count].move_right.sprites[0] = make_sprite("assets/enemy/move_right/enemy_move_right00.xpm");
+				enemy_list->enemies[count].move_right.sprites[1] = make_sprite("assets/enemy/move_right/enemy_move_right01.xpm");
+				init_animation(&enemy_list->enemies[count].move_right, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
+				enemy_list->enemies[count].move_left.sprites[0] = make_sprite("assets/enemy/move_left/enemy_move_left00.xpm");
+				enemy_list->enemies[count].move_left.sprites[1] = make_sprite("assets/enemy/move_left/enemy_move_left01.xpm");
+				init_animation(&enemy_list->enemies[count].move_left, FRAME_COUNT, ENEMY_ANIMATION_SPEED);
+				enemy_list->enemies[count].x = j * SPRITE_SIZE;
+                enemy_list->enemies[count].y = i * SPRITE_SIZE;
+                enemy_list->enemies[count].direction = (rand() % 2) * 2 - 1;
+                enemy_list->enemies[count].y_direction = 0;
+                enemy_list->enemies[count].state = (enemy_list->enemies[count].direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+                enemy_list->enemies[count].move_counter = 0;
+                enemy_list->enemies[count].lives = 3;
+                enemy_list->enemies[count].is_dead = false;
+                enemy_list->enemies[count].invincibility_frames = 0;
+                enemy_list->enemies[count].is_visible = true;
+                count++;
+			}
+		}
+	}
 }
 
-static void	update_enemy(void)
+static void update_enemy(void)
 {
-	t_enemy		*enemy;
-	t_animation	*current_anim;
-	int			new_x;
-	int			new_y;
+    t_enemy_list *enemy_list;
+    t_animation *current_anim;
+    int new_x;
+    int new_y;
+    int i;
 
-	enemy = &get_game()->enemy;
-	if (enemy->is_dead)
-		return ;
-	if (enemy->invincibility_frames > 0)
-		enemy->invincibility_frames--;
-	enemy->move_counter++;
-	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
-	{
-		if (rand() % 2 == 0)
-		{
-			enemy->direction = (rand() % 2) * 2 - 1;
-			enemy->y_direction = 0;
-		}
-		else
-		{
-			enemy->direction = 0;
-			enemy->y_direction = (rand() % 2) * 2 - 1;
-		}
-		enemy->move_counter = 0;
-		if (enemy->direction > 0)
-			enemy->state = MOVE_RIGHT;
-		else if (enemy->direction < 0)
-			enemy->state = MOVE_LEFT;
-	}
-	new_x = enemy->x + enemy->direction * ENEMY_SPEED;
-	new_y = enemy->y + enemy->y_direction * ENEMY_SPEED;
-	if (!check_wall_collisions(new_x, new_y))
-	{
-		enemy->x = new_x;
-		enemy->y = new_y;
-	}
-	else
-	{
-		enemy->direction *= -1;
-		enemy->y_direction *= -1;
-		if (enemy->direction > 0)
-			enemy->state = MOVE_RIGHT;
-		else if (enemy->direction < 0)
-			enemy->state = MOVE_LEFT;
-	}
-	if (enemy->y < 0)
-	{
-		enemy->y = 0;
-		enemy->y_direction = -enemy->y_direction;
-	}
-	if (enemy->y > get_game()->window_height - SPRITE_SIZE)
-	{
-		enemy->y = get_game()->window_height - SPRITE_SIZE;
-		enemy->y_direction = -enemy->y_direction;
-	}
-	if (enemy->state == MOVE_RIGHT)
-		current_anim = &enemy->move_right;
-	else
-		current_anim = &enemy->move_left;
-	update_animation(current_anim);
+    enemy_list = &get_game()->enemy_list;
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (enemy_list->enemies[i].is_dead)
+            continue;
+        if (enemy_list->enemies[i].invincibility_frames > 0)
+            enemy_list->enemies[i].invincibility_frames--;
+
+        enemy_list->enemies[i].move_counter++;
+        if (enemy_list->enemies[i].move_counter >= ENEMY_MOVE_THRESHOLD)
+        {
+            if (rand() % 2 == 0)
+            {
+                enemy_list->enemies[i].direction = (rand() % 2) * 2 - 1;
+                enemy_list->enemies[i].y_direction = 0;
+            }
+            else
+            {
+                enemy_list->enemies[i].direction = 0;
+                enemy_list->enemies[i].y_direction = (rand() % 2) * 2 - 1;
+            }
+            enemy_list->enemies[i].move_counter = 0;
+            if (enemy_list->enemies[i].direction > 0)
+                enemy_list->enemies[i].state = MOVE_RIGHT;
+            else if (enemy_list->enemies[i].direction < 0)
+                enemy_list->enemies[i].state = MOVE_LEFT;
+        }
+
+        new_x = enemy_list->enemies[i].x + enemy_list->enemies[i].direction * ENEMY_SPEED;
+        new_y = enemy_list->enemies[i].y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
+
+        if (!check_wall_collisions(new_x, new_y))
+        {
+            enemy_list->enemies[i].x = new_x;
+            enemy_list->enemies[i].y = new_y;
+        }
+        else
+        {
+            enemy_list->enemies[i].direction *= -1;
+            enemy_list->enemies[i].y_direction *= -1;
+            if (enemy_list->enemies[i].direction > 0)
+                enemy_list->enemies[i].state = MOVE_RIGHT;
+            else if (enemy_list->enemies[i].direction < 0)
+                enemy_list->enemies[i].state = MOVE_LEFT;
+        }
+
+        if (enemy_list->enemies[i].state == MOVE_RIGHT)
+            current_anim = &enemy_list->enemies[i].move_right;
+        else
+            current_anim = &enemy_list->enemies[i].move_left;
+        update_animation(current_anim);
+    }
 }
 
-static void	draw_enemy(void)
+static void draw_enemy(void)
 {
-	t_enemy		*enemy;
-	t_animation	*current_anim;
+    t_enemy_list *enemy_list;
+    t_animation *current_anim;
+    int i;
 
-	enemy = &get_game()->enemy;
-	if (enemy->is_dead)
-		return ;
-	if (enemy->invincibility_frames > 0)
-	{
-		enemy->is_visible = !enemy->is_visible;
-		if (!enemy->is_visible)
-			return ;
-	}
-	if (enemy->state == MOVE_RIGHT)
-		current_anim = &enemy->move_right;
-	else
-		current_anim = &enemy->move_left;
-	current_anim->x = enemy->x;
-	current_anim->y = enemy->y;
-	draw_animation(current_anim, &get_game()->canvas);
+    enemy_list = &get_game()->enemy_list;
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (enemy_list->enemies[i].is_dead)
+            continue;
+        if (enemy_list->enemies[i].invincibility_frames > 0)
+        {
+            enemy_list->enemies[i].is_visible = !enemy_list->enemies[i].is_visible;
+            if (!enemy_list->enemies[i].is_visible)
+                continue;
+        }
+
+        if (enemy_list->enemies[i].state == MOVE_RIGHT)
+            current_anim = &enemy_list->enemies[i].move_right;
+        else
+            current_anim = &enemy_list->enemies[i].move_left;
+
+        current_anim->x = enemy_list->enemies[i].x;
+        current_anim->y = enemy_list->enemies[i].y;
+        draw_animation(current_anim, &get_game()->canvas);
+    }
 }
 
 void	draw_floor(void)
@@ -529,6 +561,13 @@ int	key_loop(int key, char *action)
 	t_player	*player;
 
 	player = &get_game()->player;
+	if ( key == XK_Shift_L)
+	{
+		if (*action == 'p' && get_game()->player.can_sprint)
+			get_game()->player.is_sprinting = true;
+		else if (*action == 'r')
+			get_game()->player.is_sprinting = false;
+	}
 	if (key == XK_w)
 		get_game()->move_up = (*action == 'p');
 	if (key == XK_a)
@@ -599,7 +638,7 @@ static void	draw_health(void)
 		current_sprite = &health->health1;
 	else
 		return ;
-	draw_image(current_sprite, &get_game()->canvas, 30, 0);
+	draw_image(current_sprite, &get_game()->canvas, 10, -10);
 }
 
 static void	init_player(void)
@@ -653,6 +692,10 @@ static void	init_player(void)
 	player->max_attack_cooldown = ATTACK_COOLDOWN;
 	player->is_attacking = false;
 	player->attack_frame = 0;
+	player->is_sprinting = false;
+	player->sprint_duration = 0;
+	player->sprint_cooldown = 0;
+	player->can_sprint = true;
 }
 
 static void	update_player_position(void)
@@ -661,25 +704,45 @@ static void	update_player_position(void)
 	int			prev_y;
 	t_player	*player;
 	static int	move_counter = 0;
+	int			movement_speed;
 
 	player = &get_game()->player;
 	prev_x = player->x;
 	prev_y = player->y;
+	movement_speed = PLAYER_SPEED;
+	if (player->is_sprinting)
+	{
+		if (player->sprint_duration < SPRINT_DURATION)
+		{
+			movement_speed *= SPRINT_MULTIPLIER;
+			player->sprint_duration++;
+		}
+		else
+		{
+			player->is_sprinting = false;
+			player->can_sprint = false;
+			player->sprint_duration = 0;
+		}
+	}
+	if (!player->can_sprint)
+	{
+		player->sprint_cooldown++;
+		if (player->sprint_cooldown >= SPRINT_COOLDOWN)
+		{
+			player->can_sprint = true;
+			player->sprint_cooldown = 0;
+		}
+	}
 	if (!player->is_attacking)
 	{
-		if (get_game()->move_up || get_game()->move_down || get_game()->move_left
-			|| get_game()->move_right)
-		{
-			if (get_game()->move_up)
-				player->y -= PLAYER_SPEED;
-			if (get_game()->move_down)
-				player->y += PLAYER_SPEED;
-			if (get_game()->move_left)
-				player->x -= PLAYER_SPEED;
-			if (get_game()->move_right)
-				player->x += PLAYER_SPEED;
-		}
-		check_bounds(player);
+		if (get_game()->move_up)
+			player->y -= movement_speed;
+		if (get_game()->move_down)
+			player->y += movement_speed;
+		if (get_game()->move_left)
+			player->x -= movement_speed;
+		if (get_game()->move_right)
+			player->x += movement_speed;
 	}
 	if (check_wall_collisions(player->x, player->y))
 	{
@@ -817,25 +880,32 @@ static void	fps_cap(void)
 static void handle_game_state(void)
 {
     t_player *player;
-    t_enemy *enemy;
+    t_enemy_list *enemy_list;
+    int i;
 
     player = &get_game()->player;
-    enemy = &get_game()->enemy;
+    enemy_list = &get_game()->enemy_list;
 
     if (player->invincibility_frames > 0)
         player->invincibility_frames--;
 
-    if (!enemy->is_dead && 
-        check_collision(player->x, player->y, enemy->x, enemy->y,
-                       ENEMY_COLLISION_WIDTH, ENEMY_COLLISION_HEIGHT) && 
-        player->invincibility_frames == 0)
+    i = -1;
+    while (++i < enemy_list->count)
     {
-        player->lives--;
-        player->invincibility_frames = INVINCIBILITY_DURATION;
-        if (player->lives <= 0)
+        if (!enemy_list->enemies[i].is_dead && 
+            check_collision(player->x, player->y,
+                enemy_list->enemies[i].x, enemy_list->enemies[i].y,
+                ENEMY_COLLISION_WIDTH, ENEMY_COLLISION_HEIGHT) && 
+            player->invincibility_frames == 0)
         {
-            ft_printf("Game Over\n");
-            exit_game();
+            player->lives--;
+            player->invincibility_frames = INVINCIBILITY_DURATION;
+            if (player->lives <= 0)
+            {
+                ft_printf("Game Over\n");
+                exit_game();
+            }
+            break;
         }
     }
 }
@@ -850,12 +920,9 @@ int	game_loop(void)
 	update_collectible();
 	draw_collectibles();
 	draw_walls();
-	if (!get_game()->enemy.is_dead)
-	{
-		update_enemy();
-		check_attack_collision();		
-		draw_enemy();
-	}
+	update_enemy();
+	check_attack_collision();
+	draw_enemy();
 	draw_exit();
 	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
@@ -981,11 +1048,3 @@ int main(int argc, char **argv)
     mlx_loop(get_game()->mlx);
     return (0);
 }
-
-// int	main(void)
-// {
-// 	init_window();
-// 	init_sprites();
-// 	setup_hooks();
-// 	mlx_loop(get_game()->mlx);
-// }

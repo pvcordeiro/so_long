@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 17:47:39 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/16 20:04:24 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,24 +24,26 @@
 # include <stdarg.h>
 # include <stdbool.h>
 
-# define FPS 60
-# define FRAME_DELAY (1000000 / FPS)
+# define FRAME_DELAY 16666
 # define COLLECTIBLE_ANIMATION_SPEED 15
 # define PLAYER_IDLE_ANIMATION_SPEED 20
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
 # define FRAME_COUNT 2
 # define ENEMY_ANIMATION_SPEED 20
-# define WALL_ANIMATION_SPEED 25
+# define WALL_ANIMATION_SPEED 100
 # define BUFFER_SIZE 10
 # define COLLISION_Y_OFFSET 15
 # define PLAYER_SPEED 1
+# define SPRINT_MULTIPLIER 2
+# define SPRINT_COOLDOWN 180
+# define SPRINT_DURATION 120
 # define ENEMY_SPEED 1
 # define ATTACK_DURATION 20
 # define ATTACK_RANGE 60
 # define ATTACK_COOLDOWN 40
 # define INVINCIBILITY_DURATION 60
 # define MOVE_COUNT_THRESHOLD 10
-# define ENEMY_MOVE_THRESHOLD 100
+# define ENEMY_MOVE_THRESHOLD 50
 # define ENEMY_COLLISION_WIDTH 10
 # define ENEMY_COLLISION_HEIGHT 20
 # define COLLECTIBLE_SIZE 20
@@ -128,15 +130,16 @@ typedef struct s_player
 	bool			is_attacking;
     int				x;
     int				y;
+	bool			is_sprinting;
+	int				sprint_cooldown;
+	int				sprint_duration;
+	bool			can_sprint;
 }	t_player;
 
 typedef struct s_enemy
 {
-    t_animation		idle_right;
-    t_animation		idle_left;
     t_animation		move_right;
     t_animation		move_left;
-    t_player_state	state;
 	int				y_direction;
     int				direction;
     int				move_counter;
@@ -146,7 +149,14 @@ typedef struct s_enemy
 	bool			is_dead;
     int				x;
     int				y;
+	int				state;
 }	t_enemy;
+
+typedef struct s_enemy_list
+{
+	t_enemy	*enemies;
+	int		count;
+}	t_enemy_list;
 
 typedef struct s_collectible
 {
@@ -197,7 +207,7 @@ typedef struct s_game
 	t_player		player;
 	t_collectible	collectible;
 	t_wall			wall;
-	t_enemy			enemy;
+	t_enemy_list	enemy_list;
 	t_exit			exit;
 	t_map			map;
 	t_health		health;

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 16:54:12 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:59:46 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1165,8 +1165,8 @@ static void draw_sprint_icon(void)
     player = &get_game()->player;
     banner_x = get_game()->window_width - 80;
     banner_y = get_game()->window_height - 80;
-    sprint_x = banner_x + 20;
-    sprint_y = banner_y + 20;
+    sprint_x = banner_x;
+    sprint_y = banner_y;
     
     draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
     

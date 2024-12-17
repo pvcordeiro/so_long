@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:06:11 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:08:54 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -434,6 +434,8 @@ static void update_enemy(void)
     t_animation *current_anim;
     int new_x;
     int new_y;
+	int	prev_x;
+	int	prev_y;
     int i;
 
     enemy_list = &get_game()->enemy_list;
@@ -459,30 +461,29 @@ static void update_enemy(void)
                 enemy_list->enemies[i].y_direction = (rand() % 2) * 2 - 1;
             }
             enemy_list->enemies[i].move_counter = 0;
-            if (enemy_list->enemies[i].direction > 0)
-                enemy_list->enemies[i].state = MOVE_RIGHT;
-            else if (enemy_list->enemies[i].direction < 0)
-                enemy_list->enemies[i].state = MOVE_LEFT;
         }
-
-        new_x = enemy_list->enemies[i].x + enemy_list->enemies[i].direction * ENEMY_SPEED;
-        new_y = enemy_list->enemies[i].y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
-
-        if (!check_wall_collisions(new_x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) && !check_enemy_collisions(new_x, new_y, i))
+        prev_x = enemy_list->enemies[i].x;
+        prev_y = enemy_list->enemies[i].y;
+        new_x = prev_x + enemy_list->enemies[i].direction * ENEMY_SPEED;
+        enemy_list->enemies[i].x = new_x;
+        if (check_wall_collisions(new_x, prev_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) 
+            || check_enemy_collisions(new_x, prev_y, i))
         {
-            enemy_list->enemies[i].x = new_x;
-            enemy_list->enemies[i].y = new_y;
-        }
-        else
-        {
+            enemy_list->enemies[i].x = prev_x;
             enemy_list->enemies[i].direction *= -1;
-            enemy_list->enemies[i].y_direction *= -1;
-            if (enemy_list->enemies[i].direction > 0)
-                enemy_list->enemies[i].state = MOVE_RIGHT;
-            else if (enemy_list->enemies[i].direction < 0)
-                enemy_list->enemies[i].state = MOVE_LEFT;
         }
-
+        new_y = prev_y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
+        enemy_list->enemies[i].y = new_y;
+        if (check_wall_collisions(enemy_list->enemies[i].x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) 
+            || check_enemy_collisions(enemy_list->enemies[i].x, new_y, i))
+        {
+            enemy_list->enemies[i].y = prev_y;
+            enemy_list->enemies[i].y_direction *= -1;
+        }
+        if (enemy_list->enemies[i].direction > 0)
+            enemy_list->enemies[i].state = MOVE_RIGHT;
+        else if (enemy_list->enemies[i].direction < 0)
+            enemy_list->enemies[i].state = MOVE_LEFT;
         if (enemy_list->enemies[i].state == MOVE_RIGHT)
             current_anim = &enemy_list->enemies[i].move_right;
         else

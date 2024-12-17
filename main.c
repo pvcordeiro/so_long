@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 14:20:30 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:27:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -313,6 +313,7 @@ static void	init_collectible(void)
 	collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
 	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
 	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
+	collectible->base.sprites[4] = make_sprite("assets/ban_col.xpm");
 	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
 	get_game()->collectible_count = 0;
 }
@@ -531,17 +532,17 @@ void	draw_floor(void)
 	int	y;
 
 	y = -1;
-	while (++y <= get_game()->window_height / 40)
+	while (++y <= get_game()->window_height / SPRITE_SIZE)
 	{
 		x = -1;
-		while (++x <= (get_game()->window_width / 40))
+		while (++x <= (get_game()->window_width / SPRITE_SIZE))
 		{
 			if ((x + y) % 2 == 0)
-				draw_image(&get_game()->floor, &get_game()->canvas, x * 40, y
-					* 40);
+				draw_image(&get_game()->floor, &get_game()->canvas, x * SPRITE_SIZE, y
+					* SPRITE_SIZE);
 			else
-				draw_image(&get_game()->floor2, &get_game()->canvas, x * 40, y
-					* 40);
+				draw_image(&get_game()->floor2, &get_game()->canvas, x * SPRITE_SIZE, y
+					* SPRITE_SIZE);
 		}
 	}
 }
@@ -646,16 +647,6 @@ static void	init_exit(void)
 	}
 	exit->sprite = make_sprite("assets/exit.xpm");
 }
-
-// static void draw_exit(void)
-// {
-//     t_exit *exit;
-//     int draw_y;
-
-//     exit = &get_game()->exit;
-//     draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
-//     draw_image(&exit->sprite, &get_game()->canvas, exit->x, draw_y);
-// }
 
 static void draw_exit_bottom(void)
 {
@@ -1116,11 +1107,11 @@ static void print_moves(void)
     int text_x;
     int text_y;
     
-    banner_x = 10;
-    banner_y = get_game()->window_height - 70;
+    banner_x = 0;
+    banner_y = get_game()->window_height - 80;
     draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
-    text_x = banner_x + 15;
-    text_y = banner_y + 30;
+    text_x = banner_x + 25;
+    text_y = banner_y + 45;
     print_move = ft_itoa(get_game()->move_count);
     mlx_string_put(get_game()->mlx, get_game()->win, text_x, text_y - 10,
         0x000000, "MOVES");
@@ -1148,17 +1139,17 @@ static void draw_collectible_counter(void)
     int banner_y;
     int collect_x;
     int collect_y;
-    banner_x = get_game()->window_width - 70;
-    banner_y = 10;
-    collect_x = banner_x + 6;
-    collect_y = banner_y + 10;
+    banner_x = get_game()->window_width - 80;
+    banner_y = 0;
+    collect_x = banner_x;
+    collect_y = banner_y;
     draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
     collectible = &get_game()->collectible;
-    draw_image(&collectible->base.sprites[0], &get_game()->canvas, 
+    draw_image(&collectible->base.sprites[4], &get_game()->canvas, 
         collect_x, collect_y);
     count_str = ft_itoa(get_game()->collectible_count);
     mlx_string_put(get_game()->mlx, get_game()->win, 
-        banner_x + 38, banner_y + 30, 0x000000, count_str);
+        banner_x + 46, banner_y + 45, 0x000000, count_str);
     free(count_str);
 }
 
@@ -1172,10 +1163,10 @@ static void draw_sprint_icon(void)
     int sprint_y;
 
     player = &get_game()->player;
-    banner_x = get_game()->window_width - 65;
-    banner_y = get_game()->window_height - 65;
-    sprint_x = banner_x + 10;
-    sprint_y = banner_y + 4;
+    banner_x = get_game()->window_width - 80;
+    banner_y = get_game()->window_height - 80;
+    sprint_x = banner_x + 20;
+    sprint_y = banner_y + 20;
     
     draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
     
@@ -1206,7 +1197,6 @@ int	game_loop(void)
 	update_enemy();
 	check_attack_collision();
 	draw_enemy();
-	// draw_exit();
 	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	update_player_position();

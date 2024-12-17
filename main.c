@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:01:20 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:06:11 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -770,23 +770,29 @@ static void	update_player_position(void)
 			player->sprint_cooldown = 0;
 		}
 	}
-	if (!player->is_attacking)
-	{
-		if (get_game()->move_up)
-			player->y -= movement_speed;
-		if (get_game()->move_down)
-			player->y += movement_speed;
-		if (get_game()->move_left)
-			player->x -= movement_speed;
-		if (get_game()->move_right)
-			player->x += movement_speed;
-	}
-	if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
-	{
-		player->x = prev_x;
-		player->y = prev_y;
-	}
-	else if (prev_x != player->x || prev_y != player->y)
+    if (!player->is_attacking)
+    {
+        // Try horizontal movement first
+        if (get_game()->move_left)
+            player->x -= movement_speed;
+        if (get_game()->move_right)
+            player->x += movement_speed;
+            
+        // Check horizontal collision
+        if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+            player->x = prev_x;
+            
+        // Try vertical movement
+        if (get_game()->move_up)
+            player->y -= movement_speed;
+        if (get_game()->move_down)
+            player->y += movement_speed;
+            
+        // Check vertical collision
+        if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+            player->y = prev_y;
+    }
+	if (prev_x != player->x || prev_y != player->y)
     {
         distance_moved += abs(player->x - prev_x) + abs(player->y - prev_y);
         if (distance_moved >= SPRITE_SIZE)

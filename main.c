@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 11:42:43 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:01:20 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,22 +159,24 @@ int	exit_error(void)
 	exit(EXIT_FAILURE);
 }
 
-static void	draw_text_background(void)
+static void draw_text_background(int x, int y, int width, int height, unsigned int color)
 {
-	int	x;
-	int	y;
+    int i;
+    int j;
 
-	y = get_game()->window_height - 30;
-	while (y < get_game()->window_height - 15)
-	{
-		x = 25;
-		while (x < 100)
-		{
-			*get_pixel(&get_game()->canvas, x, y) = 0x00000000;
-			x++;
-		}
-		y++;
-	}
+    i = y;
+    while (i < y + height)
+    {
+        j = x;
+        while (j < x + width)
+        {
+            if (j >= 0 && j < get_game()->window_width && 
+                i >= 0 && i < get_game()->window_height)
+                *get_pixel(&get_game()->canvas, j, i) = color;
+            j++;
+        }
+        i++;
+    }
 }
 
 t_img	make_sprite(char *path)
@@ -738,7 +740,7 @@ static void	update_player_position(void)
 	int			prev_x;
 	int			prev_y;
 	t_player	*player;
-	static int	move_counter = 0;
+	static int	distance_moved = 0;
 	int			movement_speed;
 
 	player = &get_game()->player;
@@ -785,14 +787,14 @@ static void	update_player_position(void)
 		player->y = prev_y;
 	}
 	else if (prev_x != player->x || prev_y != player->y)
-	{
-		move_counter++;
-		if (move_counter >= 10)
-		{
-			get_game()->move_count++;
-			move_counter = 0;
-		}
-	}
+    {
+        distance_moved += abs(player->x - prev_x) + abs(player->y - prev_y);
+        if (distance_moved >= SPRITE_SIZE)
+        {
+            get_game()->move_count++;
+            distance_moved = 0;
+        }
+    }
 }
 
 static void	update_player(void)
@@ -946,35 +948,24 @@ static void handle_game_state(void)
 
 void helper_message(void)
 {
-	int i;
-	int j;
-	if (check_collision(get_game()->player.x, get_game()->player.y,
-		get_game()->exit.x, get_game()->exit.y, 20, 20) && 
-		get_game()->collectible_count < get_game()->collectible.count)
-	{
-		int x = get_game()->exit.x - 50;
-		int y = get_game()->exit.y - 20;
-		i = y;
-		while (i < y + 15)
-		{
-			j = x;
-			while (j < x + 130)
-			{
-				if (j >= 0 && j < get_game()->window_width && i >= 0 && i < get_game()->window_height)
-					*get_pixel(&get_game()->canvas, j, i) = 0x80000000;
-				j++;
-			}
-			i++;
-		}
-		mlx_string_put(get_game()->mlx, get_game()->win, x + 5, y + 12,
-			0xFFFFFF, "Collect all coins!!!");
-	}
+    if (check_collision(get_game()->player.x, get_game()->player.y,
+        get_game()->exit.x, get_game()->exit.y, 20, 20) && 
+        get_game()->collectible_count < get_game()->collectible.count)
+    {
+        int x = get_game()->exit.x - 50;
+        int y = get_game()->exit.y - 20;
+        
+        draw_text_background(x, y, 130, 15, 0x00FFFFFF);
+        mlx_string_put(get_game()->mlx, get_game()->win, x + 5, y + 12,
+            0x000000, "Collect all coins!!!");
+    }
 }
 
 void print_moves(void)
 {
 	char	*print_move;
 	
+	draw_text_background(25, get_game()->window_height - 30, 75, 15, 0x003A4466);
 	print_move = ft_itoa(get_game()->move_count);
 	mlx_string_put(get_game()->mlx, get_game()->win, 30, get_game()->window_height - 18,
 		0x00FFFFFF, "MOVES:");
@@ -992,6 +983,30 @@ void victory_check(void)
 		ft_printf("Victory!\n");
 		exit_game();
 	}
+}
+
+static void draw_collectible_counter(void)
+{
+    t_collectible *collectible;
+    char *count_str;
+    int x_pos;
+    
+    draw_text_background(get_game()->window_width - 70, 5, 60, 35, 0x003A4466);
+    
+    collectible = &get_game()->collectible;
+    collectible->base.x = get_game()->window_width - 70;
+    collectible->base.y = 10;
+    draw_image(&collectible->base.sprites[0], &get_game()->canvas, 
+        collectible->base.x, collectible->base.y);
+    
+    mlx_string_put(get_game()->mlx, get_game()->win, 
+        get_game()->window_width - 40, 27, 0xFFFFFF, "X");
+    
+    count_str = ft_itoa(get_game()->collectible_count);
+    x_pos = get_game()->window_width - 30;
+    mlx_string_put(get_game()->mlx, get_game()->win, x_pos, 27, 
+        0xFFFFFF, count_str);
+    free(count_str);
 }
 
 int	game_loop(void)
@@ -1018,8 +1033,8 @@ int	game_loop(void)
 	draw_health();
 	helper_message();
 	victory_check();
-	draw_text_background();
 	print_moves();
+	draw_collectible_counter();
 	return (0);
 }
 

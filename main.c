@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 17:07:20 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 20:06:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ unsigned int	ft_abs(int n)
 static int	check_collision(int x1, int y1, int x2, int y2, unsigned int width,
 		unsigned int height)
 {
-	return (ft_abs(x1 - x2) < width && ft_abs((y1 + COLLISION_Y_OFFSET)
+	return (ft_abs(x1 - x2) < width &&
+			ft_abs((y1 + COLLISION_Y_OFFSET)
 			- y2) < height);
 }
 
@@ -42,8 +43,8 @@ static int	check_enemy_collisions(int x, int y, int current_enemy)
 	while (++i < enemy_list->count)
 	{
 		if (i != current_enemy && !enemy_list->enemies[i].is_dead
-			&& check_collision(x, y, enemy_list->enemies[i].x,
-				enemy_list->enemies[i].y, ENEMY_COLLISION_WIDTH,
+			&& check_collision(x, y, enemy_list->enemies[i].x + HITBOX_X_OFFSET,
+				enemy_list->enemies[i].y + HITBOX_Y_OFFSET, ENEMY_COLLISION_WIDTH,
 				ENEMY_COLLISION_HEIGHT))
 			return (1);
 	}
@@ -259,7 +260,7 @@ static void	update_collectible(void)
 	while (++i < collectible->count)
 	{
 		if (!collectible->collected[i] && check_collision(player->x, player->y,
-            collectible->x_positions[i], collectible->y_positions[i],
+            collectible->x_positions[i] + HITBOX_X_OFFSET, collectible->y_positions[i] + HITBOX_Y_OFFSET,
             COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
 		{
 			collectible->collected[i] = 1;
@@ -798,7 +799,7 @@ static void update_mushroom(void)
         return;
 
     if (check_collision(player->x, player->y,
-        mushroom->x, mushroom->y, SPRITE_SIZE, SPRITE_SIZE))
+        mushroom->x + HITBOX_X_OFFSET, mushroom->y + HITBOX_Y_OFFSET, COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
     {
         if (player->lives < 3)
         {
@@ -815,8 +816,10 @@ static void draw_mushroom(void)
 
     mushroom = &get_game()->mushroom;
     if (mushroom->active && !mushroom->collected)
-        draw_image(&mushroom->sprite, &get_game()->canvas, 
+    {
+        draw_image(&mushroom->sprite, &get_game()->canvas,
             mushroom->x, mushroom->y);
+    }
 }
 
 static void	init_player(void)
@@ -1008,11 +1011,9 @@ static void	draw_player(void)
 {
 	t_player	*player;
 	t_animation	*current_anim;
-	int			x_offset;
 
 	player = &get_game()->player;
 	current_anim = NULL;
-	x_offset = 0;
 	if (player->invincibility_frames > 0)
 	{
 		player->is_visible = !player->is_visible;
@@ -1030,11 +1031,8 @@ static void	draw_player(void)
 	else if (player->state == ATTACK_RIGHT)
 		current_anim = &player->attack_right;
 	else if (player->state == ATTACK_LEFT)
-	{
 		current_anim = &player->attack_left;
-		x_offset = -20;
-	}
-	current_anim->x = player->x + x_offset;
+	current_anim->x = player->x;
 	current_anim->y = player->y;
 	draw_animation(current_anim, &get_game()->canvas);
 }

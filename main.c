@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 16:59:46 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 17:07:20 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1102,16 +1102,11 @@ void helper_message(void)
 static void print_moves(void)
 {
     char *print_move;
-    int banner_x;
-    int banner_y;
     int text_x;
     int text_y;
     
-    banner_x = 0;
-    banner_y = get_game()->window_height - 80;
-    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
-    text_x = banner_x + 25;
-    text_y = banner_y + 45;
+    text_x = 25;
+    text_y = get_game()->window_height - 35;
     print_move = ft_itoa(get_game()->move_count);
     mlx_string_put(get_game()->mlx, get_game()->win, text_x, text_y - 10,
         0x000000, "MOVES");
@@ -1135,21 +1130,16 @@ static void draw_collectible_counter(void)
 {
     t_collectible *collectible;
     char *count_str;
-    int banner_x;
-    int banner_y;
-    int collect_x;
-    int collect_y;
-    banner_x = get_game()->window_width - 80;
-    banner_y = 0;
-    collect_x = banner_x;
-    collect_y = banner_y;
-    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
+    int x;
+    int y;
+
+    x = get_game()->window_width - 80;
+    y = 0;
     collectible = &get_game()->collectible;
-    draw_image(&collectible->base.sprites[4], &get_game()->canvas, 
-        collect_x, collect_y);
+    draw_image(&collectible->base.sprites[4], &get_game()->canvas, x, y);
     count_str = ft_itoa(get_game()->collectible_count);
     mlx_string_put(get_game()->mlx, get_game()->win, 
-        banner_x + 46, banner_y + 45, 0x000000, count_str);
+        x + 46, y + 45, 0x000000, count_str);
     free(count_str);
 }
 
@@ -1157,19 +1147,12 @@ static void draw_sprint_icon(void)
 {
     t_player *player;
     static int flash_counter = 0;
-    int banner_x;
-    int banner_y;
     int sprint_x;
     int sprint_y;
 
     player = &get_game()->player;
-    banner_x = get_game()->window_width - 80;
-    banner_y = get_game()->window_height - 80;
-    sprint_x = banner_x;
-    sprint_y = banner_y;
-    
-    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
-    
+    sprint_x = get_game()->window_width - 80;
+    sprint_y = get_game()->window_height - 80;
     if (player->is_sprinting)
         draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x, sprint_y);
     else if (!player->can_sprint)
@@ -1180,6 +1163,23 @@ static void draw_sprint_icon(void)
     }
     else
         draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x, sprint_y);
+}
+
+static void draw_ui_banners(void)
+{
+    int banner_top_right;
+    int banner_bottom_left;
+    int banner_bottom_right;
+    
+    banner_top_right = get_game()->window_width - 80;
+    draw_image(&get_game()->health.banner, &get_game()->canvas, 
+        banner_top_right, 0);
+    banner_bottom_left = 0;
+    draw_image(&get_game()->health.banner, &get_game()->canvas, 
+        banner_bottom_left, get_game()->window_height - 80);
+    banner_bottom_right = get_game()->window_width - 80;
+    draw_image(&get_game()->health.banner, &get_game()->canvas, 
+        banner_bottom_right, get_game()->window_height - 80);
 }
 
 int	game_loop(void)
@@ -1215,6 +1215,7 @@ int	game_loop(void)
 	draw_health();
 	helper_message();
 	victory_check();
+	draw_ui_banners();
 	print_moves();
 	draw_collectible_counter();
 	draw_sprint_icon();

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 10:58:25 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:13:36 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
 # define SPRINT_MULTIPLIER 2
 # define SPRINT_COOLDOWN 180
-# define SPRINT_DURATION 120
+# define SPRINT_DURATION 60
 # define ATTACK_DURATION 20
 # define ATTACK_RANGE 60
 # define ATTACK_COOLDOWN 40
@@ -200,6 +200,7 @@ typedef struct s_health
 	t_img	health1;
 	t_img	health2;
 	t_img	health3;
+	t_img	sprint;
 }	t_health;
 
 typedef struct s_game

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:08:54 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:34:42 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -660,6 +660,7 @@ static void	init_health(void)
 	health->health1 = make_sprite("assets/health/health1.xpm");
 	health->health2 = make_sprite("assets/health/health2.xpm");
 	health->health3 = make_sprite("assets/health/health3.xpm");
+	health->sprint = make_sprite("assets/sprint.xpm");
 }
 
 static void	draw_health(void)
@@ -1016,10 +1017,42 @@ static void draw_collectible_counter(void)
     free(count_str);
 }
 
+static void draw_sprint_icon(void)
+{
+    t_player *player;
+    static int flash_counter = 0;
+    int x_pos;
+    int y_pos;
+
+    player = &get_game()->player;
+    x_pos = get_game()->window_width - 40;
+    y_pos = get_game()->window_height - 40;
+
+    // Draw background
+    draw_text_background(x_pos, y_pos, 30, 30, 0x003A4466);
+
+    // Show sprint icon based on state
+    if (player->is_sprinting)
+    {
+        // Always visible when sprinting
+        draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+    }
+    else if (!player->can_sprint)
+    {
+        // Flash during cooldown
+        flash_counter++;
+        if ((flash_counter / 15) % 2) // Adjust 15 for flash speed
+            draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+    }
+    else
+    {
+        // Normal state
+        draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+    }
+}
+
 int	game_loop(void)
 {
-	
-
 	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
 		get_game()->canvas.img, 0, 0);
 	fps_cap();
@@ -1042,6 +1075,7 @@ int	game_loop(void)
 	victory_check();
 	print_moves();
 	draw_collectible_counter();
+	draw_sprint_icon();
 	return (0);
 }
 

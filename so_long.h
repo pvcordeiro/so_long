@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:58:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 10:58:25 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,34 +25,34 @@
 # include <stdbool.h>
 
 # define FPS 60
+# define SPRITE_SIZE 40
 # define FRAME_DELAY (1000000 / FPS)
+# define FRAME_COUNT 2
 # define COLLECTIBLE_ANIMATION_SPEED 15
+# define COLLECTIBLE_SIZE 20
+# define PLAYER_SPEED 1
 # define PLAYER_IDLE_ANIMATION_SPEED 20
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
-# define FRAME_COUNT 2
-# define ENEMY_ANIMATION_SPEED 20
-# define WALL_ANIMATION_SPEED 100
-# define BUFFER_SIZE 10
-# define COLLISION_Y_OFFSET 15
-# define PLAYER_SPEED 1
 # define SPRINT_MULTIPLIER 2
 # define SPRINT_COOLDOWN 180
 # define SPRINT_DURATION 120
-# define ENEMY_SPEED 1
 # define ATTACK_DURATION 20
 # define ATTACK_RANGE 60
 # define ATTACK_COOLDOWN 40
 # define INVINCIBILITY_DURATION 100
+# define BUFFER_SIZE 10
+# define COLLISION_Y_OFFSET 15
 # define MOVE_COUNT_THRESHOLD 10
-# define ENEMY_MOVE_THRESHOLD 50
-# define ENEMY_COLLISION_WIDTH 10
-# define ENEMY_COLLISION_HEIGHT 20
-# define COLLECTIBLE_SIZE 20
+# define WALL_ANIMATION_SPEED 100
 # define WALL_COLLISION_WIDTH 30
 # define WALL_COLLISION_HEIGHT 25
-# define ENEMY_WALL_COLLISION_WIDTH 40
-# define ENEMY_WALL_COLLISION_HEIGHT 40
-# define SPRITE_SIZE 40
+# define ENEMY_SPEED 1
+# define ENEMY_ANIMATION_SPEED 20
+# define ENEMY_MOVE_THRESHOLD 120
+# define ENEMY_COLLISION_WIDTH 20
+# define ENEMY_COLLISION_HEIGHT 25
+# define ENEMY_WALL_COLLISION_WIDTH 30
+# define ENEMY_WALL_COLLISION_HEIGHT 25
 
 typedef enum e_player_state
 {

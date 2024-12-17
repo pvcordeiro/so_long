@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/16 20:56:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 10:58:48 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,25 @@ static int	check_collision(int x1, int y1, int x2, int y2, unsigned int width,
 	return (ft_abs(x1 - x2) < width && ft_abs((y1 + COLLISION_Y_OFFSET)
 			- y2) < height);
 }
+
+static int	check_enemy_collisions(int x, int y, int current_enemy)
+{
+	t_enemy_list	*enemy_list;
+	int				i;
+
+	enemy_list = &get_game()->enemy_list;
+	i = -1;
+	while (++i < enemy_list->count)
+	{
+		if (i != current_enemy && !enemy_list->enemies[i].is_dead
+			&& check_collision(x, y, enemy_list->enemies[i].x,
+				enemy_list->enemies[i].y, ENEMY_COLLISION_WIDTH,
+				ENEMY_COLLISION_HEIGHT))
+			return (1);
+	}
+	return (0);
+}
+
 
 static void check_attack_collision(void)
 {
@@ -447,7 +466,7 @@ static void update_enemy(void)
         new_x = enemy_list->enemies[i].x + enemy_list->enemies[i].direction * ENEMY_SPEED;
         new_y = enemy_list->enemies[i].y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
 
-        if (!check_wall_collisions(new_x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT))
+        if (!check_wall_collisions(new_x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) && !check_enemy_collisions(new_x, new_y, i))
         {
             enemy_list->enemies[i].x = new_x;
             enemy_list->enemies[i].y = new_y;

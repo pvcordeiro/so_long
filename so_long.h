@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:13:36 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:39:22 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -203,6 +203,15 @@ typedef struct s_health
 	t_img	sprint;
 }	t_health;
 
+typedef struct s_mushroom
+{
+	t_img	sprite;
+	int		x;
+	int		y;
+	bool	active;
+	bool	collected;
+}	t_mushroom;
+
 typedef struct s_game
 {
 	void			*mlx;
@@ -215,6 +224,7 @@ typedef struct s_game
 	t_exit			exit;
 	t_map			map;
 	t_health		health;
+	t_mushroom		mushroom;
 	t_img			floor;
 	t_img			floor2;
 	int				collectible_count;

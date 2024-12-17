@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:34:42 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 12:49:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,6 +104,7 @@ static void	cleanup_sprites(void)
 	mlx_destroy_image(game->mlx, game->canvas.img);
 	mlx_destroy_image(game->mlx, game->floor.img);
 	mlx_destroy_image(game->mlx, game->floor2.img);
+	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
 	free(game->wall.x_positions);
 	free(game->wall.y_positions);
 	free(game->collectible.x_positions);
@@ -680,6 +681,87 @@ static void	draw_health(void)
 	draw_image(current_sprite, &get_game()->canvas, 10, -10);
 }
 
+static void init_mushroom(void)
+{
+    t_mushroom *mushroom;
+    t_map *map;
+    int valid_positions;
+    int random_position;
+    int current_position;
+    int i;
+	int j;
+
+    mushroom = &get_game()->mushroom;
+    map = &get_game()->map;
+    mushroom->sprite = make_sprite("assets/mushroom.xpm");
+    mushroom->active = true;
+    mushroom->collected = false;
+    valid_positions = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+        {
+            if (map->map[i][j] == '0')
+                valid_positions++;
+        }
+    }
+    random_position = rand() % valid_positions;
+    current_position = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+        {
+            if (map->map[i][j] == '0')
+            {
+                if (current_position == random_position)
+                {
+                    mushroom->x = j * SPRITE_SIZE;
+                    mushroom->y = i * SPRITE_SIZE;
+                    return;
+                }
+                current_position++;
+            }
+        }
+    }
+}
+
+static void update_mushroom(void)
+{
+    t_mushroom *mushroom;
+    t_player *player;
+
+    mushroom = &get_game()->mushroom;
+    player = &get_game()->player;
+
+    if (!mushroom->active || mushroom->collected)
+        return;
+
+    if (check_collision(player->x, player->y,
+        mushroom->x, mushroom->y, SPRITE_SIZE, SPRITE_SIZE))
+    {
+        if (player->lives < 3)
+        {
+            player->lives++;
+            mushroom->collected = true;
+            mushroom->active = false;
+        }
+    }
+}
+
+static void draw_mushroom(void)
+{
+    t_mushroom *mushroom;
+
+    mushroom = &get_game()->mushroom;
+    if (mushroom->active && !mushroom->collected)
+        draw_image(&mushroom->sprite, &get_game()->canvas, 
+            mushroom->x, mushroom->y);
+}
+
 static void	init_player(void)
 {
 	t_player	*player;
@@ -774,23 +856,16 @@ static void	update_player_position(void)
 	}
     if (!player->is_attacking)
     {
-        // Try horizontal movement first
         if (get_game()->move_left)
             player->x -= movement_speed;
         if (get_game()->move_right)
             player->x += movement_speed;
-            
-        // Check horizontal collision
         if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
             player->x = prev_x;
-            
-        // Try vertical movement
         if (get_game()->move_up)
             player->y -= movement_speed;
         if (get_game()->move_down)
             player->y += movement_speed;
-            
-        // Check vertical collision
         if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
             player->y = prev_y;
     }
@@ -1027,28 +1102,17 @@ static void draw_sprint_icon(void)
     player = &get_game()->player;
     x_pos = get_game()->window_width - 40;
     y_pos = get_game()->window_height - 40;
-
-    // Draw background
     draw_text_background(x_pos, y_pos, 30, 30, 0x003A4466);
-
-    // Show sprint icon based on state
     if (player->is_sprinting)
-    {
-        // Always visible when sprinting
         draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
-    }
     else if (!player->can_sprint)
     {
-        // Flash during cooldown
         flash_counter++;
-        if ((flash_counter / 15) % 2) // Adjust 15 for flash speed
+        if ((flash_counter / 15) % 2)
             draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
     }
     else
-    {
-        // Normal state
         draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
-    }
 }
 
 int	game_loop(void)
@@ -1058,6 +1122,8 @@ int	game_loop(void)
 	fps_cap();
 	handle_game_state();
 	draw_floor();
+	update_mushroom();
+	draw_mushroom();
 	update_collectible();
 	draw_collectibles();
 	draw_walls();
@@ -1104,6 +1170,7 @@ static void	init_sprites(void)
 	init_enemy();
 	init_exit();
 	init_health();
+	init_mushroom();
 }
 
 static void	setup_hooks(void)
@@ -1188,7 +1255,6 @@ static bool check_path(t_map *map)
     int i, j, collect, px, py;
     bool exit_found;
 
-    // Create temp map
     temp_map = malloc(sizeof(char *) * map->height);
     i = -1;
     while (++i < map->height)
@@ -1202,8 +1268,6 @@ static bool check_path(t_map *map)
             return (false);
         }
     }
-
-    // Find player position
     px = py = -1;
     i = -1;
     while (++i < map->height)
@@ -1217,8 +1281,6 @@ static bool check_path(t_map *map)
                 break;
             }
     }
-
-    // Count collectibles
     collect = 0;
     i = -1;
     while (++i < map->height)
@@ -1228,11 +1290,7 @@ static bool check_path(t_map *map)
             if (map->map[i][j] == 'C')
                 collect++;
     }
-
-    // Flood fill from player position
     flood_fill(temp_map, px, py, &collect);
-
-    // Check if exit is reachable and all collectibles were found
     exit_found = false;
     i = -1;
     while (++i < map->height)
@@ -1242,13 +1300,10 @@ static bool check_path(t_map *map)
             if (map->map[i][j] == 'E' && temp_map[i][j] == 'X')
                 exit_found = true;
     }
-
-    // Cleanup
     i = -1;
     while (++i < map->height)
         free(temp_map[i]);
     free(temp_map);
-
     return (exit_found && collect == 0);
 }
 
@@ -1333,6 +1388,7 @@ int main(int argc, char **argv)
     map_info = parse_map(argv[1]);
     if (!map_info)
 		return (ft_printf("Error\nInvalid map\n"));
+	srand(time(NULL));
 	get_game()->map = *map_info;
     init_window();
     init_sprites();

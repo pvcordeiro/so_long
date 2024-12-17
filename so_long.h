@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 16:05:24 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:49:16 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -202,6 +202,7 @@ typedef struct s_health
 	t_img	health3;
 	t_img	sprint;
 	t_img	banner;
+	t_img	message;
 }	t_health;
 
 typedef struct s_mushroom

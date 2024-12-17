@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 16:27:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 16:54:12 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,10 +101,6 @@ static void	cleanup_sprites(void)
 	int		j;
 
 	game = get_game();
-	mlx_destroy_image(game->mlx, game->canvas.img);
-	mlx_destroy_image(game->mlx, game->floor.img);
-	mlx_destroy_image(game->mlx, game->floor2.img);
-	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
 	free(game->wall.x_positions);
 	free(game->wall.y_positions);
 	free(game->collectible.x_positions);
@@ -135,12 +131,17 @@ static void	cleanup_sprites(void)
         mlx_destroy_image(game->mlx, game->player.attack_right.sprites[i].img);
         mlx_destroy_image(game->mlx, game->player.attack_left.sprites[i].img);
     }
+	mlx_destroy_image(game->mlx, game->canvas.img);
+	mlx_destroy_image(game->mlx, game->floor.img);
+	mlx_destroy_image(game->mlx, game->floor2.img);
+	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
 	mlx_destroy_image(game->mlx, game->exit.sprite.img);
     mlx_destroy_image(game->mlx, game->health.health1.img);
     mlx_destroy_image(game->mlx, game->health.health2.img);
     mlx_destroy_image(game->mlx, game->health.health3.img);
 	mlx_destroy_image(game->mlx, game->health.sprint.img);
 	mlx_destroy_image(game->mlx, game->health.banner.img);
+	mlx_destroy_image(game->mlx, game->health.message.img);
 }
 
 int	exit_game(void)
@@ -162,25 +163,25 @@ int	exit_error(void)
 	exit(EXIT_FAILURE);
 }
 
-static void draw_text_background(int x, int y, int width, int height, unsigned int color)
-{
-    int i;
-    int j;
+// static void draw_text_background(int x, int y, int width, int height, unsigned int color)
+// {
+//     int i;
+//     int j;
 
-    i = y;
-    while (i < y + height)
-    {
-        j = x;
-        while (j < x + width)
-        {
-            if (j >= 0 && j < get_game()->window_width && 
-                i >= 0 && i < get_game()->window_height)
-                *get_pixel(&get_game()->canvas, j, i) = color;
-            j++;
-        }
-        i++;
-    }
-}
+//     i = y;
+//     while (i < y + height)
+//     {
+//         j = x;
+//         while (j < x + width)
+//         {
+//             if (j >= 0 && j < get_game()->window_width && 
+//                 i >= 0 && i < get_game()->window_height)
+//                 *get_pixel(&get_game()->canvas, j, i) = color;
+//             j++;
+//         }
+//         i++;
+//     }
+// }
 
 t_img	make_sprite(char *path)
 {
@@ -717,6 +718,7 @@ static void	init_health(void)
 	health->health3 = make_sprite("assets/health/health3.xpm");
 	health->sprint = make_sprite("assets/sprint.xpm");
 	health->banner = make_sprite("assets/banner.xpm");
+	health->message = make_sprite("assets/helper_message.xpm");
 }
 
 static void	draw_health(void)
@@ -1087,15 +1089,13 @@ static void handle_game_state(void)
 void helper_message(void)
 {
     if (check_collision(get_game()->player.x, get_game()->player.y,
-        get_game()->exit.x, get_game()->exit.y, 20, 20) && 
+        get_game()->exit.x, get_game()->exit.y, 40, 40) && 
         get_game()->collectible_count < get_game()->collectible.count)
     {
-        int x = get_game()->exit.x - 50;
-        int y = get_game()->exit.y - 20;
+        int x = get_game()->exit.x + (SPRITE_SIZE - 160) / 2;
+        int y = get_game()->exit.y - 40;
         
-        draw_text_background(x, y, 130, 15, 0x00FFFFFF);
-        mlx_string_put(get_game()->mlx, get_game()->win, x + 5, y + 12,
-            0x000000, "Collect all coins!!!");
+        draw_image(&get_game()->health.message, &get_game()->canvas, x, y);
     }
 }
 

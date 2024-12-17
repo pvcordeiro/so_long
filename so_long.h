@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 20:04:20 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 22:21:12 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,9 +234,10 @@ typedef struct s_game
 	t_mushroom		mushroom;
 	t_img			floor;
 	t_img			floor2;
+	t_img			victory;
+	t_img			defeat;
 	int				collectible_count;
 	int				total_collectibles;
-	int				game_over;
 	int				move_up;
 	int				move_down;
 	int				move_left;
@@ -244,6 +245,8 @@ typedef struct s_game
 	int				move_count;
 	int				window_width;
 	int				window_height;
+	bool			vic;
+	bool			game_over;
 }	t_game;
 
 int		ft_printf(const char *input, ...);

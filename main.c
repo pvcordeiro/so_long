@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 20:06:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 22:49:35 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -163,26 +163,6 @@ int	exit_error(void)
 	ft_printf("Error\n");
 	exit(EXIT_FAILURE);
 }
-
-// static void draw_text_background(int x, int y, int width, int height, unsigned int color)
-// {
-//     int i;
-//     int j;
-
-//     i = y;
-//     while (i < y + height)
-//     {
-//         j = x;
-//         while (j < x + width)
-//         {
-//             if (j >= 0 && j < get_game()->window_width && 
-//                 i >= 0 && i < get_game()->window_height)
-//                 *get_pixel(&get_game()->canvas, j, i) = color;
-//             j++;
-//         }
-//         i++;
-//     }
-// }
 
 t_img	make_sprite(char *path)
 {
@@ -589,38 +569,41 @@ int	key_loop(int key, char *action)
 	t_player	*player;
 
 	player = &get_game()->player;
-	if ( key == XK_Shift_L)
-	{
-		if (*action == 'p' && get_game()->player.can_sprint)
-			get_game()->player.is_sprinting = true;
-		else if (*action == 'r')
-			get_game()->player.is_sprinting = false;
-	}
-	if (key == XK_w)
-		get_game()->move_up = (*action == 'p');
-	if (key == XK_a)
-		get_game()->move_left = (*action == 'p');
-	if (key == XK_s)
-		get_game()->move_down = (*action == 'p');
-	if (key == XK_d)
-		get_game()->move_right = (*action == 'p');
-	if (key == XK_space && *action == 'p' && !player->is_attacking && player->attack_cooldown == 0)
-	{
-        player->is_attacking = true;
-		player->attack_frame = 0;
-        if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
-        {
-			player->state = ATTACK_RIGHT;
-			player->attack_right.current_frame = 0;
-		}
-        else
-		{
-            player->state = ATTACK_LEFT;
-			player->attack_left.current_frame = 0;
-		}
-    }
 	if (key == XK_Escape)
 		exit_game();
+	if (!get_game()->vic && !get_game()->game_over)
+	{
+		if ( key == XK_Shift_L)
+		{
+			if (*action == 'p' && get_game()->player.can_sprint)
+				get_game()->player.is_sprinting = true;
+			else if (*action == 'r')
+				get_game()->player.is_sprinting = false;
+		}
+		if (key == XK_w)
+			get_game()->move_up = (*action == 'p');
+		if (key == XK_a)
+			get_game()->move_left = (*action == 'p');
+		if (key == XK_s)
+			get_game()->move_down = (*action == 'p');
+		if (key == XK_d)
+			get_game()->move_right = (*action == 'p');
+		if (key == XK_space && *action == 'p' && !player->is_attacking && player->attack_cooldown == 0)
+		{
+			player->is_attacking = true;
+			player->attack_frame = 0;
+			if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
+			{
+				player->state = ATTACK_RIGHT;
+				player->attack_right.current_frame = 0;
+			}
+			else
+			{
+				player->state = ATTACK_LEFT;
+				player->attack_left.current_frame = 0;
+			}
+		}
+	}
 	return (0);
 }
 
@@ -1076,8 +1059,7 @@ static void handle_game_state(void)
             player->invincibility_frames = INVINCIBILITY_DURATION;
             if (player->lives <= 0)
             {
-                ft_printf("Game Over\n");
-                exit_game();
+                get_game()->game_over = true;
             }
             break;
         }
@@ -1119,8 +1101,7 @@ void victory_check(void)
 		&& check_collision(get_game()->player.x, get_game()->player.y,
 			get_game()->exit.x, get_game()->exit.y, 20, 20))
 	{
-		ft_printf("Victory!\n");
-		exit_game();
+		get_game()->vic = true;
 	}
 }
 
@@ -1180,44 +1161,67 @@ static void draw_ui_banners(void)
         banner_bottom_right, get_game()->window_height - 80);
 }
 
-int	game_loop(void)
+static void draw_end_game_screen(void)
 {
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
-		get_game()->canvas.img, 0, 0);
-	fps_cap();
-	handle_game_state();
-	draw_floor();
-	update_mushroom();
-	draw_mushroom();
-	update_collectible();
-	draw_collectibles();
-	draw_walls();
-	update_enemy();
-	check_attack_collision();
-	draw_enemy();
-	update_animation(&get_game()->wall.base);
-	draw_animation(&get_game()->wall.base, &get_game()->canvas);
-	update_player_position();
-	update_player();
-	if (get_game()->player.y < get_game()->exit.y)
+    t_game *game;
+    int x;
+    int y;
+
+    game = get_game();
+    if (game->vic || game->game_over)
     {
-        draw_player();
-        draw_exit_full();
+        x = (game->window_width - 400) / 2;
+        y = (game->window_height - 400) / 2;
+        
+        if (game->vic)
+            draw_image(&game->victory, &game->canvas, x, y);
+        else
+            draw_image(&game->defeat, &game->canvas, x, y);
     }
-    else
+}
+
+int game_loop(void)
+{
+    mlx_put_image_to_window(get_game()->mlx, get_game()->win,
+        get_game()->canvas.img, 0, 0);
+    fps_cap();
+    draw_floor();
+    draw_walls();
+    update_animation(&get_game()->wall.base);
+    draw_animation(&get_game()->wall.base, &get_game()->canvas);
+    draw_end_game_screen();
+    if (!get_game()->vic && !get_game()->game_over)
     {
-        draw_exit_bottom();
-        draw_player();
-        draw_exit_top();
+        handle_game_state();
+        update_mushroom();
+        update_collectible();
+        update_enemy();
+        check_attack_collision();
+        update_player_position();
+        update_player();
+        draw_mushroom();
+        draw_collectibles();
+        draw_enemy();
+        draw_health();
+        victory_check();
+        draw_ui_banners();
+        draw_sprint_icon();
+        if (get_game()->player.y < get_game()->exit.y)
+        {
+            draw_player();
+            draw_exit_full();
+        }
+        else
+        {
+            draw_exit_bottom();
+            draw_player();
+            draw_exit_top();
+        }
+        helper_message();
+        print_moves();
+        draw_collectible_counter();
     }
-	draw_health();
-	helper_message();
-	victory_check();
-	draw_ui_banners();
-	print_moves();
-	draw_collectible_counter();
-	draw_sprint_icon();
-	return (0);
+    return (0);
 }
 
 static void	init_window(void)
@@ -1230,6 +1234,8 @@ static void	init_window(void)
 	game->mlx = mlx_init();
 	game->win = mlx_new_window(game->mlx, game->window_width,
 			game->window_height, "so_long");
+	game->game_over = false;
+	game->vic = false;
 	if (!game->mlx || !game->win)
 		exit_error();
 }
@@ -1239,6 +1245,8 @@ static void	init_sprites(void)
 	get_game()->canvas = make_sprite(NULL);
 	get_game()->floor = make_sprite("assets/terrain/floor00.xpm");
 	get_game()->floor2 = make_sprite("assets/terrain/floor01.xpm");
+	get_game()->victory = make_sprite("assets/victory.xpm");
+	get_game()->defeat = make_sprite("assets/defeat.xpm");
 	init_collectible();
 	init_wall();
 	init_player();
@@ -1255,21 +1263,6 @@ static void	setup_hooks(void)
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
 	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
 }
-// static bool is_map_rectangular(t_map *map)
-// {
-//     int i;
-//     size_t len;
-
-//     len = ft_strlen(map->map[0]);
-//     i = 0;
-//     while (i < map->height)
-//     {
-//         if (ft_strlen(map->map[i]) != len)
-//             return (false);
-//         i++;
-//     }
-//     return (true);
-// }
 
 static bool is_map_surrounded(t_map *map)
 {

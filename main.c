@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 12:49:30 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 13:41:14 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -139,6 +139,8 @@ static void	cleanup_sprites(void)
     mlx_destroy_image(game->mlx, game->health.health1.img);
     mlx_destroy_image(game->mlx, game->health.health2.img);
     mlx_destroy_image(game->mlx, game->health.health3.img);
+	mlx_destroy_image(game->mlx, game->health.sprint.img);
+	mlx_destroy_image(game->mlx, game->health.banner.img);
 }
 
 int	exit_game(void)
@@ -662,6 +664,7 @@ static void	init_health(void)
 	health->health2 = make_sprite("assets/health/health2.xpm");
 	health->health3 = make_sprite("assets/health/health3.xpm");
 	health->sprint = make_sprite("assets/sprint.xpm");
+	health->banner = make_sprite("assets/banner.xpm");
 }
 
 static void	draw_health(void)
@@ -1072,23 +1075,28 @@ static void draw_collectible_counter(void)
 {
     t_collectible *collectible;
     char *count_str;
-    int x_pos;
+    int banner_x;
+    int banner_y;
+    int collect_x;
+    int collect_y;
     
-    draw_text_background(get_game()->window_width - 70, 5, 60, 35, 0x003A4466);
+    banner_x = get_game()->window_width - 70;  // 10px padding from right
+    banner_y = 10;  // 10px padding from top
+    collect_x = banner_x + 6;  // Center in 60x60 banner
+    collect_y = banner_y + 10;
     
+    // Draw banner background
+    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
+    
+    // Draw collectible icon
     collectible = &get_game()->collectible;
-    collectible->base.x = get_game()->window_width - 70;
-    collectible->base.y = 10;
     draw_image(&collectible->base.sprites[0], &get_game()->canvas, 
-        collectible->base.x, collectible->base.y);
+        collect_x, collect_y);
     
-    mlx_string_put(get_game()->mlx, get_game()->win, 
-        get_game()->window_width - 40, 27, 0xFFFFFF, "X");
-    
+    // Draw counter
     count_str = ft_itoa(get_game()->collectible_count);
-    x_pos = get_game()->window_width - 30;
-    mlx_string_put(get_game()->mlx, get_game()->win, x_pos, 27, 
-        0xFFFFFF, count_str);
+    mlx_string_put(get_game()->mlx, get_game()->win, 
+        banner_x + 38, banner_y + 30, 0x000000, count_str);
     free(count_str);
 }
 
@@ -1096,23 +1104,29 @@ static void draw_sprint_icon(void)
 {
     t_player *player;
     static int flash_counter = 0;
-    int x_pos;
-    int y_pos;
+    int banner_x;
+    int banner_y;
+    int sprint_x;
+    int sprint_y;
 
     player = &get_game()->player;
-    x_pos = get_game()->window_width - 40;
-    y_pos = get_game()->window_height - 40;
-    draw_text_background(x_pos, y_pos, 30, 30, 0x003A4466);
+    banner_x = get_game()->window_width - 65;
+    banner_y = get_game()->window_height - 65;
+    sprint_x = banner_x + 10;
+    sprint_y = banner_y + 4;
+    
+    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
+    
     if (player->is_sprinting)
-        draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+        draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x, sprint_y);
     else if (!player->can_sprint)
     {
         flash_counter++;
         if ((flash_counter / 15) % 2)
-            draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+            draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x, sprint_y);
     }
     else
-        draw_image(&get_game()->health.sprint, &get_game()->canvas, x_pos, y_pos);
+        draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x, sprint_y);
 }
 
 int	game_loop(void)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 10:58:48 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 11:42:43 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -944,10 +944,62 @@ static void handle_game_state(void)
     }
 }
 
-int	game_loop(void)
+void helper_message(void)
+{
+	int i;
+	int j;
+	if (check_collision(get_game()->player.x, get_game()->player.y,
+		get_game()->exit.x, get_game()->exit.y, 20, 20) && 
+		get_game()->collectible_count < get_game()->collectible.count)
+	{
+		int x = get_game()->exit.x - 50;
+		int y = get_game()->exit.y - 20;
+		i = y;
+		while (i < y + 15)
+		{
+			j = x;
+			while (j < x + 130)
+			{
+				if (j >= 0 && j < get_game()->window_width && i >= 0 && i < get_game()->window_height)
+					*get_pixel(&get_game()->canvas, j, i) = 0x80000000;
+				j++;
+			}
+			i++;
+		}
+		mlx_string_put(get_game()->mlx, get_game()->win, x + 5, y + 12,
+			0xFFFFFF, "Collect all coins!!!");
+	}
+}
+
+void print_moves(void)
 {
 	char	*print_move;
+	
+	print_move = ft_itoa(get_game()->move_count);
+	mlx_string_put(get_game()->mlx, get_game()->win, 30, get_game()->window_height - 18,
+		0x00FFFFFF, "MOVES:");
+	mlx_string_put(get_game()->mlx, get_game()->win, 70, get_game()->window_height - 18,
+		0x00FFFFFF, print_move);
+	free(print_move);
+}
 
+void victory_check(void)
+{
+	if (get_game()->collectible_count == get_game()->collectible.count
+		&& check_collision(get_game()->player.x, get_game()->player.y,
+			get_game()->exit.x, get_game()->exit.y, 20, 20))
+	{
+		ft_printf("Victory!\n");
+		exit_game();
+	}
+}
+
+int	game_loop(void)
+{
+	
+
+	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
+		get_game()->canvas.img, 0, 0);
 	fps_cap();
 	handle_game_state();
 	draw_floor();
@@ -964,22 +1016,10 @@ int	game_loop(void)
 	update_player();
 	draw_player();
 	draw_health();
-	if (get_game()->collectible_count == get_game()->collectible.count
-		&& check_collision(get_game()->player.x, get_game()->player.y,
-			get_game()->exit.x, get_game()->exit.y, 20, 20))
-	{
-		ft_printf("Victory!\n");
-		exit_game();
-	}
+	helper_message();
+	victory_check();
 	draw_text_background();
-	print_move = ft_itoa(get_game()->move_count);
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
-		get_game()->canvas.img, 0, 0);
-	mlx_string_put(get_game()->mlx, get_game()->win, 30, get_game()->window_height - 18,
-		0x00FFFFFF, "MOVES:");
-	mlx_string_put(get_game()->mlx, get_game()->win, 70, get_game()->window_height - 18,
-		0x00FFFFFF, print_move);
-	free(print_move);
+	print_moves();
 	return (0);
 }
 

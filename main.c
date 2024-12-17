@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 13:41:14 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/17 14:20:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -647,12 +647,73 @@ static void	init_exit(void)
 	exit->sprite = make_sprite("assets/exit.xpm");
 }
 
-static void	draw_exit(void)
+// static void draw_exit(void)
+// {
+//     t_exit *exit;
+//     int draw_y;
+
+//     exit = &get_game()->exit;
+//     draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
+//     draw_image(&exit->sprite, &get_game()->canvas, exit->x, draw_y);
+// }
+
+static void draw_exit_bottom(void)
+{
+    t_exit *exit;
+    t_img temp;
+    int i;
+    int j;
+    int draw_y;
+
+    exit = &get_game()->exit;
+    temp = exit->sprite;
+    draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
+    
+    // Only draw bottom half
+    for (i = temp.height/2; i < temp.height; i++)
+    {
+        for (j = 0; j < temp.width; j++)
+        {
+            if (*get_pixel(&temp, j, i) != 0xFF000000)
+                *get_pixel(&get_game()->canvas, 
+                    exit->x + j, 
+                    draw_y + i) = *get_pixel(&temp, j, i);
+        }
+    }
+}
+
+static void draw_exit_top(void)
+{
+    t_exit *exit;
+    t_img temp;
+    int i;
+    int j;
+    int draw_y;
+
+    exit = &get_game()->exit;
+    temp = exit->sprite;
+    draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
+    
+    // Only draw top half
+    for (i = 0; i < temp.height/2; i++)
+    {
+        for (j = 0; j < temp.width; j++)
+        {
+            if (*get_pixel(&temp, j, i) != 0xFF000000)
+                *get_pixel(&get_game()->canvas, 
+                    exit->x + j, 
+                    draw_y + i) = *get_pixel(&temp, j, i);
+        }
+    }
+}
+static void	draw_exit_full(void)
 {
 	t_exit	*exit;
+	int		draw_y;
 
 	exit = &get_game()->exit;
-	draw_image(&exit->sprite, &get_game()->canvas, exit->x, exit->y);
+	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
+	draw_image(&exit->sprite, &get_game()->canvas, exit->x, draw_y);
 }
 
 static void	init_health(void)
@@ -1047,17 +1108,25 @@ void helper_message(void)
     }
 }
 
-void print_moves(void)
+static void print_moves(void)
 {
-	char	*print_move;
-	
-	draw_text_background(25, get_game()->window_height - 30, 75, 15, 0x003A4466);
-	print_move = ft_itoa(get_game()->move_count);
-	mlx_string_put(get_game()->mlx, get_game()->win, 30, get_game()->window_height - 18,
-		0x00FFFFFF, "MOVES:");
-	mlx_string_put(get_game()->mlx, get_game()->win, 70, get_game()->window_height - 18,
-		0x00FFFFFF, print_move);
-	free(print_move);
+    char *print_move;
+    int banner_x;
+    int banner_y;
+    int text_x;
+    int text_y;
+    
+    banner_x = 10;
+    banner_y = get_game()->window_height - 70;
+    draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
+    text_x = banner_x + 15;
+    text_y = banner_y + 30;
+    print_move = ft_itoa(get_game()->move_count);
+    mlx_string_put(get_game()->mlx, get_game()->win, text_x, text_y - 10,
+        0x000000, "MOVES");
+    mlx_string_put(get_game()->mlx, get_game()->win, text_x + 8, text_y + 5,
+        0x000000, print_move);
+    free(print_move);
 }
 
 void victory_check(void)
@@ -1079,21 +1148,14 @@ static void draw_collectible_counter(void)
     int banner_y;
     int collect_x;
     int collect_y;
-    
-    banner_x = get_game()->window_width - 70;  // 10px padding from right
-    banner_y = 10;  // 10px padding from top
-    collect_x = banner_x + 6;  // Center in 60x60 banner
+    banner_x = get_game()->window_width - 70;
+    banner_y = 10;
+    collect_x = banner_x + 6;
     collect_y = banner_y + 10;
-    
-    // Draw banner background
     draw_image(&get_game()->health.banner, &get_game()->canvas, banner_x, banner_y);
-    
-    // Draw collectible icon
     collectible = &get_game()->collectible;
     draw_image(&collectible->base.sprites[0], &get_game()->canvas, 
         collect_x, collect_y);
-    
-    // Draw counter
     count_str = ft_itoa(get_game()->collectible_count);
     mlx_string_put(get_game()->mlx, get_game()->win, 
         banner_x + 38, banner_y + 30, 0x000000, count_str);
@@ -1144,12 +1206,22 @@ int	game_loop(void)
 	update_enemy();
 	check_attack_collision();
 	draw_enemy();
-	draw_exit();
+	// draw_exit();
 	update_animation(&get_game()->wall.base);
 	draw_animation(&get_game()->wall.base, &get_game()->canvas);
 	update_player_position();
 	update_player();
-	draw_player();
+	if (get_game()->player.y < get_game()->exit.y)
+    {
+        draw_player();
+        draw_exit_full();
+    }
+    else
+    {
+        draw_exit_bottom();
+        draw_player();
+        draw_exit_top();
+    }
 	draw_health();
 	helper_message();
 	victory_check();
@@ -1225,7 +1297,7 @@ static bool is_map_surrounded(t_map *map)
     return (true);
 }
 
-static bool count_entities(t_map *map, int *player, int *exit, int *collect)
+static bool count_entities(t_map *map, int *player, int *exit, int *collect, int *empty)
 {
     int i;
     int j;
@@ -1233,6 +1305,7 @@ static bool count_entities(t_map *map, int *player, int *exit, int *collect)
     *player = 0;
     *exit = 0;
     *collect = 0;
+	*empty = 0;
     i = -1;
     while (++i < map->height)
     {
@@ -1245,9 +1318,11 @@ static bool count_entities(t_map *map, int *player, int *exit, int *collect)
                 (*exit)++;
             else if (map->map[i][j] == 'C')
                 (*collect)++;
+			else if (map->map[i][j] == '0')
+				(*empty)++;
         }
     }
-    return (*player == 1 && *exit == 1 && *collect > 0);
+    return (*player == 1 && *exit == 1 && *collect > 0 && *empty > 0);
 }
 
 static void flood_fill(char **map, int x, int y, int *collect)
@@ -1323,13 +1398,11 @@ static bool check_path(t_map *map)
 
 static bool validate_map(t_map *map)
 {
-    int player, exit, collect;
+    int player, exit, collect, empty;
 
-    // if (!is_map_rectangular(map))
-    //     return (false);
     if (!is_map_surrounded(map))
         return (false);
-    if (!count_entities(map, &player, &exit, &collect))
+    if (!count_entities(map, &player, &exit, &collect, &empty))
         return (false);
     if (!check_path(map))
         return (false);

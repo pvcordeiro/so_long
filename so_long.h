@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 12:46:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 13:17:19 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
 # define COLLISION_Y_OFFSET 20
 # define PLAYER_HITBOX_X_OFFSET 10
-# define PLAYER_HITBOX_Y_OFFSET 15
-# define PLAYER_COLLISION_WIDTH 60
-# define PLAYER_COLLISION_HEIGHT 50
+# define PLAYER_HITBOX_Y_OFFSET 25
+# define PLAYER_COLLISION_WIDTH 50
+# define PLAYER_COLLISION_HEIGHT 40
 # define SPRINT_MULTIPLIER 2
 # define SPRINT_COOLDOWN 180
 # define SPRINT_DURATION 60
@@ -54,14 +54,14 @@
 # define ENEMY_ANIMATION_SPEED 20
 # define ENEMY_MOVE_THRESHOLD 100
 # define ENEMY_COLLISION_WIDTH 60
-# define ENEMY_COLLISION_HEIGHT 50
+# define ENEMY_COLLISION_HEIGHT 40
 # define ENEMY_WALL_COLLISION_WIDTH 60
-# define ENEMY_WALL_COLLISION_HEIGHT 50
+# define ENEMY_WALL_COLLISION_HEIGHT 70
 # define ENEMY_SPRITE_WIDTH 80
 # define ENEMY_SPRITE_HEIGHT 80
 # define HITBOX_X_OFFSET 20
 # define HITBOX_Y_OFFSET 20
-# define ENEMY_HITBOX_Y_OFFSET 15
+# define ENEMY_HITBOX_Y_OFFSET 25
 # define ENEMY_HITBOX_X_OFFSET 10
 # define ATTACK_HITBOX_Y_OFFSET 10
 

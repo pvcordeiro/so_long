@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 12:49:06 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 13:18:26 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,9 @@ unsigned int	ft_abs(int n)
 	return (n);
 }
 
-static int check_collision(int x1, int y1, int x2, int y2, unsigned int width,
-        unsigned int height)
+static int check_collision(int x1, int y1, int x2, int y2, int width, int height)
 {
-    return (ft_abs(x1 - x2) < width && ft_abs(y1 - y2) < height);
+    return (x1 < (x2 + width) && (x1 + width) > x2 && y1 < (y2 + height) && (y1 + height) > y2);
 }
 
 static int check_enemy_collisions(int x, int y, int current_enemy)
@@ -103,25 +102,6 @@ unsigned int	*get_pixel(t_img *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
 					/ 8))));
-}
-
-static void draw_debug_square(t_img *canvas, int x, int y, int size, unsigned int color)
-{
-    int i, j;
-    
-    for (i = 0; i < size; i++) {
-        if (x + i < canvas->width) {
-            *get_pixel(canvas, x + i, y) = color;
-            *get_pixel(canvas, x + i, y + size) = color;
-        }
-    }
-    
-    for (j = 0; j < size; j++) {
-        if (y + j < canvas->height) {
-            *get_pixel(canvas, x, y + j) = color;
-            *get_pixel(canvas, x + size, y + j) = color;
-        }
-    }
 }
 
 static void	cleanup_sprites(void)
@@ -373,7 +353,7 @@ static void	init_wall(void)
 	init_animation(&wall->base, FRAME_COUNT, WALL_ANIMATION_SPEED);
 }
 
-static int check_wall_collisions(int x, int y, unsigned int width, unsigned int height)
+static int check_wall_collisions(int x, int y, int width, int height)
 {
 	t_wall	*wall;
 	int		i;
@@ -481,20 +461,31 @@ static void update_enemy(void)
         prev_y = enemy_list->enemies[i].y;
         new_x = prev_x + enemy_list->enemies[i].direction * ENEMY_SPEED;
         enemy_list->enemies[i].x = new_x;
-        if (check_wall_collisions(new_x, prev_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) 
-            || check_enemy_collisions(new_x, prev_y, i))
-        {
-            enemy_list->enemies[i].x = prev_x;
-            enemy_list->enemies[i].direction *= -1;
-        }
-        new_y = prev_y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
-        enemy_list->enemies[i].y = new_y;
-        if (check_wall_collisions(enemy_list->enemies[i].x, new_y, ENEMY_WALL_COLLISION_WIDTH, ENEMY_WALL_COLLISION_HEIGHT) 
-            || check_enemy_collisions(enemy_list->enemies[i].x, new_y, i))
-        {
-            enemy_list->enemies[i].y = prev_y;
-            enemy_list->enemies[i].y_direction *= -1;
-        }
+        if (check_wall_collisions(
+        enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+        enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+        ENEMY_COLLISION_WIDTH,
+        ENEMY_COLLISION_HEIGHT) 
+        || check_enemy_collisions(new_x, prev_y, i))
+    {
+        enemy_list->enemies[i].x = prev_x;
+        enemy_list->enemies[i].direction *= -1;
+    }
+
+    new_y = prev_y + enemy_list->enemies[i].y_direction * ENEMY_SPEED;
+    enemy_list->enemies[i].y = new_y;
+    
+    // Update Y collision check
+    if (check_wall_collisions(
+        enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+        enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+        ENEMY_COLLISION_WIDTH,
+        ENEMY_COLLISION_HEIGHT)
+        || check_enemy_collisions(enemy_list->enemies[i].x, new_y, i))
+    {
+        enemy_list->enemies[i].y = prev_y;
+        enemy_list->enemies[i].y_direction *= -1;
+    }
         if (enemy_list->enemies[i].direction > 0)
             enemy_list->enemies[i].state = MOVE_RIGHT;
         else if (enemy_list->enemies[i].direction < 0)
@@ -533,13 +524,6 @@ static void draw_enemy(void)
 
         current_anim->x = enemy_list->enemies[i].x;
         current_anim->y = enemy_list->enemies[i].y;
-
-		draw_debug_square(&get_game()->canvas,
-        enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
-        enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
-        ENEMY_COLLISION_WIDTH,
-        0xFF0000);
-
         draw_animation(current_anim, &get_game()->canvas);
     }
 }
@@ -1050,29 +1034,7 @@ static void	draw_player(void)
 	else if (player->state == ATTACK_LEFT)
 		current_anim = &player->attack_left;
 	current_anim->x = player->x;
-	current_anim->y = player->y;
-
-	draw_debug_square(&get_game()->canvas, 
-		player->x + PLAYER_HITBOX_X_OFFSET,
-		player->y + PLAYER_HITBOX_Y_OFFSET,
-		PLAYER_COLLISION_WIDTH,
-		0x0000FF);
-    
-    if (player->is_attacking)
-	{
-		int attack_x = player->x + PLAYER_HITBOX_X_OFFSET;
-		if (player->state == ATTACK_RIGHT)
-			attack_x = player->x + PLAYER_HITBOX_X_OFFSET + PLAYER_COLLISION_WIDTH;
-		else
-			attack_x = player->x + PLAYER_HITBOX_X_OFFSET - ATTACK_RANGE;
-			
-		draw_debug_square(&get_game()->canvas,
-			attack_x,
-			player->y + PLAYER_HITBOX_Y_OFFSET,
-			ATTACK_RANGE,
-			0x00FF00);
-	}
-	
+	current_anim->y = player->y;	
 	draw_animation(current_anim, &get_game()->canvas);
 }
 
@@ -1106,16 +1068,22 @@ static void handle_game_state(void)
     while (++i < enemy_list->count)
     {
         if (!enemy_list->enemies[i].is_dead && 
-            check_collision(player->x + PLAYER_HITBOX_X_OFFSET, player->y + PLAYER_HITBOX_Y_OFFSET, enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET, enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT) && 
             player->invincibility_frames == 0)
         {
-            player->lives--;
-            player->invincibility_frames = INVINCIBILITY_DURATION;
-            if (player->lives <= 0)
+            int px = player->x + PLAYER_HITBOX_X_OFFSET;
+            int py = player->y + PLAYER_HITBOX_Y_OFFSET;
+            int ex = enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET;
+            int ey = enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET;
+            
+            if (check_collision(px, py, ex, ey, 
+                PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT))
             {
-                get_game()->game_over = true;
+                player->lives--;
+                player->invincibility_frames = INVINCIBILITY_DURATION;
+                if (player->lives <= 0)
+                    get_game()->game_over = true;
+                break;
             }
-            break;
         }
     }
 }
@@ -1256,10 +1224,7 @@ int game_loop(void)
         draw_mushroom();
         draw_collectibles();
         draw_enemy();
-        draw_health();
         victory_check();
-        draw_ui_banners();
-        draw_sprint_icon();
         if (get_game()->player.y < get_game()->exit.y)
         {
             draw_player();
@@ -1272,6 +1237,9 @@ int game_loop(void)
             draw_exit_top();
         }
         helper_message();
+        draw_ui_banners();
+        draw_sprint_icon();
+        draw_health();
         print_moves();
         draw_collectible_counter();
     }

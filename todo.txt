@@ -1,4 +1,2 @@
-init_enemy() (29 lines)
-load_player_animations() (32 lines)
 update_enemy_movement() (34 lines)
 draw_player() (32 lines)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:40:53 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:43:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,40 +147,52 @@ void	init_enemy_state(t_enemy *enemy, int x, int y)
 	enemy->is_visible = true;
 }
 
-void	update_enemy_movement(t_enemy *enemy)
+static void update_enemy_direction(t_enemy *enemy)
 {
-	int	prev_x;
-	int	prev_y;
+    if (rand() % 2 == 0)
+    {
+        enemy->direction = (rand() % 2) * 2 - 1;
+        enemy->y_direction = 0;
+    }
+    else
+    {
+        enemy->direction = 0;
+        enemy->y_direction = (rand() % 2) * 2 - 1;
+    }
+    enemy->move_counter = 0;
+}
 
-	enemy->move_counter++;
-	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
-	{
-		if (rand() % 2 == 0)
-		{
-			enemy->direction = (rand() % 2) * 2 - 1;
-			enemy->y_direction = 0;
-		}
-		else
-		{
-			enemy->direction = 0;
-			enemy->y_direction = (rand() % 2) * 2 - 1;
-		}
-		enemy->move_counter = 0;
-	}
-	prev_x = enemy->x;
-	prev_y = enemy->y;
-	enemy->x += enemy->direction * ENEMY_SPEED;
-	enemy->y += enemy->y_direction * ENEMY_SPEED;
-	if (check_wall_collisions(enemy->x + ENEMY_HITBOX_X_OFFSET, enemy->y
-			+ ENEMY_HITBOX_Y_OFFSET, ENEMY_COLLISION_WIDTH,
-			ENEMY_COLLISION_HEIGHT) || check_enemy_collisions(enemy->x,
-			enemy->y, enemy - get_game()->enemy_list.enemies))
-	{
-		enemy->x = prev_x;
-		enemy->y = prev_y;
-		enemy->direction *= -1;
-		enemy->y_direction *= -1;
-	}
+static void handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y)
+{
+    if (check_wall_collisions(enemy->x + ENEMY_HITBOX_X_OFFSET, 
+                            enemy->y + ENEMY_HITBOX_Y_OFFSET,
+                            ENEMY_COLLISION_WIDTH,
+                            ENEMY_COLLISION_HEIGHT) ||
+        check_enemy_collisions(enemy->x, enemy->y, 
+                             enemy - get_game()->enemy_list.enemies))
+    {
+        enemy->x = prev_x;
+        enemy->y = prev_y;
+        enemy->direction *= -1;
+        enemy->y_direction *= -1;
+    }
+}
+
+void update_enemy_movement(t_enemy *enemy)
+{
+    int prev_x;
+    int prev_y;
+
+    enemy->move_counter++;
+    if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
+        update_enemy_direction(enemy);
+
+    prev_x = enemy->x;
+    prev_y = enemy->y;
+    enemy->x += enemy->direction * ENEMY_SPEED;
+    enemy->y += enemy->y_direction * ENEMY_SPEED;
+    
+    handle_enemy_collision(enemy, prev_x, prev_y);
 }
 
 void	update_enemy_state(t_enemy *enemy)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 13:17:19 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 13:32:10 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@
 # define PLAYER_SPEED 2
 # define PLAYER_IDLE_ANIMATION_SPEED 20
 # define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
-# define COLLISION_Y_OFFSET 20
 # define PLAYER_HITBOX_X_OFFSET 10
 # define PLAYER_HITBOX_Y_OFFSET 25
 # define PLAYER_COLLISION_WIDTH 50
@@ -46,19 +45,12 @@
 # define ATTACK_COOLDOWN 40
 # define INVINCIBILITY_DURATION 100
 # define BUFFER_SIZE 10
-# define MOVE_COUNT_THRESHOLD 10
 # define WALL_ANIMATION_SPEED 100
-# define WALL_COLLISION_WIDTH 60
-# define WALL_COLLISION_HEIGHT 50
 # define ENEMY_SPEED 2
 # define ENEMY_ANIMATION_SPEED 20
 # define ENEMY_MOVE_THRESHOLD 100
 # define ENEMY_COLLISION_WIDTH 60
 # define ENEMY_COLLISION_HEIGHT 40
-# define ENEMY_WALL_COLLISION_WIDTH 60
-# define ENEMY_WALL_COLLISION_HEIGHT 70
-# define ENEMY_SPRITE_WIDTH 80
-# define ENEMY_SPRITE_HEIGHT 80
 # define HITBOX_X_OFFSET 20
 # define HITBOX_Y_OFFSET 20
 # define ENEMY_HITBOX_Y_OFFSET 25
@@ -71,31 +63,9 @@ typedef enum e_player_state
     IDLE_LEFT,
     MOVE_RIGHT,
     MOVE_LEFT,
-	MOVE_UP,
-	MOVE_DOWN,
 	ATTACK_RIGHT,
 	ATTACK_LEFT
 }	t_player_state;
-
-typedef enum e_sprite_type
-{
-	SPRITE_PLAYER,
-	SPRITE_ENEMY,
-	SPRITE_COLLECTIBLE,
-	SPRITE_WALL,
-	SPRITE_EXIT,
-	SPRITE_HEALTH
-}	t_sprite_type;
-
-typedef struct s_sprite_config
-{
-	char			**paths;
-	int				frame_count;
-	int				anim_speed;
-	int				x;
-	int				y;
-	t_sprite_type	type;
-}	t_sprite_config;
 
 typedef struct s_img
 {
@@ -201,9 +171,6 @@ typedef struct s_map
     char	**map;
     int		width;
     int		height;
-    int		collectibles;
-    int		collectibles_reachable;
-    int		exit_reachable;
 }	t_map;
 
 typedef struct s_health
@@ -243,7 +210,6 @@ typedef struct s_game
 	t_img			victory;
 	t_img			defeat;
 	int				collectible_count;
-	int				total_collectibles;
 	int				move_up;
 	int				move_down;
 	int				move_left;
@@ -265,6 +231,5 @@ char	*ft_strchr(const char *s, int c);
 char	*ft_strrchr(const char *s, int c);
 int		ft_strcmp(const char *s1, const char *s2);
 char	*ft_strdup(const char *s);
-void	init_sprite(t_animation *anim, t_sprite_config config);
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 13:18:26 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 13:32:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1454,9 +1454,6 @@ t_map *parse_map(char *filename)
     map_info->map[i] = NULL;
     close(fd);
 
-    map_info->collectibles = 0;
-    map_info->collectibles_reachable = 0;
-    map_info->exit_reachable = 0;
 	if (!validate_map(map_info))
 	{
 		i = -1;

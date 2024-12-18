@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 13:32:10 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 14:19:07 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -231,5 +231,60 @@ char	*ft_strchr(const char *s, int c);
 char	*ft_strrchr(const char *s, int c);
 int		ft_strcmp(const char *s1, const char *s2);
 char	*ft_strdup(const char *s);
+void init_entity_position(char **map, int height, int width, char c, int *x, int *y);
+void handle_entity_collision(int *x, int *y, int prev_x, int prev_y);
+void load_player_animations(t_player *player);
+void load_enemy_animations(t_enemy *enemy);
+void handle_entity_movement(int *pos, int *prev_pos, int direction, int speed);
+int count_map_char(char **map, int height, int width, char c);
+void load_animation_sprites(t_animation *anim, char *path1, char *path2, int speed);
+void load_player_animations(t_player *player);
+void update_enemy_state(t_enemy *enemy);
+void update_enemy_movement(t_enemy *enemy);
+void init_enemy_state(t_enemy *enemy, int x, int y);
+void init_enemy_animations(t_enemy *enemy);
+int check_wall_collisions(int x, int y, int width, int height);
+int check_enemy_collisions(int x, int y, int current_enemy);
+void	update_animation(t_animation *anim);
+void update_game_state(void);
+void draw_background_layer(void);
+void draw_entity_layer(void);
+void draw_player_and_exit(void);
+void draw_ui_layer(void);
+void handle_game_state(void);
+void update_mushroom(void);
+void	update_collectible(void);
+void update_enemy(void);
+void check_attack_collision(void);
+void	update_player_position(void);
+void	update_player(void);
+void victory_check(void);
+void	draw_floor(void);
+void draw_collectibles(void);
+void	draw_walls(void);
+void draw_enemy(void);
+void	draw_player(void);
+void	draw_exit_full(void);
+void draw_exit_bottom(void);
+void draw_exit_top(void);
+void	draw_health(void);
+void	init_health(void);
+void	draw_animation(t_animation *anim, t_img *canvas);
+void draw_mushroom(void);
+void helper_message(void);
+void draw_ui_banners(void);
+void draw_end_game_screen(void);
+void draw_sprint_icon(void);
+void draw_collectible_counter(void);
+void print_moves(void);
+void update_entities(void);
+void draw_frame(void);
+void init_game(char *map_path);
+void	cleanup_sprites(void);
+void cleanup_game(void);
+void	init_window(void);
+void	init_sprites(void);
+void	setup_hooks(void);
+void draw_text_layer(void);
 
 #endif

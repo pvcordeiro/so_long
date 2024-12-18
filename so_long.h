@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 22:21:12 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 12:19:16 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@
 # define SPRINT_COOLDOWN 180
 # define SPRINT_DURATION 60
 # define ATTACK_DURATION 20
-# define ATTACK_RANGE 80
+# define ATTACK_RANGE 60
 # define ATTACK_COOLDOWN 40
 # define INVINCIBILITY_DURATION 100
 # define BUFFER_SIZE 10
@@ -58,6 +58,8 @@
 # define ENEMY_SPRITE_HEIGHT 80
 # define HITBOX_X_OFFSET 20
 # define HITBOX_Y_OFFSET 20
+# define ENEMY_HITBOX_Y_OFFSET 20
+# define ATTACK_HITBOX_Y_OFFSET 10
 
 typedef enum e_player_state
 {

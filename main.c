@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/17 22:49:35 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 12:21:20 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ static void check_attack_collision(void)
 		{
 			if ((player->state == ATTACK_RIGHT && enemy_list->enemies[i].x > player->x) || (player->state == ATTACK_LEFT && enemy_list->enemies[i].x < player->x))
 			{
-				if (check_collision(player->x, player->y, enemy_list->enemies[i].x, enemy_list->enemies[i].y, ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
+				if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET, enemy_list->enemies[i].x, enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET, ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
 				{
 					enemy_list->enemies[i].lives--;
 					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION;

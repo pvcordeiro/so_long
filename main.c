@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 16:48:57 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 16:53:06 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1054,7 +1054,7 @@ static void	init_player(void)
 	player->can_sprint = true;
 }
 
-void	handle_sprint(t_player *player, int *movement_speed)
+static void	handle_sprint(t_player *player, int *movement_speed)
 {
 	if (player->sprint_duration < SPRINT_DURATION)
 	{
@@ -1069,7 +1069,7 @@ void	handle_sprint(t_player *player, int *movement_speed)
 	}
 }
 
-void	handle_sprint_cooldown(t_player *player)
+static void	handle_sprint_cooldown(t_player *player)
 {
 	if (!player->can_sprint)
 	{
@@ -1082,7 +1082,7 @@ void	handle_sprint_cooldown(t_player *player)
 	}
 }
 
-void	handle_movement(t_player *player, int movement_speed, int *prev_x,
+static void	handle_movement(t_player *player, int movement_speed, int *prev_x,
 		int *prev_y)
 {
 	if (get_game()->move_left)
@@ -1126,70 +1126,80 @@ void	update_player_position(void)
 	}
 }
 
+static void	handle_player_attack(t_player *player, t_animation *current_anim)
+{
+    player->attack_timer++;
+    if (player->state == ATTACK_RIGHT)
+        current_anim = &player->attack_right;
+    else
+        current_anim = &player->attack_left;
+    if (player->attack_timer < 10)
+        current_anim->current_frame = 0;
+    else if (player->attack_timer < 20)
+        current_anim->current_frame = 1;
+    else
+    {
+        player->is_attacking = false;
+        player->attack_cooldown = player->max_attack_cooldown;
+        player->attack_timer = 0;
+        if (player->state == ATTACK_RIGHT)
+            player->state = IDLE_RIGHT;
+        else
+            player->state = IDLE_LEFT;
+    }
+}
+
+static void	update_player_state(t_player *player)
+{
+    if (get_game()->move_right)
+    {
+        player->state = MOVE_RIGHT;
+        player->last_direction = MOVE_RIGHT;
+    }
+    else if (get_game()->move_left)
+    {
+        player->state = MOVE_LEFT;
+        player->last_direction = MOVE_LEFT;
+    }
+    else if (get_game()->move_up || get_game()->move_down)
+    {
+        if (player->last_direction == MOVE_RIGHT)
+            player->state = MOVE_RIGHT;
+        else
+            player->state = MOVE_LEFT;
+    }
+    else
+    {
+        if (player->last_direction == MOVE_RIGHT)
+            player->state = IDLE_RIGHT;
+        else
+            player->state = IDLE_LEFT;
+    }
+}
+
 void	update_player(void)
 {
-	t_player	*player;
-	t_animation	*current_anim;
+    t_player    *player;
+    t_animation *current_anim;
 
-	player = &get_game()->player;
-	if (player->attack_cooldown > 0)
-		player->attack_cooldown--;
-	if (player->is_attacking)
-	{
-		player->attack_timer++;
-		if (player->state == ATTACK_RIGHT)
-			current_anim = &player->attack_right;
-		else
-			current_anim = &player->attack_left;
-		if (player->attack_timer < 10)
-			current_anim->current_frame = 0;
-		else if (player->attack_timer < 20)
-			current_anim->current_frame = 1;
-		else
-		{
-			player->is_attacking = false;
-			player->attack_cooldown = player->max_attack_cooldown;
-			player->attack_timer = 0;
-			if (player->state == ATTACK_RIGHT)
-				player->state = IDLE_RIGHT;
-			else
-				player->state = IDLE_LEFT;
-		}
-		return ;
-	}
-	if (get_game()->move_right)
-	{
-		player->state = MOVE_RIGHT;
-		player->last_direction = MOVE_RIGHT;
-	}
-	else if (get_game()->move_left)
-	{
-		player->state = MOVE_LEFT;
-		player->last_direction = MOVE_LEFT;
-	}
-	else if (get_game()->move_up || get_game()->move_down)
-	{
-		if (player->last_direction == MOVE_RIGHT)
-			player->state = MOVE_RIGHT;
-		else
-			player->state = MOVE_LEFT;
-	}
-	else
-	{
-		if (player->last_direction == MOVE_RIGHT)
-			player->state = IDLE_RIGHT;
-		else
-			player->state = IDLE_LEFT;
-	}
-	if (player->state == IDLE_RIGHT)
-		current_anim = &player->idle_right;
-	else if (player->state == IDLE_LEFT)
-		current_anim = &player->idle_left;
-	else if (player->state == MOVE_RIGHT)
-		current_anim = &player->move_right;
-	else
-		current_anim = &player->move_left;
-	update_animation(current_anim);
+    player = &get_game()->player;
+    if (player->attack_cooldown > 0)
+        player->attack_cooldown--;
+    if (player->is_attacking)
+    {
+        handle_player_attack(player, current_anim);
+        return;
+    }
+    update_player_state(player);
+    if (player->state == IDLE_RIGHT)
+        current_anim = &player->idle_right;
+    else if (player->state == IDLE_LEFT)
+        current_anim = &player->idle_left;
+    else if (player->state == MOVE_RIGHT)
+        current_anim = &player->move_right;
+    else
+        current_anim = &player->move_left;
+    update_animation(current_anim);
 }
 
 void	draw_player(void)

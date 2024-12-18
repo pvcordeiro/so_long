@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 12:21:20 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 12:49:06 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,30 +25,32 @@ unsigned int	ft_abs(int n)
 	return (n);
 }
 
-static int	check_collision(int x1, int y1, int x2, int y2, unsigned int width,
-		unsigned int height)
+static int check_collision(int x1, int y1, int x2, int y2, unsigned int width,
+        unsigned int height)
 {
-	return (ft_abs(x1 - x2) < width &&
-			ft_abs((y1 + COLLISION_Y_OFFSET)
-			- y2) < height);
+    return (ft_abs(x1 - x2) < width && ft_abs(y1 - y2) < height);
 }
 
-static int	check_enemy_collisions(int x, int y, int current_enemy)
+static int check_enemy_collisions(int x, int y, int current_enemy)
 {
-	t_enemy_list	*enemy_list;
-	int				i;
+    t_enemy_list *enemy_list;
+    int i;
 
-	enemy_list = &get_game()->enemy_list;
-	i = -1;
-	while (++i < enemy_list->count)
-	{
-		if (i != current_enemy && !enemy_list->enemies[i].is_dead
-			&& check_collision(x, y, enemy_list->enemies[i].x + HITBOX_X_OFFSET,
-				enemy_list->enemies[i].y + HITBOX_Y_OFFSET, ENEMY_COLLISION_WIDTH,
-				ENEMY_COLLISION_HEIGHT))
-			return (1);
-	}
-	return (0);
+    enemy_list = &get_game()->enemy_list;
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (i != current_enemy && !enemy_list->enemies[i].is_dead
+            && check_collision(
+                x + ENEMY_HITBOX_X_OFFSET,
+                y + ENEMY_HITBOX_Y_OFFSET,
+                enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+                enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+                ENEMY_COLLISION_WIDTH,
+                ENEMY_COLLISION_HEIGHT))
+            return (1);
+    }
+    return (0);
 }
 
 
@@ -56,43 +58,70 @@ static void check_attack_collision(void)
 {
     t_player *player;
     t_enemy_list *enemy_list;
-	int	i;
+    int i;
 
     player = &get_game()->player;
     enemy_list = &get_game()->enemy_list;
-	i = -1;
-	while (++i < enemy_list->count)
-	{
-		if (!enemy_list->enemies[i].is_dead && player->is_attacking && enemy_list->enemies[i].invincibility_frames == 0)
-		{
-			if ((player->state == ATTACK_RIGHT && enemy_list->enemies[i].x > player->x) || (player->state == ATTACK_LEFT && enemy_list->enemies[i].x < player->x))
-			{
-				if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET, enemy_list->enemies[i].x, enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET, ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
-				{
-					enemy_list->enemies[i].lives--;
-					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION;
-					if (player->x < enemy_list->enemies[i].x)
-					{
-						enemy_list->enemies[i].direction = 1;
-						enemy_list->enemies[i].state = MOVE_RIGHT;
-					}
-					else
-					{
-						enemy_list->enemies[i].direction = -1;
-						enemy_list->enemies[i].state = MOVE_LEFT;
-					}
-					if (enemy_list->enemies[i].lives <= 0)
-						enemy_list->enemies[i].is_dead = true;
-				}
-			}
-		}
-	}
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (!enemy_list->enemies[i].is_dead && player->is_attacking 
+            && enemy_list->enemies[i].invincibility_frames == 0)
+        {
+            if ((player->state == ATTACK_RIGHT && enemy_list->enemies[i].x > player->x) 
+                || (player->state == ATTACK_LEFT && enemy_list->enemies[i].x < player->x))
+            {
+                if (check_collision(
+                    player->x,
+                    player->y + ATTACK_HITBOX_Y_OFFSET,
+                    enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+                    enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+                    ATTACK_RANGE,
+                    ENEMY_COLLISION_HEIGHT))
+                {
+                    enemy_list->enemies[i].lives--;
+                    enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION;
+                    if (player->x < enemy_list->enemies[i].x)
+                    {
+                        enemy_list->enemies[i].direction = 1;
+                        enemy_list->enemies[i].state = MOVE_RIGHT;
+                    }
+                    else
+                    {
+                        enemy_list->enemies[i].direction = -1;
+                        enemy_list->enemies[i].state = MOVE_LEFT;
+                    }
+                    if (enemy_list->enemies[i].lives <= 0)
+                        enemy_list->enemies[i].is_dead = true;
+                }
+            }
+        }
+    }
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
 					/ 8))));
+}
+
+static void draw_debug_square(t_img *canvas, int x, int y, int size, unsigned int color)
+{
+    int i, j;
+    
+    for (i = 0; i < size; i++) {
+        if (x + i < canvas->width) {
+            *get_pixel(canvas, x + i, y) = color;
+            *get_pixel(canvas, x + i, y + size) = color;
+        }
+    }
+    
+    for (j = 0; j < size; j++) {
+        if (y + j < canvas->height) {
+            *get_pixel(canvas, x, y + j) = color;
+            *get_pixel(canvas, x + size, y + j) = color;
+        }
+    }
 }
 
 static void	cleanup_sprites(void)
@@ -504,6 +533,13 @@ static void draw_enemy(void)
 
         current_anim->x = enemy_list->enemies[i].x;
         current_anim->y = enemy_list->enemies[i].y;
+
+		draw_debug_square(&get_game()->canvas,
+        enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+        enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+        ENEMY_COLLISION_WIDTH,
+        0xFF0000);
+
         draw_animation(current_anim, &get_game()->canvas);
     }
 }
@@ -645,7 +681,6 @@ static void draw_exit_bottom(void)
     temp = exit->sprite;
     draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
     
-    // Only draw bottom half
     for (i = temp.height/2; i < temp.height; i++)
     {
         for (j = 0; j < temp.width; j++)
@@ -670,7 +705,6 @@ static void draw_exit_top(void)
     temp = exit->sprite;
     draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
     
-    // Only draw top half
     for (i = 0; i < temp.height/2; i++)
     {
         for (j = 0; j < temp.width; j++)
@@ -903,13 +937,13 @@ static void	update_player_position(void)
             player->x -= movement_speed;
         if (get_game()->move_right)
             player->x += movement_speed;
-        if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+        if (check_wall_collisions(player->x + PLAYER_HITBOX_X_OFFSET, player->y + PLAYER_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT))
             player->x = prev_x;
         if (get_game()->move_up)
             player->y -= movement_speed;
         if (get_game()->move_down)
             player->y += movement_speed;
-        if (check_wall_collisions(player->x, player->y, WALL_COLLISION_WIDTH, WALL_COLLISION_HEIGHT))
+        if (check_wall_collisions(player->x + PLAYER_HITBOX_X_OFFSET, player->y + PLAYER_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT))
             player->y = prev_y;
     }
 	if (prev_x != player->x || prev_y != player->y)
@@ -1017,6 +1051,28 @@ static void	draw_player(void)
 		current_anim = &player->attack_left;
 	current_anim->x = player->x;
 	current_anim->y = player->y;
+
+	draw_debug_square(&get_game()->canvas, 
+		player->x + PLAYER_HITBOX_X_OFFSET,
+		player->y + PLAYER_HITBOX_Y_OFFSET,
+		PLAYER_COLLISION_WIDTH,
+		0x0000FF);
+    
+    if (player->is_attacking)
+	{
+		int attack_x = player->x + PLAYER_HITBOX_X_OFFSET;
+		if (player->state == ATTACK_RIGHT)
+			attack_x = player->x + PLAYER_HITBOX_X_OFFSET + PLAYER_COLLISION_WIDTH;
+		else
+			attack_x = player->x + PLAYER_HITBOX_X_OFFSET - ATTACK_RANGE;
+			
+		draw_debug_square(&get_game()->canvas,
+			attack_x,
+			player->y + PLAYER_HITBOX_Y_OFFSET,
+			ATTACK_RANGE,
+			0x00FF00);
+	}
+	
 	draw_animation(current_anim, &get_game()->canvas);
 }
 
@@ -1050,9 +1106,7 @@ static void handle_game_state(void)
     while (++i < enemy_list->count)
     {
         if (!enemy_list->enemies[i].is_dead && 
-            check_collision(player->x, player->y,
-                enemy_list->enemies[i].x, enemy_list->enemies[i].y,
-                ENEMY_COLLISION_WIDTH, ENEMY_COLLISION_HEIGHT) && 
+            check_collision(player->x + PLAYER_HITBOX_X_OFFSET, player->y + PLAYER_HITBOX_Y_OFFSET, enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET, enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT) && 
             player->invincibility_frames == 0)
         {
             player->lives--;

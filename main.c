@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:04:38 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:20:40 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,18 +288,20 @@ unsigned int	*get_pixel(t_img *data, int x, int y)
 					/ 8))));
 }
 
-void	cleanup_sprites(void)
+static void	cleanup_dynamic_memory(t_game *game)
 {
-	t_game	*game;
-	int		i;
-	int		j;
-
-	game = get_game();
 	free(game->wall.x_positions);
 	free(game->wall.y_positions);
 	free(game->collectible.x_positions);
 	free(game->collectible.y_positions);
 	free(game->collectible.collected);
+}
+
+static void	cleanup_enemy_sprites(t_game *game)
+{
+	int	i;
+	int	j;
+
 	i = -1;
 	while (++i < game->enemy_list.count)
 	{
@@ -313,9 +315,21 @@ void	cleanup_sprites(void)
 		}
 	}
 	free(game->enemy_list.enemies);
+}
+
+static void	cleanup_collectible_sprites(t_game *game)
+{
+	int	i;
+
 	i = -1;
 	while (++i < 4)
 		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
+}
+
+static void	cleanup_player_sprites(t_game *game)
+{
+	int	i;
+
 	i = -1;
 	while (++i < 2)
 	{
@@ -327,6 +341,10 @@ void	cleanup_sprites(void)
 		mlx_destroy_image(game->mlx, game->player.attack_right.sprites[i].img);
 		mlx_destroy_image(game->mlx, game->player.attack_left.sprites[i].img);
 	}
+}
+
+static void	cleanup_misc_sprites(t_game *game)
+{
 	mlx_destroy_image(game->mlx, game->canvas.img);
 	mlx_destroy_image(game->mlx, game->floor.img);
 	mlx_destroy_image(game->mlx, game->floor2.img);
@@ -338,6 +356,18 @@ void	cleanup_sprites(void)
 	mlx_destroy_image(game->mlx, game->health.sprint.img);
 	mlx_destroy_image(game->mlx, game->health.banner.img);
 	mlx_destroy_image(game->mlx, game->health.message.img);
+}
+
+void	cleanup_sprites(void)
+{
+	t_game	*game;
+
+	game = get_game();
+    cleanup_dynamic_memory(game);
+    cleanup_enemy_sprites(game);
+    cleanup_collectible_sprites(game);
+    cleanup_player_sprites(game);
+    cleanup_misc_sprites(game);
 }
 
 int	exit_game(void)

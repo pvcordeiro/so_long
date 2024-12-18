@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 22:00:39 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 22:35:40 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -253,7 +253,7 @@ static bool	is_valid_attack_target(t_player *player, t_enemy *enemy)
 static void	apply_damage_to_enemy(t_enemy *enemy, t_player *player)
 {
 	enemy->lives--;
-	enemy->invincibility_frames = INVINCIBILITY_DURATION;
+	enemy->invincibility_frames = ENEMY_INVINCIBILITY_DURATION;
 	if (player->x < enemy->x)
 	{
 		enemy->direction = 1;
@@ -394,7 +394,26 @@ int	exit_game(void)
 	exit(EXIT_SUCCESS);
 }
 
-int	exit_error(void)
+static char	*get_error_message(t_error error)
+{
+	char	**messages;
+
+	messages = (char *[]){
+		"",
+		"Error\nMap must be surrounded by walls",
+		"Error\nNo player (P) found in map",
+		"Error\nMultiple players found in map",
+		"Error\nNo exit (E) found in map",
+		"Error\nMultiple exits found in map",
+		"Error\nNo collectibles (C) found in map",
+		"Error\nNo empty spaces (0) found in map",
+		"Error\nNo valid path to exit/collectibles",
+		"Error\nInvalid character in map",
+		"Error\nMap is not rectangular"};
+	return (messages[error]);
+}
+
+int	exit_error(t_error error)
 {
 	t_game	*game;
 
@@ -406,7 +425,7 @@ int	exit_error(void)
 		mlx_destroy_display(game->mlx);
 		free(game->mlx);
 	}
-	ft_printf("Error\n");
+	ft_printf("%s\n", get_error_message(error));
 	exit(EXIT_FAILURE);
 }
 
@@ -419,7 +438,7 @@ t_img	make_sprite(char *path)
 		sprite.img = mlx_xpm_file_to_image(get_game()->mlx, path, &sprite.width,
 				&sprite.height);
 		if (!sprite.img)
-			exit_error();
+			exit_error(ERR_SPRITE_LOAD);
 	}
 	else
 		sprite.img = mlx_new_image(get_game()->mlx, get_game()->window_width,
@@ -576,7 +595,7 @@ void	init_collectible(void)
 	count = count_collectible_positions(map);
 	collectible->count = count;
 	if (!allocate_collectible_arrays(collectible, count))
-		exit_error();
+		exit_error(ERR_MEMORY);
 	store_collectible_positions(collectible, map);
 	load_collectible_sprites(collectible);
 	get_game()->collectible_count = 0;
@@ -746,7 +765,7 @@ void	init_enemy(void)
 	map = &get_game()->map;
 	count = count_map_char(map->map, map->height, map->width, 'X');
 	if (!allocate_enemy_array(enemy_list, count))
-		exit_error();
+		exit_error(ERR_MEMORY);
 	setup_enemies(enemy_list, map);
 }
 
@@ -1449,7 +1468,7 @@ static bool	check_enemy_hit(t_player *player, t_enemy *enemy)
 static void	handle_enemy_hit(t_player *player)
 {
 	player->lives--;
-	player->invincibility_frames = INVINCIBILITY_DURATION;
+	player->invincibility_frames = PLAYER_INVINCIBILITY_DURATION;
 	if (player->lives <= 0)
 		get_game()->game_over = true;
 }
@@ -1607,10 +1626,7 @@ void	init_game(char *map_path)
 	game->win = NULL;
 	map_info = parse_map(map_path);
 	if (!map_info)
-	{
-		ft_printf("Invalid map\n");
-		exit_error();
-	}
+		exit_error(ERR_MEMORY);
 	game->map = *map_info;
 	free(map_info);
 	init_window();
@@ -1631,7 +1647,7 @@ void	init_window(void)
 	game->game_over = false;
 	game->vic = false;
 	if (!game->mlx || !game->win)
-		exit_error();
+		exit_error(ERR_MEMORY);
 }
 
 void	init_sprites(void)
@@ -1818,17 +1834,30 @@ bool	check_path(t_map *map)
 	return (valid_path && collect == 0);
 }
 
-static bool	validate_map(t_map *map)
+static t_error	validate_map(t_map *map)
 {
 	t_counter	count;
 
 	if (!is_map_surrounded(map))
-		return (false);
+		return (ERR_WALLS);
 	if (!count_entities(map, &count))
-		return (false);
+	{
+		if (count.player == 0)
+			return (ERR_NO_PLAYER);
+		if (count.player > 1)
+			return (ERR_MULTIPLE_PLAYERS);
+		if (count.exit == 0)
+			return (ERR_NO_EXIT);
+		if (count.exit > 1)
+			return (ERR_MULTIPLE_EXITS);
+		if (count.collect == 0)
+			return (ERR_NO_COLLECTIBLES);
+		if (count.empty == 0)
+			return (ERR_NO_EMPTY_SPACE);
+	}
 	if (!check_path(map))
-		return (false);
-	return (true);
+		return (ERR_INVALID_PATH);
+	return (ERR_NONE);
 }
 
 static t_map	*init_map_info(void)
@@ -1873,6 +1902,7 @@ static bool	read_map_content(t_map *map_info, int fd)
 {
 	char	*line;
 	int		i;
+	t_error	error;
 
 	i = 0;
 	line = get_next_line(fd);
@@ -1883,13 +1913,15 @@ static bool	read_map_content(t_map *map_info, int fd)
 		line = get_next_line(fd);
 	}
 	map_info->map[i] = NULL;
-	if (!validate_map(map_info))
+	error = validate_map(map_info);
+	if (error != ERR_NONE)
 	{
 		i = -1;
 		while (++i < map_info->height)
 			free(map_info->map[i]);
 		free(map_info->map);
 		free(map_info);
+		exit_error(error);
 		return (false);
 	}
 	return (true);
@@ -1935,7 +1967,7 @@ int	main(int argc, char **argv)
 	if (argc != 2)
 		return (ft_printf("Error\nUsage: ./so_long [map.ber]\n"));
 	if (!check_file_extension(argv[1]))
-		return (ft_printf("Error\nFile extension not supported\n"));
+		return (ft_printf("Error\nFile must have .ber extension\n"));
 	srand(time(NULL));
 	init_game(argv[1]);
 	mlx_loop(get_game()->mlx);

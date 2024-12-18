@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 22:00:42 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 22:30:28 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,14 @@
 # define PLAYER_HITBOX_Y_OFFSET 25
 # define PLAYER_COLLISION_WIDTH 50
 # define PLAYER_COLLISION_HEIGHT 40
+# define PLAYER_INVINCIBILITY_DURATION 180
+# define ATTACK_HITBOX_Y_OFFSET 10
 # define SPRINT_MULTIPLIER 2
 # define SPRINT_COOLDOWN 180
 # define SPRINT_DURATION 60
 # define ATTACK_DURATION 20
 # define ATTACK_RANGE 80
 # define ATTACK_COOLDOWN 40
-# define INVINCIBILITY_DURATION 100
 # define BUFFER_SIZE 10
 # define WALL_ANIMATION_SPEED 100
 # define ENEMY_SPEED 2
@@ -49,11 +50,11 @@
 # define ENEMY_MOVE_THRESHOLD 100
 # define ENEMY_COLLISION_WIDTH 60
 # define ENEMY_COLLISION_HEIGHT 40
-# define HITBOX_X_OFFSET 20
-# define HITBOX_Y_OFFSET 20
+# define ENEMY_INVINCIBILITY_DURATION 90
 # define ENEMY_HITBOX_Y_OFFSET 25
 # define ENEMY_HITBOX_X_OFFSET 10
-# define ATTACK_HITBOX_Y_OFFSET 10
+# define HITBOX_X_OFFSET 20
+# define HITBOX_Y_OFFSET 20
 
 typedef enum e_player_state
 {
@@ -64,6 +65,23 @@ typedef enum e_player_state
 	ATTACK_RIGHT,
 	ATTACK_LEFT
 }					t_player_state;
+
+typedef enum e_error
+{
+	ERR_NONE = 0,
+	ERR_WALLS,
+	ERR_NO_PLAYER,
+	ERR_MULTIPLE_PLAYERS,
+	ERR_NO_EXIT,
+	ERR_MULTIPLE_EXITS,
+	ERR_NO_COLLECTIBLES,
+	ERR_NO_EMPTY_SPACE,
+	ERR_INVALID_PATH,
+	ERR_INVALID_CHAR,
+	ERR_MAP_NOT_RECTANGULAR,
+	ERR_MEMORY,
+	ERR_SPRITE_LOAD
+}					t_error;
 
 typedef struct s_img
 {

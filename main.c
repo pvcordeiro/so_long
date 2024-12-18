@@ -147,52 +147,48 @@ void	init_enemy_state(t_enemy *enemy, int x, int y)
 	enemy->is_visible = true;
 }
 
-static void update_enemy_direction(t_enemy *enemy)
+static void	update_enemy_direction(t_enemy *enemy)
 {
-    if (rand() % 2 == 0)
-    {
-        enemy->direction = (rand() % 2) * 2 - 1;
-        enemy->y_direction = 0;
-    }
-    else
-    {
-        enemy->direction = 0;
-        enemy->y_direction = (rand() % 2) * 2 - 1;
-    }
-    enemy->move_counter = 0;
+	if (rand() % 2 == 0)
+	{
+		enemy->direction = (rand() % 2) * 2 - 1;
+		enemy->y_direction = 0;
+	}
+	else
+	{
+		enemy->direction = 0;
+		enemy->y_direction = (rand() % 2) * 2 - 1;
+	}
+	enemy->move_counter = 0;
 }
 
-static void handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y)
+static void	handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y)
 {
-    if (check_wall_collisions(enemy->x + ENEMY_HITBOX_X_OFFSET, 
-                            enemy->y + ENEMY_HITBOX_Y_OFFSET,
-                            ENEMY_COLLISION_WIDTH,
-                            ENEMY_COLLISION_HEIGHT) ||
-        check_enemy_collisions(enemy->x, enemy->y, 
-                             enemy - get_game()->enemy_list.enemies))
-    {
-        enemy->x = prev_x;
-        enemy->y = prev_y;
-        enemy->direction *= -1;
-        enemy->y_direction *= -1;
-    }
+	if (check_wall_collisions(enemy->x + ENEMY_HITBOX_X_OFFSET, enemy->y
+			+ ENEMY_HITBOX_Y_OFFSET, ENEMY_COLLISION_WIDTH,
+			ENEMY_COLLISION_HEIGHT) || check_enemy_collisions(enemy->x,
+			enemy->y, enemy - get_game()->enemy_list.enemies))
+	{
+		enemy->x = prev_x;
+		enemy->y = prev_y;
+		enemy->direction *= -1;
+		enemy->y_direction *= -1;
+	}
 }
 
-void update_enemy_movement(t_enemy *enemy)
+void	update_enemy_movement(t_enemy *enemy)
 {
-    int prev_x;
-    int prev_y;
+	int	prev_x;
+	int	prev_y;
 
-    enemy->move_counter++;
-    if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
-        update_enemy_direction(enemy);
-
-    prev_x = enemy->x;
-    prev_y = enemy->y;
-    enemy->x += enemy->direction * ENEMY_SPEED;
-    enemy->y += enemy->y_direction * ENEMY_SPEED;
-    
-    handle_enemy_collision(enemy, prev_x, prev_y);
+	enemy->move_counter++;
+	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
+		update_enemy_direction(enemy);
+	prev_x = enemy->x;
+	prev_y = enemy->y;
+	enemy->x += enemy->direction * ENEMY_SPEED;
+	enemy->y += enemy->y_direction * ENEMY_SPEED;
+	handle_enemy_collision(enemy, prev_x, prev_y);
 }
 
 void	update_enemy_state(t_enemy *enemy)
@@ -244,54 +240,52 @@ int	check_enemy_collisions(int x, int y, int current_enemy)
 
 static bool	is_valid_attack_target(t_player *player, t_enemy *enemy)
 {
-    return (!enemy->is_dead && player->is_attacking 
-        && enemy->invincibility_frames == 0
-        && ((player->state == ATTACK_RIGHT && enemy->x > player->x)
-        || (player->state == ATTACK_LEFT && enemy->x < player->x)));
+	return (!enemy->is_dead && player->is_attacking
+		&& enemy->invincibility_frames == 0 && ((player->state == ATTACK_RIGHT
+				&& enemy->x > player->x) || (player->state == ATTACK_LEFT
+				&& enemy->x < player->x)));
 }
 
 static void	apply_damage_to_enemy(t_enemy *enemy, t_player *player)
 {
-    enemy->lives--;
-    enemy->invincibility_frames = INVINCIBILITY_DURATION;
-    
-    if (player->x < enemy->x)
-    {
-        enemy->direction = 1;
-        enemy->state = MOVE_RIGHT;
-    }
-    else
-    {
-        enemy->direction = -1;
-        enemy->state = MOVE_LEFT;
-    }
-    
-    if (enemy->lives <= 0)
-        enemy->is_dead = true;
+	enemy->lives--;
+	enemy->invincibility_frames = INVINCIBILITY_DURATION;
+	if (player->x < enemy->x)
+	{
+		enemy->direction = 1;
+		enemy->state = MOVE_RIGHT;
+	}
+	else
+	{
+		enemy->direction = -1;
+		enemy->state = MOVE_LEFT;
+	}
+	if (enemy->lives <= 0)
+		enemy->is_dead = true;
 }
 
 void	check_attack_collision(void)
 {
-    t_player		*player;
-    t_enemy_list	*enemy_list;
-    int				i;
+	t_player		*player;
+	t_enemy_list	*enemy_list;
+	int				i;
 
-    player = &get_game()->player;
-    enemy_list = &get_game()->enemy_list;
-    i = -1;
-    while (++i < enemy_list->count)
-    {
-        if (is_valid_attack_target(player, &enemy_list->enemies[i]))
-        {
-            if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET,
-                enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
-                enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
-                ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
-            {
-                apply_damage_to_enemy(&enemy_list->enemies[i], player);
-            }
-        }
-    }
+	player = &get_game()->player;
+	enemy_list = &get_game()->enemy_list;
+	i = -1;
+	while (++i < enemy_list->count)
+	{
+		if (is_valid_attack_target(player, &enemy_list->enemies[i]))
+		{
+			if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET,
+					enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+					enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+					ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
+			{
+				apply_damage_to_enemy(&enemy_list->enemies[i], player);
+			}
+		}
+	}
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)
@@ -375,11 +369,11 @@ void	cleanup_sprites(void)
 	t_game	*game;
 
 	game = get_game();
-    cleanup_dynamic_memory(game);
-    cleanup_enemy_sprites(game);
-    cleanup_collectible_sprites(game);
-    cleanup_player_sprites(game);
-    cleanup_misc_sprites(game);
+	cleanup_dynamic_memory(game);
+	cleanup_enemy_sprites(game);
+	cleanup_collectible_sprites(game);
+	cleanup_player_sprites(game);
+	cleanup_misc_sprites(game);
 }
 
 int	exit_game(void)
@@ -494,84 +488,84 @@ void	update_collectible(void)
 	}
 	update_animation(&collectible->base);
 }
-static int count_collectible_positions(t_map *map)
+static int	count_collectible_positions(t_map *map)
 {
-    int count;
-    int i;
-    int j;
+	int	count;
+	int	i;
+	int	j;
 
-    count = 0;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-            if (map->map[i][j] == 'C')
-                count++;
-    }
-    return (count);
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+			if (map->map[i][j] == 'C')
+				count++;
+	}
+	return (count);
 }
 
-static bool allocate_collectible_arrays(t_collectible *collectible, int count)
+static bool	allocate_collectible_arrays(t_collectible *collectible, int count)
 {
-    collectible->x_positions = malloc(sizeof(int) * count);
-    collectible->y_positions = malloc(sizeof(int) * count);
-    collectible->collected = malloc(sizeof(int) * count);
-    if (!collectible->x_positions || !collectible->y_positions 
-        || !collectible->collected)
-        return (false);
-    return (true);
+	collectible->x_positions = malloc(sizeof(int) * count);
+	collectible->y_positions = malloc(sizeof(int) * count);
+	collectible->collected = malloc(sizeof(int) * count);
+	if (!collectible->x_positions || !collectible->y_positions
+		|| !collectible->collected)
+		return (false);
+	return (true);
 }
 
-static void store_collectible_positions(t_collectible *collectible, t_map *map)
+static void	store_collectible_positions(t_collectible *collectible, t_map *map)
 {
-    int i;
-    int j;
-    int count;
+	int	i;
+	int	j;
+	int	count;
 
-    count = 0;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-        {
-            if (map->map[i][j] == 'C')
-            {
-                collectible->x_positions[count] = j * SPRITE_SIZE;
-                collectible->y_positions[count] = i * SPRITE_SIZE;
-                collectible->collected[count] = 0;
-                count++;
-            }
-        }
-    }
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'C')
+			{
+				collectible->x_positions[count] = j * SPRITE_SIZE;
+				collectible->y_positions[count] = i * SPRITE_SIZE;
+				collectible->collected[count] = 0;
+				count++;
+			}
+		}
+	}
 }
 
-static void load_collectible_sprites(t_collectible *collectible)
+static void	load_collectible_sprites(t_collectible *collectible)
 {
-    collectible->base.sprites[0] = make_sprite("assets/collect/collect00.xpm");
-    collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
-    collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
-    collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
-    collectible->base.sprites[4] = make_sprite("assets/ban_col.xpm");
-    init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
+	collectible->base.sprites[0] = make_sprite("assets/collect/collect00.xpm");
+	collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
+	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
+	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
+	collectible->base.sprites[4] = make_sprite("assets/ban_col.xpm");
+	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
 }
 
-void init_collectible(void)
+void	init_collectible(void)
 {
-    t_collectible *collectible;
-    t_map *map;
-    int count;
+	t_collectible	*collectible;
+	t_map			*map;
+	int				count;
 
-    collectible = &get_game()->collectible;
-    map = &get_game()->map;
-    count = count_collectible_positions(map);
-    collectible->count = count;
-    if (!allocate_collectible_arrays(collectible, count))
-        exit_error();
-    store_collectible_positions(collectible, map);
-    load_collectible_sprites(collectible);
-    get_game()->collectible_count = 0;
+	collectible = &get_game()->collectible;
+	map = &get_game()->map;
+	count = count_collectible_positions(map);
+	collectible->count = count;
+	if (!allocate_collectible_arrays(collectible, count))
+		exit_error();
+	store_collectible_positions(collectible, map);
+	load_collectible_sprites(collectible);
+	get_game()->collectible_count = 0;
 }
 
 static void	init_wall(void)
@@ -686,53 +680,52 @@ void	handle_enemy_movement(t_enemy *enemy)
 	}
 }
 
-static bool allocate_enemy_array(t_enemy_list *enemy_list, int count)
+static bool	allocate_enemy_array(t_enemy_list *enemy_list, int count)
 {
-    enemy_list->enemies = malloc(sizeof(t_enemy) * count);
-    if (!enemy_list->enemies)
-        return (false);
-    enemy_list->count = count;
-    return (true);
+	enemy_list->enemies = malloc(sizeof(t_enemy) * count);
+	if (!enemy_list->enemies)
+		return (false);
+	enemy_list->count = count;
+	return (true);
 }
 
-static void init_single_enemy(t_enemy *enemy, int x, int y)
+static void	init_single_enemy(t_enemy *enemy, int x, int y)
 {
-    init_enemy_animations(enemy);
-    init_enemy_state(enemy, x, y);
+	init_enemy_animations(enemy);
+	init_enemy_state(enemy, x, y);
 }
 
-static void setup_enemies(t_enemy_list *enemy_list, t_map *map)
+static void	setup_enemies(t_enemy_list *enemy_list, t_map *map)
 {
-    int i;
-    int j;
-    int count;
+	int	i;
+	int	j;
+	int	count;
 
-    count = 0;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-        {
-            if (map->map[i][j] == 'X')
-                init_single_enemy(&enemy_list->enemies[count++], j, i);
-        }
-    }
+	count = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'X')
+				init_single_enemy(&enemy_list->enemies[count++], j, i);
+		}
+	}
 }
 
-void init_enemy(void)
+void	init_enemy(void)
 {
-    t_enemy_list *enemy_list;
-    t_map *map;
-    int count;
+	t_enemy_list	*enemy_list;
+	t_map			*map;
+	int				count;
 
-    enemy_list = &get_game()->enemy_list;
-    map = &get_game()->map;
-    
-    count = count_map_char(map->map, map->height, map->width, 'X');
-    if (!allocate_enemy_array(enemy_list, count))
-        exit_error();
-    setup_enemies(enemy_list, map);
+	enemy_list = &get_game()->enemy_list;
+	map = &get_game()->map;
+	count = count_map_char(map->map, map->height, map->width, 'X');
+	if (!allocate_enemy_array(enemy_list, count))
+		exit_error();
+	setup_enemies(enemy_list, map);
 }
 
 void	update_enemy(void)
@@ -746,45 +739,45 @@ void	update_enemy(void)
 		update_enemy_state(&enemy_list->enemies[i]);
 }
 
-static bool is_enemy_visible(t_enemy *enemy)
+static bool	is_enemy_visible(t_enemy *enemy)
 {
-    if (enemy->invincibility_frames > 0)
-    {
-        enemy->is_visible = !enemy->is_visible;
-        return enemy->is_visible;
-    }
-    return true;
+	if (enemy->invincibility_frames > 0)
+	{
+		enemy->is_visible = !enemy->is_visible;
+		return (enemy->is_visible);
+	}
+	return (true);
 }
 
-static t_animation *get_enemy_animation(t_enemy *enemy)
+static t_animation	*get_enemy_animation(t_enemy *enemy)
 {
-    if (enemy->state == MOVE_RIGHT)
-        return &enemy->move_right;
-    return &enemy->move_left;
+	if (enemy->state == MOVE_RIGHT)
+		return (&enemy->move_right);
+	return (&enemy->move_left);
 }
 
-static void draw_single_enemy(t_enemy *enemy)
+static void	draw_single_enemy(t_enemy *enemy)
 {
-    t_animation *current_anim;
+	t_animation	*current_anim;
 
-    if (!enemy->is_dead && is_enemy_visible(enemy))
-    {
-        current_anim = get_enemy_animation(enemy);
-        current_anim->x = enemy->x;
-        current_anim->y = enemy->y;
-        draw_animation(current_anim, &get_game()->canvas);
-    }
+	if (!enemy->is_dead && is_enemy_visible(enemy))
+	{
+		current_anim = get_enemy_animation(enemy);
+		current_anim->x = enemy->x;
+		current_anim->y = enemy->y;
+		draw_animation(current_anim, &get_game()->canvas);
+	}
 }
 
-void draw_enemy(void)
+void	draw_enemy(void)
 {
-    t_enemy_list *enemy_list;
-    int i;
+	t_enemy_list	*enemy_list;
+	int				i;
 
-    enemy_list = &get_game()->enemy_list;
-    i = -1;
-    while (++i < enemy_list->count)
-        draw_single_enemy(&enemy_list->enemies[i]);
+	enemy_list = &get_game()->enemy_list;
+	i = -1;
+	while (++i < enemy_list->count)
+		draw_single_enemy(&enemy_list->enemies[i]);
 }
 
 void	draw_floor(void)
@@ -842,61 +835,61 @@ void	draw_walls(void)
 	}
 }
 
-static void handle_movement_keys(t_game *game, int key, char *action) 
+static void	handle_movement_keys(t_game *game, int key, char *action)
 {
-    if (key == XK_w)
-        game->move_up = (*action == 'p');
-    if (key == XK_a)
-        game->move_left = (*action == 'p');
-    if (key == XK_s)
-        game->move_down = (*action == 'p');
-    if (key == XK_d)
-        game->move_right = (*action == 'p');
+	if (key == XK_w)
+		game->move_up = (*action == 'p');
+	if (key == XK_a)
+		game->move_left = (*action == 'p');
+	if (key == XK_s)
+		game->move_down = (*action == 'p');
+	if (key == XK_d)
+		game->move_right = (*action == 'p');
 }
 
-static void handle_sprint_key(t_game *game, char *action)
+static void	handle_sprint_key(t_game *game, char *action)
 {
-    if (*action == 'p' && game->player.can_sprint)
-        game->player.is_sprinting = true;
-    else if (*action == 'r')
-        game->player.is_sprinting = false;
+	if (*action == 'p' && game->player.can_sprint)
+		game->player.is_sprinting = true;
+	else if (*action == 'r')
+		game->player.is_sprinting = false;
 }
 
-static void handle_attack_key(t_player *player)
+static void	handle_attack_key(t_player *player)
 {
-    if (!player->is_attacking && player->attack_cooldown == 0)
-    {
-        player->is_attacking = true;
-        player->attack_frame = 0;
-        if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
-        {
-            player->state = ATTACK_RIGHT;
-            player->attack_right.current_frame = 0;
-        }
-        else
-        {
-            player->state = ATTACK_LEFT;
-            player->attack_left.current_frame = 0;
-        }
-    }
+	if (!player->is_attacking && player->attack_cooldown == 0)
+	{
+		player->is_attacking = true;
+		player->attack_frame = 0;
+		if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
+		{
+			player->state = ATTACK_RIGHT;
+			player->attack_right.current_frame = 0;
+		}
+		else
+		{
+			player->state = ATTACK_LEFT;
+			player->attack_left.current_frame = 0;
+		}
+	}
 }
 
-int key_loop(int key, char *action)
+int	key_loop(int key, char *action)
 {
-    t_game *game;
+	t_game	*game;
 
-    game = get_game();
-    if (key == XK_Escape)
-        exit_game();
-    if (!game->vic && !game->game_over)
-    {
-        if (key == XK_Shift_L)
-            handle_sprint_key(game, action);
-        handle_movement_keys(game, key, action);
-        if (key == XK_space && *action == 'p')
-            handle_attack_key(&game->player);
-    }
-    return (0);
+	game = get_game();
+	if (key == XK_Escape)
+		exit_game();
+	if (!game->vic && !game->game_over)
+	{
+		if (key == XK_Shift_L)
+			handle_sprint_key(game, action);
+		handle_movement_keys(game, key, action);
+		if (key == XK_space && *action == 'p')
+			handle_attack_key(&game->player);
+	}
+	return (0);
 }
 
 static void	init_exit(void)
@@ -1013,65 +1006,65 @@ void	draw_health(void)
 	draw_image(current_sprite, &get_game()->canvas, 10, -10);
 }
 
-static int count_valid_positions(t_map *map)
+static int	count_valid_positions(t_map *map)
 {
-    int valid_positions;
-    int i;
-    int j;
+	int	valid_positions;
+	int	i;
+	int	j;
 
-    valid_positions = 0;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-            if (map->map[i][j] == '0')
-                valid_positions++;
-    }
-    return (valid_positions);
+	valid_positions = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+			if (map->map[i][j] == '0')
+				valid_positions++;
+	}
+	return (valid_positions);
 }
 
-static void find_random_position(t_mushroom *mushroom, t_map *map, int random_position)
+static void	find_random_position(t_mushroom *mushroom, t_map *map,
+		int random_position)
 {
-    int current_position;
-    int i;
-    int j;
+	int	current_position;
+	int	i;
+	int	j;
 
-    current_position = 0;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-        {
-            if (map->map[i][j] == '0')
-            {
-                if (current_position == random_position)
-                {
-                    mushroom->x = j * SPRITE_SIZE;
-                    mushroom->y = i * SPRITE_SIZE;
-                    return;
-                }
-                current_position++;
-            }
-        }
-    }
+	current_position = 0;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == '0')
+			{
+				if (current_position == random_position)
+				{
+					mushroom->x = j * SPRITE_SIZE;
+					mushroom->y = i * SPRITE_SIZE;
+					return ;
+				}
+				current_position++;
+			}
+		}
+	}
 }
 
-void init_mushroom(void)
+void	init_mushroom(void)
 {
-    t_mushroom *mushroom;
-    t_map *map;
-    int valid_positions;
+	t_mushroom	*mushroom;
+	t_map		*map;
+	int			valid_positions;
 
-    mushroom = &get_game()->mushroom;  
-    map = &get_game()->map;
-    mushroom->sprite = make_sprite("assets/mushroom.xpm");
-    mushroom->active = true;
-    mushroom->collected = false;
-
-    valid_positions = count_valid_positions(map);
-    find_random_position(mushroom, map, rand() % valid_positions);
+	mushroom = &get_game()->mushroom;
+	map = &get_game()->map;
+	mushroom->sprite = make_sprite("assets/mushroom.xpm");
+	mushroom->active = true;
+	mushroom->collected = false;
+	valid_positions = count_valid_positions(map);
+	find_random_position(mushroom, map, rand() % valid_positions);
 }
 
 void	update_mushroom(void)
@@ -1158,49 +1151,48 @@ void	load_player_animations(t_player *player)
 		PLAYER_IDLE_ANIMATION_SPEED);
 }
 
-static void init_player_position(t_player *player, t_map *map)
+static void	init_player_position(t_player *player, t_map *map)
 {
-    init_entity_position(map, 'P', &player->x, &player->y);
-    player->state = IDLE_RIGHT;
-    player->last_direction = MOVE_RIGHT;
+	init_entity_position(map, 'P', &player->x, &player->y);
+	player->state = IDLE_RIGHT;
+	player->last_direction = MOVE_RIGHT;
 }
 
-static void init_player_stats(t_player *player)
+static void	init_player_stats(t_player *player)
 {
-    player->lives = 3;
-    player->invincibility_frames = 0;
-    player->is_visible = 1;
+	player->lives = 3;
+	player->invincibility_frames = 0;
+	player->is_visible = 1;
 }
 
-static void init_player_combat(t_player *player)
+static void	init_player_combat(t_player *player)
 {
-    player->attack_cooldown = 0;
-    player->max_attack_cooldown = ATTACK_COOLDOWN;
-    player->is_attacking = false;
-    player->attack_frame = 0;
+	player->attack_cooldown = 0;
+	player->max_attack_cooldown = ATTACK_COOLDOWN;
+	player->is_attacking = false;
+	player->attack_frame = 0;
 }
 
-static void init_player_movement(t_player *player)
+static void	init_player_movement(t_player *player)
 {
-    player->is_sprinting = false;
-    player->sprint_duration = 0;
-    player->sprint_cooldown = 0;
-    player->can_sprint = true;
+	player->is_sprinting = false;
+	player->sprint_duration = 0;
+	player->sprint_cooldown = 0;
+	player->can_sprint = true;
 }
 
-void init_player(void)
+void	init_player(void)
 {
-    t_player *player;
-    t_map *map;
+	t_player	*player;
+	t_map		*map;
 
-    player = &get_game()->player;
-    map = &get_game()->map;
-    
-    init_player_position(player, map);
-    init_player_stats(player);
-    init_player_combat(player);
-    init_player_movement(player);
-    load_player_animations(player);
+	player = &get_game()->player;
+	map = &get_game()->map;
+	init_player_position(player, map);
+	init_player_stats(player);
+	init_player_combat(player);
+	init_player_movement(player);
+	load_player_animations(player);
 }
 
 static void	handle_sprint(t_player *player, int *movement_speed)
@@ -1277,118 +1269,117 @@ void	update_player_position(void)
 
 static void	handle_player_attack(t_player *player, t_animation *current_anim)
 {
-    player->attack_timer++;
-    if (player->state == ATTACK_RIGHT)
-        current_anim = &player->attack_right;
-    else
-        current_anim = &player->attack_left;
-    if (player->attack_timer < 10)
-        current_anim->current_frame = 0;
-    else if (player->attack_timer < 20)
-        current_anim->current_frame = 1;
-    else
-    {
-        player->is_attacking = false;
-        player->attack_cooldown = player->max_attack_cooldown;
-        player->attack_timer = 0;
-        if (player->state == ATTACK_RIGHT)
-            player->state = IDLE_RIGHT;
-        else
-            player->state = IDLE_LEFT;
-    }
+	player->attack_timer++;
+	if (player->state == ATTACK_RIGHT)
+		current_anim = &player->attack_right;
+	else
+		current_anim = &player->attack_left;
+	if (player->attack_timer < 10)
+		current_anim->current_frame = 0;
+	else if (player->attack_timer < 20)
+		current_anim->current_frame = 1;
+	else
+	{
+		player->is_attacking = false;
+		player->attack_cooldown = player->max_attack_cooldown;
+		player->attack_timer = 0;
+		if (player->state == ATTACK_RIGHT)
+			player->state = IDLE_RIGHT;
+		else
+			player->state = IDLE_LEFT;
+	}
 }
 
 static void	update_player_state(t_player *player)
 {
-    if (get_game()->move_right)
-    {
-        player->state = MOVE_RIGHT;
-        player->last_direction = MOVE_RIGHT;
-    }
-    else if (get_game()->move_left)
-    {
-        player->state = MOVE_LEFT;
-        player->last_direction = MOVE_LEFT;
-    }
-    else if (get_game()->move_up || get_game()->move_down)
-    {
-        if (player->last_direction == MOVE_RIGHT)
-            player->state = MOVE_RIGHT;
-        else
-            player->state = MOVE_LEFT;
-    }
-    else
-    {
-        if (player->last_direction == MOVE_RIGHT)
-            player->state = IDLE_RIGHT;
-        else
-            player->state = IDLE_LEFT;
-    }
+	if (get_game()->move_right)
+	{
+		player->state = MOVE_RIGHT;
+		player->last_direction = MOVE_RIGHT;
+	}
+	else if (get_game()->move_left)
+	{
+		player->state = MOVE_LEFT;
+		player->last_direction = MOVE_LEFT;
+	}
+	else if (get_game()->move_up || get_game()->move_down)
+	{
+		if (player->last_direction == MOVE_RIGHT)
+			player->state = MOVE_RIGHT;
+		else
+			player->state = MOVE_LEFT;
+	}
+	else
+	{
+		if (player->last_direction == MOVE_RIGHT)
+			player->state = IDLE_RIGHT;
+		else
+			player->state = IDLE_LEFT;
+	}
 }
 
 void	update_player(void)
 {
-    t_player    *player;
-    t_animation *current_anim;
+	t_player	*player;
+	t_animation	*current_anim;
 
-    player = &get_game()->player;
-    if (player->attack_cooldown > 0)
-        player->attack_cooldown--;
-    if (player->is_attacking)
-    {
-        handle_player_attack(player, current_anim);
-        return;
-    }
-    update_player_state(player);
-    if (player->state == IDLE_RIGHT)
-        current_anim = &player->idle_right;
-    else if (player->state == IDLE_LEFT)
-        current_anim = &player->idle_left;
-    else if (player->state == MOVE_RIGHT)
-        current_anim = &player->move_right;
-    else
-        current_anim = &player->move_left;
-    update_animation(current_anim);
+	player = &get_game()->player;
+	if (player->attack_cooldown > 0)
+		player->attack_cooldown--;
+	if (player->is_attacking)
+	{
+		handle_player_attack(player, current_anim);
+		return ;
+	}
+	update_player_state(player);
+	if (player->state == IDLE_RIGHT)
+		current_anim = &player->idle_right;
+	else if (player->state == IDLE_LEFT)
+		current_anim = &player->idle_left;
+	else if (player->state == MOVE_RIGHT)
+		current_anim = &player->move_right;
+	else
+		current_anim = &player->move_left;
+	update_animation(current_anim);
 }
 
-static bool is_player_visible(t_player *player)
+static bool	is_player_visible(t_player *player)
 {
-    if (player->invincibility_frames > 0)
-    {
-        player->is_visible = !player->is_visible;
-        return player->is_visible;
-    }
-    return true;
+	if (player->invincibility_frames > 0)
+	{
+		player->is_visible = !player->is_visible;
+		return (player->is_visible);
+	}
+	return (true);
 }
 
-static t_animation *get_player_animation(t_player *player)
+static t_animation	*get_player_animation(t_player *player)
 {
-    if (player->state == IDLE_RIGHT)
-        return &player->idle_right;
-    if (player->state == IDLE_LEFT)
-        return &player->idle_left;
-    if (player->state == MOVE_RIGHT)
-        return &player->move_right;
-    if (player->state == MOVE_LEFT)
-        return &player->move_left;
-    if (player->state == ATTACK_RIGHT)
-        return &player->attack_right;
-    return &player->attack_left;
+	if (player->state == IDLE_RIGHT)
+		return (&player->idle_right);
+	if (player->state == IDLE_LEFT)
+		return (&player->idle_left);
+	if (player->state == MOVE_RIGHT)
+		return (&player->move_right);
+	if (player->state == MOVE_LEFT)
+		return (&player->move_left);
+	if (player->state == ATTACK_RIGHT)
+		return (&player->attack_right);
+	return (&player->attack_left);
 }
 
-void draw_player(void)
+void	draw_player(void)
 {
-    t_player *player;
-    t_animation *current_anim;
+	t_player	*player;
+	t_animation	*current_anim;
 
-    player = &get_game()->player;
-    if (!is_player_visible(player))
-        return;
-
-    current_anim = get_player_animation(player);
-    current_anim->x = player->x;
-    current_anim->y = player->y;
-    draw_animation(current_anim, &get_game()->canvas);
+	player = &get_game()->player;
+	if (!is_player_visible(player))
+		return ;
+	current_anim = get_player_animation(player);
+	current_anim->x = player->x;
+	current_anim->y = player->y;
+	draw_animation(current_anim, &get_game()->canvas);
 }
 
 static void	fps_cap(void)
@@ -1405,60 +1396,57 @@ static void	fps_cap(void)
 	last_frame = current_time;
 }
 
-static void update_player_invincibility(t_player *player)
+static void	update_player_invincibility(t_player *player)
 {
-    if (player->invincibility_frames > 0)
-        player->invincibility_frames--;
+	if (player->invincibility_frames > 0)
+		player->invincibility_frames--;
 }
 
-static bool check_enemy_hit(t_player *player, t_enemy *enemy)
+static bool	check_enemy_hit(t_player *player, t_enemy *enemy)
 {
-	int px;
-	int py;
-	int ex;
-	int ey;
+	int	px;
+	int	py;
+	int	ex;
+	int	ey;
 
 	px = player->x + PLAYER_HITBOX_X_OFFSET;
 	py = player->y + PLAYER_HITBOX_Y_OFFSET;
 	ex = enemy->x + ENEMY_HITBOX_X_OFFSET;
 	ey = enemy->y + ENEMY_HITBOX_Y_OFFSET;
-
-    return check_collision(px, py, ex, ey, 
-        PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT);
+	return (check_collision(px, py, ex, ey, PLAYER_COLLISION_WIDTH,
+			PLAYER_COLLISION_HEIGHT));
 }
 
-static void handle_enemy_hit(t_player *player)
+static void	handle_enemy_hit(t_player *player)
 {
-    player->lives--;
-    player->invincibility_frames = INVINCIBILITY_DURATION;
-    if (player->lives <= 0)
-        get_game()->game_over = true;
+	player->lives--;
+	player->invincibility_frames = INVINCIBILITY_DURATION;
+	if (player->lives <= 0)
+		get_game()->game_over = true;
 }
 
-void handle_game_state(void)
+void	handle_game_state(void)
 {
-    t_player    *player;
-    t_enemy_list *enemy_list;
-    int         i;
+	t_player		*player;
+	t_enemy_list	*enemy_list;
+	int				i;
 
-    player = &get_game()->player;
-    enemy_list = &get_game()->enemy_list;
-    
-    update_player_invincibility(player);
-    
-    i = -1;
-    while (++i < enemy_list->count)
-    {
-        if (!enemy_list->enemies[i].is_dead 
-            && player->invincibility_frames == 0)
-        {
-            if (check_enemy_hit(player, &enemy_list->enemies[i]))
-            {
-                handle_enemy_hit(player);
-                break;
-            }
-        }
-    }
+	player = &get_game()->player;
+	enemy_list = &get_game()->enemy_list;
+	update_player_invincibility(player);
+	i = -1;
+	while (++i < enemy_list->count)
+	{
+		if (!enemy_list->enemies[i].is_dead
+			&& player->invincibility_frames == 0)
+		{
+			if (check_enemy_hit(player, &enemy_list->enemies[i]))
+			{
+				handle_enemy_hit(player);
+				break ;
+			}
+		}
+	}
 }
 
 void	helper_message(void)
@@ -1689,103 +1677,104 @@ static void	flood_fill(char **map, int x, int y, int *collect)
 
 static char	**create_temp_map(t_map *map)
 {
-    char	**temp_map;
-    int		i;
+	char	**temp_map;
+	int		i;
 
-    temp_map = malloc(sizeof(char *) * map->height);
-    if (!temp_map)
-        return (NULL);
-    i = -1;
-    while (++i < map->height)
-    {
-        temp_map[i] = ft_strdup(map->map[i]);
-        if (!temp_map[i])
-        {
-            while (--i >= 0)
-                free(temp_map[i]);
-            free(temp_map);
-            return (NULL);
-        }
-    }
-    return (temp_map);
+	temp_map = malloc(sizeof(char *) * map->height);
+	if (!temp_map)
+		return (NULL);
+	i = -1;
+	while (++i < map->height)
+	{
+		temp_map[i] = ft_strdup(map->map[i]);
+		if (!temp_map[i])
+		{
+			while (--i >= 0)
+				free(temp_map[i]);
+			free(temp_map);
+			return (NULL);
+		}
+	}
+	return (temp_map);
 }
 
 static void	find_player_pos(t_map *map, int *px, int *py)
 {
-    int	i;
-    int	j;
+	int	i;
+	int	j;
 
-    *px = *py = -1;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-        {
-            if (map->map[i][j] == 'P')
-            {
-                *px = j;
-                *py = i;
-                return ;
-            }
-        }
-    }
+	*px = *py = -1;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == 'P')
+			{
+				*px = j;
+				*py = i;
+				return ;
+			}
+		}
+	}
 }
 
 static int	count_collectibles(char **map, int height, int width)
 {
-    int	i;
-    int	j;
-    int	count;
+	int	i;
+	int	j;
+	int	count;
 
-    count = 0;
-    i = -1;
-    while (++i < height)
-    {
-        j = -1;
-        while (++j < width)
-            if (map[i][j] == 'C')
-                count++;
-    }
-    return (count);
+	count = 0;
+	i = -1;
+	while (++i < height)
+	{
+		j = -1;
+		while (++j < width)
+			if (map[i][j] == 'C')
+				count++;
+	}
+	return (count);
 }
 
-static bool	check_exit_access(char **temp_map, char **map, int height, int width)
+static bool	check_exit_access(char **temp_map, char **map, int height,
+		int width)
 {
-    int	i;
-    int	j;
+	int	i;
+	int	j;
 
-    i = -1;
-    while (++i < height)
-    {
-        j = -1;
-        while (++j < width)
-            if (map[i][j] == 'E' && temp_map[i][j] == 'X')
-                return (true);
-    }
-    return (false);
+	i = -1;
+	while (++i < height)
+	{
+		j = -1;
+		while (++j < width)
+			if (map[i][j] == 'E' && temp_map[i][j] == 'X')
+				return (true);
+	}
+	return (false);
 }
 
 bool	check_path(t_map *map)
 {
-    char	**temp_map;
-    int		px;
-    int		py;
-    int		collect;
-    bool	valid_path;
+	char	**temp_map;
+	int		px;
+	int		py;
+	int		collect;
+	bool	valid_path;
 
-    temp_map = create_temp_map(map);
-    if (!temp_map)
-        return (false);
-    find_player_pos(map, &px, &py);
-    collect = count_collectibles(map->map, map->height, map->width);
-    flood_fill(temp_map, px, py, &collect);
-    valid_path = check_exit_access(temp_map, map->map, map->height, map->width);
-    px = -1;
-    while (++px < map->height)
-        free(temp_map[px]);
-    free(temp_map);
-    return (valid_path && collect == 0);
+	temp_map = create_temp_map(map);
+	if (!temp_map)
+		return (false);
+	find_player_pos(map, &px, &py);
+	collect = count_collectibles(map->map, map->height, map->width);
+	flood_fill(temp_map, px, py, &collect);
+	valid_path = check_exit_access(temp_map, map->map, map->height, map->width);
+	px = -1;
+	while (++px < map->height)
+		free(temp_map[px]);
+	free(temp_map);
+	return (valid_path && collect == 0);
 }
 
 static bool	validate_map(t_map *map)
@@ -1802,87 +1791,87 @@ static bool	validate_map(t_map *map)
 
 static t_map	*init_map_info(void)
 {
-    t_map	*map_info;
+	t_map	*map_info;
 
-    map_info = malloc(sizeof(t_map));
-    if (!map_info)
-        return (NULL);
-    map_info->height = 0;
-    map_info->width = 0;
-    return (map_info);
+	map_info = malloc(sizeof(t_map));
+	if (!map_info)
+		return (NULL);
+	map_info->height = 0;
+	map_info->width = 0;
+	return (map_info);
 }
 
 static bool	allocate_map_rows(t_map *map_info)
 {
-    map_info->map = malloc(sizeof(char *) * (map_info->height + 1));
-    if (!map_info->map)
-    {
-        free(map_info);
-        return (false);
-    }
-    return (true);
+	map_info->map = malloc(sizeof(char *) * (map_info->height + 1));
+	if (!map_info->map)
+	{
+		free(map_info);
+		return (false);
+	}
+	return (true);
 }
 
 static void	count_dimensions(t_map *map_info, int fd)
 {
-    char	*line;
+	char	*line;
 
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        if (map_info->height == 0)
-            map_info->width = ft_strlen(line) - 1;
-        map_info->height++;
-        free(line);
-    }
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		if (map_info->height == 0)
+			map_info->width = ft_strlen(line) - 1;
+		map_info->height++;
+		free(line);
+	}
 }
 
 static bool	read_map_content(t_map *map_info, int fd)
 {
-    char	*line;
-    int		i;
+	char	*line;
+	int		i;
 
-    i = 0;
-    while ((line = get_next_line(fd)) != NULL)
-    {
-        map_info->map[i] = line;
-        i++;
-    }
-    map_info->map[i] = NULL;
-    if (!validate_map(map_info))
-    {
-        i = -1;
-        while (++i < map_info->height)
-            free(map_info->map[i]);
-        free(map_info->map);
-        free(map_info);
-        return (false);
-    }
-    return (true);
+	i = 0;
+	while ((line = get_next_line(fd)) != NULL)
+	{
+		map_info->map[i] = line;
+		i++;
+	}
+	map_info->map[i] = NULL;
+	if (!validate_map(map_info))
+	{
+		i = -1;
+		while (++i < map_info->height)
+			free(map_info->map[i]);
+		free(map_info->map);
+		free(map_info);
+		return (false);
+	}
+	return (true);
 }
 
 t_map	*parse_map(char *filename)
 {
-    t_map	*map_info;
-    int		fd;
+	t_map	*map_info;
+	int		fd;
 
-    map_info = init_map_info();
-    if (!map_info)
-        return (NULL);
-    fd = open(filename, O_RDONLY);
-    if (fd < 0)
-    {
-        free(map_info);
-        return (NULL);
-    }
-    count_dimensions(map_info, fd);
-    close(fd);
-    if (!allocate_map_rows(map_info))
-        return (NULL);
-    fd = open(filename, O_RDONLY);
-    if (!read_map_content(map_info, fd))
-        return (NULL);
-    close(fd);
-    return (map_info);
+	map_info = init_map_info();
+	if (!map_info)
+		return (NULL);
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
+	{
+		free(map_info);
+		return (NULL);
+	}
+	count_dimensions(map_info, fd);
+	close(fd);
+	if (!allocate_map_rows(map_info))
+		return (NULL);
+	fd = open(filename, O_RDONLY);
+	if (!read_map_content(map_info, fd))
+		return (NULL);
+	close(fd);
+	return (map_info);
 }
 
 int	main(int argc, char **argv)

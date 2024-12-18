@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:27:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 14:33:43 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -346,14 +346,19 @@ int	exit_game(void)
 	ft_printf("Game closed\n");
 	exit(EXIT_SUCCESS);
 }
-int	exit_error(void)
+int exit_error(void)
 {
-	cleanup_sprites();
-	mlx_destroy_window(get_game()->mlx, get_game()->win);
-	mlx_destroy_display(get_game()->mlx);
-	free(get_game()->mlx);
-	ft_printf("Error\n");
-	exit(EXIT_FAILURE);
+    t_game *game = get_game();
+    
+    if (game->mlx)
+    {
+        cleanup_sprites();
+        mlx_destroy_window(game->mlx, game->win);
+        mlx_destroy_display(game->mlx);
+        free(game->mlx);
+    }
+    ft_printf("Error\n");
+    exit(EXIT_FAILURE);
 }
 
 t_img	make_sprite(char *path)
@@ -1356,14 +1361,18 @@ int game_loop(void)
 
 void init_game(char *map_path)
 {
-    t_map *map_info = parse_map(map_path);
+    t_game *game = get_game();
+    t_map *map_info;
+    game->mlx = NULL;
+    game->win = NULL;
+    map_info = parse_map(map_path);
     if (!map_info)
-	{
-		ft_printf("Invalid map\n");
-		exit_error();
-	}
-        
-    get_game()->map = *map_info;
+    {
+        ft_printf("Invalid map\n");
+        exit_error();
+    }
+    game->map = *map_info;
+    free(map_info);
     init_window();
     init_sprites();
     setup_hooks();

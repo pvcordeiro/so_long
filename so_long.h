@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 21:13:27 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 22:00:42 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@
 # define COLLECTIBLE_SIZE 40
 # define PLAYER_SPEED 2
 # define PLAYER_IDLE_ANIMATION_SPEED 20
-# define PLAYER_MOVE_AND_ATTACK_ANIMATION_SPEED 10
 # define PLAYER_HITBOX_X_OFFSET 10
 # define PLAYER_HITBOX_Y_OFFSET 25
 # define PLAYER_COLLISION_WIDTH 50
@@ -114,9 +113,6 @@ typedef struct s_player
 	t_animation		attack_left;
 	t_player_state	state;
 	int				last_direction;
-	int				current_frame;
-	int				anim_counter;
-	int				anim_speed;
 	int				lives;
 	int				invincibility_frames;
 	int				attack_cooldown;
@@ -247,7 +243,6 @@ char				*ft_strdup(const char *s);
 void				init_entity_position(t_map *map, char c, int *x, int *y);
 void				handle_entity_collision(int *x, int *y, int prev_x,
 						int prev_y);
-void				load_player_animations(t_player *player);
 int					count_map_char(char **map, int height, int width, char c);
 void				load_animation_sprites(t_animation *anim, char *path1,
 						char *path2, int speed);

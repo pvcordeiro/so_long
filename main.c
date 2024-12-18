@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 21:28:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 22:00:39 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1920,10 +1920,22 @@ t_map	*parse_map(char *filename)
 	return (map_info);
 }
 
+static bool	check_file_extension(char *filename)
+{
+	char	*dot;
+
+	dot = ft_strrchr(filename, '.');
+	if (!dot || ft_strcmp(dot, ".ber") != 0)
+		return (false);
+	return (true);
+}
+
 int	main(int argc, char **argv)
 {
 	if (argc != 2)
 		return (ft_printf("Error\nUsage: ./so_long [map.ber]\n"));
+	if (!check_file_extension(argv[1]))
+		return (ft_printf("Error\nFile extension not supported\n"));
 	srand(time(NULL));
 	init_game(argv[1]);
 	mlx_loop(get_game()->mlx);

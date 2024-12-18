@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:43:51 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:45:12 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1351,34 +1351,44 @@ void	update_player(void)
     update_animation(current_anim);
 }
 
-void	draw_player(void)
+static bool is_player_visible(t_player *player)
 {
-	t_player	*player;
-	t_animation	*current_anim;
+    if (player->invincibility_frames > 0)
+    {
+        player->is_visible = !player->is_visible;
+        return player->is_visible;
+    }
+    return true;
+}
 
-	player = &get_game()->player;
-	current_anim = NULL;
-	if (player->invincibility_frames > 0)
-	{
-		player->is_visible = !player->is_visible;
-		if (!player->is_visible)
-			return ;
-	}
-	if (player->state == IDLE_RIGHT)
-		current_anim = &player->idle_right;
-	else if (player->state == IDLE_LEFT)
-		current_anim = &player->idle_left;
-	else if (player->state == MOVE_RIGHT)
-		current_anim = &player->move_right;
-	else if (player->state == MOVE_LEFT)
-		current_anim = &player->move_left;
-	else if (player->state == ATTACK_RIGHT)
-		current_anim = &player->attack_right;
-	else if (player->state == ATTACK_LEFT)
-		current_anim = &player->attack_left;
-	current_anim->x = player->x;
-	current_anim->y = player->y;
-	draw_animation(current_anim, &get_game()->canvas);
+static t_animation *get_player_animation(t_player *player)
+{
+    if (player->state == IDLE_RIGHT)
+        return &player->idle_right;
+    if (player->state == IDLE_LEFT)
+        return &player->idle_left;
+    if (player->state == MOVE_RIGHT)
+        return &player->move_right;
+    if (player->state == MOVE_LEFT)
+        return &player->move_left;
+    if (player->state == ATTACK_RIGHT)
+        return &player->attack_right;
+    return &player->attack_left;
+}
+
+void draw_player(void)
+{
+    t_player *player;
+    t_animation *current_anim;
+
+    player = &get_game()->player;
+    if (!is_player_visible(player))
+        return;
+
+    current_anim = get_player_animation(player);
+    current_anim->x = player->x;
+    current_anim->y = player->y;
+    draw_animation(current_anim, &get_game()->canvas);
 }
 
 static void	fps_cap(void)

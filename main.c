@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 16:40:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 16:48:57 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,13 @@ t_game	*get_game(void)
 	static t_game	game;
 
 	return (&game);
+}
+
+int	ft_abs(int n)
+{
+	if (n < 0)
+		return (-n);
+	return (n);
 }
 
 void	update_entities(void)
@@ -811,14 +818,17 @@ void	draw_exit_bottom(void)
 	exit = &get_game()->exit;
 	temp = exit->sprite;
 	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
-	for (i = temp.height / 2; i < temp.height; i++)
+	i = temp.height / 2;
+	while (i < temp.height)
 	{
-		for (j = 0; j < temp.width; j++)
+		j = -1;
+		while (++j < temp.width)
 		{
 			if (*get_pixel(&temp, j, i) != 0xFF000000)
 				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
 						+ i) = *get_pixel(&temp, j, i);
 		}
+		i++;
 	}
 }
 
@@ -833,9 +843,11 @@ void	draw_exit_top(void)
 	exit = &get_game()->exit;
 	temp = exit->sprite;
 	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
-	for (i = 0; i < temp.height / 2; i++)
+	i = -1;
+	while (++i < temp.height / 2)
 	{
-		for (j = 0; j < temp.width; j++)
+		j = -1;
+		while (++j < temp.width)
 		{
 			if (*get_pixel(&temp, j, i) != 0xFF000000)
 				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
@@ -1042,6 +1054,49 @@ static void	init_player(void)
 	player->can_sprint = true;
 }
 
+void	handle_sprint(t_player *player, int *movement_speed)
+{
+	if (player->sprint_duration < SPRINT_DURATION)
+	{
+		*movement_speed *= SPRINT_MULTIPLIER;
+		player->sprint_duration++;
+	}
+	else
+	{
+		player->is_sprinting = false;
+		player->can_sprint = false;
+		player->sprint_duration = 0;
+	}
+}
+
+void	handle_sprint_cooldown(t_player *player)
+{
+	if (!player->can_sprint)
+	{
+		player->sprint_cooldown++;
+		if (player->sprint_cooldown >= SPRINT_COOLDOWN)
+		{
+			player->can_sprint = true;
+			player->sprint_cooldown = 0;
+		}
+	}
+}
+
+void	handle_movement(t_player *player, int movement_speed, int *prev_x,
+		int *prev_y)
+{
+	if (get_game()->move_left)
+		player->x -= movement_speed;
+	if (get_game()->move_right)
+		player->x += movement_speed;
+	handle_entity_collision(&player->x, &player->y, *prev_x, *prev_y);
+	if (get_game()->move_up)
+		player->y -= movement_speed;
+	if (get_game()->move_down)
+		player->y += movement_speed;
+	handle_entity_collision(&player->x, &player->y, *prev_x, *prev_y);
+}
+
 void	update_player_position(void)
 {
 	int			prev_x;
@@ -1055,50 +1110,14 @@ void	update_player_position(void)
 	prev_y = player->y;
 	movement_speed = PLAYER_SPEED;
 	if (player->is_sprinting)
-	{
-		if (player->sprint_duration < SPRINT_DURATION)
-		{
-			movement_speed *= SPRINT_MULTIPLIER;
-			player->sprint_duration++;
-		}
-		else
-		{
-			player->is_sprinting = false;
-			player->can_sprint = false;
-			player->sprint_duration = 0;
-		}
-	}
-	if (!player->can_sprint)
-	{
-		player->sprint_cooldown++;
-		if (player->sprint_cooldown >= SPRINT_COOLDOWN)
-		{
-			player->can_sprint = true;
-			player->sprint_cooldown = 0;
-		}
-	}
+		handle_sprint(player, &movement_speed);
+	handle_sprint_cooldown(player);
 	if (!player->is_attacking)
-	{
-		if (get_game()->move_left)
-			player->x -= movement_speed;
-		if (get_game()->move_right)
-			player->x += movement_speed;
-		if (check_wall_collisions(player->x + PLAYER_HITBOX_X_OFFSET, player->y
-				+ PLAYER_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH,
-				PLAYER_COLLISION_HEIGHT))
-			player->x = prev_x;
-		if (get_game()->move_up)
-			player->y -= movement_speed;
-		if (get_game()->move_down)
-			player->y += movement_speed;
-		if (check_wall_collisions(player->x + PLAYER_HITBOX_X_OFFSET, player->y
-				+ PLAYER_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH,
-				PLAYER_COLLISION_HEIGHT))
-			player->y = prev_y;
-	}
+		handle_movement(player, movement_speed, &prev_x, &prev_y);
 	if (prev_x != player->x || prev_y != player->y)
 	{
-		distance_moved += abs(player->x - prev_x) + abs(player->y - prev_y);
+		distance_moved += ft_abs(player->x - prev_x) + ft_abs(player->y
+				- prev_y);
 		if (distance_moved >= SPRITE_SIZE)
 		{
 			get_game()->move_count++;

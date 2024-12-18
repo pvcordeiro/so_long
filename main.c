@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:46:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 16:40:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,10 @@ void	init_enemy_state(t_enemy *enemy, int x, int y)
 	enemy->y = y * SPRITE_SIZE;
 	enemy->direction = (rand() % 2) * 2 - 1;
 	enemy->y_direction = 0;
-	enemy->state = (enemy->direction == 1) ? MOVE_RIGHT : MOVE_LEFT;
+	if (enemy->direction == 1)
+		enemy->state = MOVE_RIGHT;
+	else
+		enemy->state = MOVE_LEFT;
 	enemy->move_counter = 0;
 	enemy->lives = 3;
 	enemy->is_dead = false;
@@ -182,8 +185,14 @@ void	update_enemy_state(t_enemy *enemy)
 	if (enemy->invincibility_frames > 0)
 		enemy->invincibility_frames--;
 	update_enemy_movement(enemy);
-	enemy->state = (enemy->direction > 0) ? MOVE_RIGHT : MOVE_LEFT;
-	current_anim = (enemy->state == MOVE_RIGHT) ? &enemy->move_right : &enemy->move_left;
+	if (enemy->direction > 0)
+		enemy->state = MOVE_RIGHT;
+	else
+		enemy->state = MOVE_LEFT;
+	if (enemy->state == MOVE_RIGHT)
+		current_anim = &enemy->move_right;
+	else
+		current_anim = &enemy->move_left;
 	update_animation(current_anim);
 }
 
@@ -523,23 +532,23 @@ int	check_wall_collisions(int x, int y, int width, int height)
 	return (0);
 }
 
-void init_entity_position(t_map *map, char c, int *x, int *y)
+void	init_entity_position(t_map *map, char c, int *x, int *y)
 {
-    int i, j;
-    i = -1;
-    while (++i < map->height)
-    {
-        j = -1;
-        while (++j < map->width)
-        {
-            if (map->map[i][j] == c)
-            {
-                *x = j * SPRITE_SIZE;
-                *y = i * SPRITE_SIZE;
-                return;
-            }
-        }
-    }
+	int i, j;
+	i = -1;
+	while (++i < map->height)
+	{
+		j = -1;
+		while (++j < map->width)
+		{
+			if (map->map[i][j] == c)
+			{
+				*x = j * SPRITE_SIZE;
+				*y = i * SPRITE_SIZE;
+				return ;
+			}
+		}
+	}
 }
 
 void	handle_entity_collision(int *x, int *y, int prev_x, int prev_y)
@@ -596,6 +605,8 @@ void	init_enemy(void)
 {
 	t_enemy_list	*enemy_list;
 	t_map			*map;
+	int				i;
+	int				j;
 	int				count;
 
 	enemy_list = &get_game()->enemy_list;
@@ -603,9 +614,11 @@ void	init_enemy(void)
 	enemy_list->count = count_map_char(map->map, map->height, map->width, 'X');
 	enemy_list->enemies = malloc(sizeof(t_enemy) * enemy_list->count);
 	count = 0;
-	for (int i = 0; i < map->height; i++)
+	i = -1;
+	while (++i < map->height)
 	{
-		for (int j = 0; j < map->width; j++)
+		j = -1;
+		while (++j < map->width)
 		{
 			if (map->map[i][j] == 'X')
 			{
@@ -620,12 +633,12 @@ void	init_enemy(void)
 void	update_enemy(void)
 {
 	t_enemy_list	*enemy_list;
+	int				i;
 
 	enemy_list = &get_game()->enemy_list;
-	for (int i = 0; i < enemy_list->count; i++)
-	{
+	i = -1;
+	while (++i < enemy_list->count)
 		update_enemy_state(&enemy_list->enemies[i]);
-	}
 }
 
 void	draw_enemy(void)
@@ -633,23 +646,32 @@ void	draw_enemy(void)
 	t_enemy_list	*enemy_list;
 	t_enemy			*enemy;
 	t_animation		*current_anim;
+	int				i;
 
 	enemy_list = &get_game()->enemy_list;
-	for (int i = 0; i < enemy_list->count; i++)
+	i = -1;
+	while (++i < enemy_list->count)
 	{
 		enemy = &enemy_list->enemies[i];
-		if (enemy->is_dead)
-			continue ;
-		if (enemy->invincibility_frames > 0)
+		if (!enemy->is_dead)
 		{
-			enemy->is_visible = !enemy->is_visible;
-			if (!enemy->is_visible)
-				continue ;
+			if (enemy->invincibility_frames > 0)
+			{
+				enemy->is_visible = !enemy->is_visible;
+				if (!enemy->is_visible)
+				{
+					i++;
+					continue ;
+				}
+			}
+			if (enemy->state == MOVE_RIGHT)
+				current_anim = &enemy->move_right;
+			else
+				current_anim = &enemy->move_left;
+			current_anim->x = enemy->x;
+			current_anim->y = enemy->y;
+			draw_animation(current_anim, &get_game()->canvas);
 		}
-		current_anim = (enemy->state == MOVE_RIGHT) ? &enemy->move_right : &enemy->move_left;
-		current_anim->x = enemy->x;
-		current_anim->y = enemy->y;
-		draw_animation(current_anim, &get_game()->canvas);
 	}
 }
 

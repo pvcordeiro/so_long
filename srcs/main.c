@@ -6,15 +6,15 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 22:35:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 23:32:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
 
-t_game	*get_game(void)
+t_game_state	*get_game(void)
 {
-	static t_game	game;
+	static t_game_state	game;
 
 	return (&game);
 }
@@ -38,8 +38,8 @@ void	update_entities(void)
 
 void	draw_text_layer(void)
 {
-	t_game	*game;
-	char	*count_str;
+	t_game_state	*game;
+	char			*count_str;
 
 	game = get_game();
 	if (game->vic || game->game_over)
@@ -58,7 +58,7 @@ void	draw_text_layer(void)
 
 void	draw_frame(void)
 {
-	t_game	*game;
+	t_game_state	*game;
 
 	game = get_game();
 	draw_background_layer();
@@ -84,8 +84,8 @@ void	draw_background_layer(void)
 {
 	draw_floor();
 	draw_walls();
-	update_animation(&get_game()->wall.base);
-	draw_animation(&get_game()->wall.base, &get_game()->canvas);
+	update_sprite_animation(&get_game()->wall.base);
+	draw_animated_sprite(&get_game()->wall.base, &get_game()->canvas);
 }
 
 void	draw_entity_layer(void)
@@ -182,7 +182,7 @@ void	update_enemy_movement(t_enemy *enemy)
 	int	prev_y;
 
 	enemy->move_counter++;
-	if (enemy->move_counter >= ENEMY_MOVE_THRESHOLD)
+	if (enemy->move_counter >= ENEMY_DIRECTION_CHANGE_DELAY)
 		update_enemy_direction(enemy);
 	prev_x = enemy->x;
 	prev_y = enemy->y;
@@ -193,7 +193,7 @@ void	update_enemy_movement(t_enemy *enemy)
 
 void	update_enemy_state(t_enemy *enemy)
 {
-	t_animation	*current_anim;
+	t_animated_sprite	*current_anim;
 
 	if (enemy->is_dead)
 		return ;
@@ -208,10 +208,11 @@ void	update_enemy_state(t_enemy *enemy)
 		current_anim = &enemy->move_right;
 	else
 		current_anim = &enemy->move_left;
-	update_animation(current_anim);
+	update_sprite_animation(current_anim);
 }
 
-static int	check_collision(t_coord pos1, t_coord pos2, int width, int height)
+static int	check_collision(t_position pos1, t_position pos2, int width,
+		int height)
 {
 	return (pos1.x < (pos2.x + width) && (pos1.x + width) > pos2.x
 		&& pos1.y < (pos2.y + height) && (pos1.y + height) > pos2.y);
@@ -219,10 +220,10 @@ static int	check_collision(t_coord pos1, t_coord pos2, int width, int height)
 
 int	check_enemy_collisions(int x, int y, int current_enemy)
 {
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	int				i;
-	t_coord			pos1;
-	t_coord			pos2;
+	t_position		pos1;
+	t_position		pos2;
 
 	enemy_list = &get_game()->enemy_list;
 	i = -1;
@@ -271,15 +272,15 @@ static void	apply_damage_to_enemy(t_enemy *enemy, t_player *player)
 void	check_attack_collision(void)
 {
 	t_player		*player;
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	int				i;
-	t_coord			pos1;
-	t_coord			pos2;
+	t_position		pos1;
+	t_position		pos2;
 
 	player = &get_game()->player;
 	enemy_list = &get_game()->enemy_list;
 	pos1.x = player->x;
-	pos1.y = player->y + ATTACK_HITBOX_Y_OFFSET;
+	pos1.y = player->y + ATTACK_COLLISION_Y_OFFSET;
 	i = -1;
 	while (++i < enemy_list->count)
 	{
@@ -296,13 +297,13 @@ void	check_attack_collision(void)
 	}
 }
 
-unsigned int	*get_pixel(t_img *data, int x, int y)
+unsigned int	*get_sprite_pixel(t_sprite *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
 				/ 8))));
 }
 
-static void	cleanup_dynamic_memory(t_game *game)
+static void	cleanup_dynamic_memory(t_game_state *game)
 {
 	free(game->wall.x_positions);
 	free(game->wall.y_positions);
@@ -311,7 +312,7 @@ static void	cleanup_dynamic_memory(t_game *game)
 	free(game->collectible.collected);
 }
 
-static void	cleanup_enemy_sprites(t_game *game)
+static void	cleanup_enemy_sprites(t_game_state *game)
 {
 	int	i;
 	int	j;
@@ -331,7 +332,7 @@ static void	cleanup_enemy_sprites(t_game *game)
 	free(game->enemy_list.enemies);
 }
 
-static void	cleanup_collectible_sprites(t_game *game)
+static void	cleanup_collectible_sprites(t_game_state *game)
 {
 	int	i;
 
@@ -340,7 +341,7 @@ static void	cleanup_collectible_sprites(t_game *game)
 		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
 }
 
-static void	cleanup_player_sprites(t_game *game)
+static void	cleanup_player_sprites(t_game_state *game)
 {
 	int	i;
 
@@ -357,7 +358,7 @@ static void	cleanup_player_sprites(t_game *game)
 	}
 }
 
-static void	cleanup_misc_sprites(t_game *game)
+static void	cleanup_misc_sprites(t_game_state *game)
 {
 	mlx_destroy_image(game->mlx, game->canvas.img);
 	mlx_destroy_image(game->mlx, game->floor.img);
@@ -374,7 +375,7 @@ static void	cleanup_misc_sprites(t_game *game)
 
 void	cleanup_sprites(void)
 {
-	t_game	*game;
+	t_game_state	*game;
 
 	game = get_game();
 	cleanup_dynamic_memory(game);
@@ -384,7 +385,7 @@ void	cleanup_sprites(void)
 	cleanup_misc_sprites(game);
 }
 
-int	exit_game(void)
+int	exit_game_state(void)
 {
 	cleanup_sprites();
 	mlx_destroy_window(get_game()->mlx, get_game()->win);
@@ -398,24 +399,20 @@ static char	*get_error_message(t_error error)
 {
 	char	**messages;
 
-	messages = (char *[]){
-		"",
-		"Error\nMap must be surrounded by walls",
+	messages = (char *[]){"", "Error\nMap must be surrounded by walls",
 		"Error\nNo player (P) found in map",
 		"Error\nMultiple players found in map",
-		"Error\nNo exit (E) found in map",
-		"Error\nMultiple exits found in map",
+		"Error\nNo exit (E) found in map", "Error\nMultiple exits found in map",
 		"Error\nNo collectibles (C) found in map",
 		"Error\nNo empty spaces (0) found in map",
 		"Error\nNo valid path to exit/collectibles",
-		"Error\nInvalid character in map",
-		"Error\nMap is not rectangular"};
+		"Error\nInvalid character in map", "Error\nMap is not rectangular"};
 	return (messages[error]);
 }
 
 int	exit_error(t_error error)
 {
-	t_game	*game;
+	t_game_state	*game;
 
 	game = get_game();
 	if (game->mlx)
@@ -429,9 +426,9 @@ int	exit_error(t_error error)
 	exit(EXIT_FAILURE);
 }
 
-t_img	make_sprite(char *path)
+t_sprite	create_sprite(char *path)
 {
-	t_img	sprite;
+	t_sprite	sprite;
 
 	if (path)
 	{
@@ -450,7 +447,7 @@ t_img	make_sprite(char *path)
 	return (sprite);
 }
 
-void	draw_image(t_img *src, t_img *dst, int x, int y)
+void	draw_sprite(t_sprite *src, t_sprite *dst, int x, int y)
 {
 	int	sx;
 	int	sy;
@@ -463,15 +460,17 @@ void	draw_image(t_img *src, t_img *dst, int x, int y)
 		{
 			if (!(sx + x > get_game()->window_width || sy
 					+ y > get_game()->window_height || sx + x < 0 || sy + y < 0)
-				&& (*get_pixel(src, sx, sy) != 0xFF000000))
-				*get_pixel(dst, x + sx, y + sy) = *get_pixel(src, sx, sy);
+				&& (*get_sprite_pixel(src, sx, sy) != 0xFF000000))
+				*get_sprite_pixel(dst, x + sx, y + sy) = *get_sprite_pixel(src,
+					sx, sy);
 			sx++;
 		}
 		sy++;
 	}
 }
 
-void	init_animation(t_animation *anim, int frame_count, int speed)
+void	init_animated_sprite(t_animated_sprite *anim, int frame_count,
+		int speed)
 {
 	anim->current_frame = 0;
 	anim->anim_counter = 0;
@@ -479,7 +478,7 @@ void	init_animation(t_animation *anim, int frame_count, int speed)
 	anim->frame_count = frame_count;
 }
 
-void	update_animation(t_animation *anim)
+void	update_sprite_animation(t_animated_sprite *anim)
 {
 	anim->anim_counter++;
 	if (anim->anim_counter >= anim->anim_speed)
@@ -489,25 +488,17 @@ void	update_animation(t_animation *anim)
 	}
 }
 
-void	draw_animation(t_animation *anim, t_img *canvas)
+void	draw_animated_sprite(t_animated_sprite *anim, t_sprite *canvas)
 {
-	draw_image(&anim->sprites[anim->current_frame], canvas, anim->x, anim->y);
+	draw_sprite(&anim->sprites[anim->current_frame], canvas, anim->x, anim->y);
 }
 
-void	update_collectible(void)
+static void	update_single_collectible(int i, t_collectible *collectible,
+		t_position player_pos)
 {
-	int				i;
-	t_collectible	*collectible;
-	t_player		*player;
-	t_coord			player_pos;
-	t_coord			collect_pos;
+	t_position	collect_pos;
 
-	collectible = &get_game()->collectible;
-	player = &get_game()->player;
-	player_pos.x = player->x;
-	player_pos.y = player->y;
-	i = -1;
-	while (++i < collectible->count)
+	if (!collectible->collected[i])
 	{
 		collect_pos.x = collectible->x_positions[i] + HITBOX_X_OFFSET;
 		collect_pos.y = collectible->y_positions[i] + HITBOX_Y_OFFSET;
@@ -518,7 +509,23 @@ void	update_collectible(void)
 			get_game()->collectible_count++;
 		}
 	}
-	update_animation(&collectible->base);
+}
+
+void	update_collectible(void)
+{
+	int				i;
+	t_collectible	*collectible;
+	t_player		*player;
+	t_position		player_pos;
+
+	collectible = &get_game()->collectible;
+	player = &get_game()->player;
+	player_pos.x = player->x;
+	player_pos.y = player->y;
+	i = -1;
+	while (++i < collectible->count)
+		update_single_collectible(i, collectible, player_pos);
+	update_sprite_animation(&collectible->base);
 }
 
 static int	count_collectible_positions(t_map *map)
@@ -576,12 +583,12 @@ static void	store_collectible_positions(t_collectible *collectible, t_map *map)
 
 static void	load_collectible_sprites(t_collectible *collectible)
 {
-	collectible->base.sprites[0] = make_sprite("assets/collect/collect00.xpm");
-	collectible->base.sprites[1] = make_sprite("assets/collect/collect01.xpm");
-	collectible->base.sprites[2] = make_sprite("assets/collect/collect02.xpm");
-	collectible->base.sprites[3] = make_sprite("assets/collect/collect03.xpm");
-	collectible->base.sprites[4] = make_sprite("assets/ban_col.xpm");
-	init_animation(&collectible->base, 4, COLLECTIBLE_ANIMATION_SPEED);
+	collectible->base.sprites[0] = create_sprite("assets/collect/col00.xpm");
+	collectible->base.sprites[1] = create_sprite("assets/collect/col01.xpm");
+	collectible->base.sprites[2] = create_sprite("assets/collect/col02.xpm");
+	collectible->base.sprites[3] = create_sprite("assets/collect/col03.xpm");
+	collectible->base.sprites[4] = create_sprite("assets/misc/ban_col.xpm");
+	init_animated_sprite(&collectible->base, 4, COLLECTIBLE_FRAME_DELAY);
 }
 
 void	init_collectible(void)
@@ -601,12 +608,12 @@ void	init_collectible(void)
 	get_game()->collectible_count = 0;
 }
 
-static void	init_wall(void)
+static void	init_wall_manager(void)
 {
-	t_wall	*wall;
-	t_map	*map;
-	int		count;
-	int		i;
+	t_wall_manager	*wall;
+	t_map			*map;
+	int				count;
+	int				i;
 
 	wall = &get_game()->wall;
 	map = &get_game()->map;
@@ -631,10 +638,10 @@ static void	init_wall(void)
 
 int	check_wall_collisions(int x, int y, int width, int height)
 {
-	t_wall	*wall;
-	int		i;
-	t_coord	pos1;
-	t_coord	pos2;
+	t_wall_manager	*wall;
+	int				i;
+	t_position		pos1;
+	t_position		pos2;
 
 	wall = &get_game()->wall;
 	pos1.x = x;
@@ -673,8 +680,8 @@ void	init_entity_position(t_map *map, char c, int *x, int *y)
 
 void	handle_entity_collision(int *x, int *y, int prev_x, int prev_y)
 {
-	if (check_wall_collisions(*x + PLAYER_HITBOX_X_OFFSET, *y
-			+ PLAYER_HITBOX_Y_OFFSET, PLAYER_COLLISION_WIDTH,
+	if (check_wall_collisions(*x + PLAYER_COLLISION_X_OFFSET, *y
+			+ PLAYER_COLLISION_Y_OFFSET, PLAYER_COLLISION_WIDTH,
 			PLAYER_COLLISION_HEIGHT))
 	{
 		*x = prev_x;
@@ -721,7 +728,7 @@ void	handle_enemy_movement(t_enemy *enemy)
 	}
 }
 
-static bool	allocate_enemy_array(t_enemy_list *enemy_list, int count)
+static bool	allocate_enemy_array(t_enemy_manager *enemy_list, int count)
 {
 	enemy_list->enemies = malloc(sizeof(t_enemy) * count);
 	if (!enemy_list->enemies)
@@ -736,7 +743,7 @@ static void	init_single_enemy(t_enemy *enemy, int x, int y)
 	init_enemy_state(enemy, x, y);
 }
 
-static void	setup_enemies(t_enemy_list *enemy_list, t_map *map)
+static void	setup_enemies(t_enemy_manager *enemy_list, t_map *map)
 {
 	int	i;
 	int	j;
@@ -757,7 +764,7 @@ static void	setup_enemies(t_enemy_list *enemy_list, t_map *map)
 
 void	init_enemy(void)
 {
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	t_map			*map;
 	int				count;
 
@@ -771,7 +778,7 @@ void	init_enemy(void)
 
 void	update_enemy(void)
 {
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	int				i;
 
 	enemy_list = &get_game()->enemy_list;
@@ -790,7 +797,7 @@ static bool	is_enemy_visible(t_enemy *enemy)
 	return (true);
 }
 
-static t_animation	*get_enemy_animation(t_enemy *enemy)
+static t_animated_sprite	*get_enemy_animation(t_enemy *enemy)
 {
 	if (enemy->state == MOVE_RIGHT)
 		return (&enemy->move_right);
@@ -799,20 +806,20 @@ static t_animation	*get_enemy_animation(t_enemy *enemy)
 
 static void	draw_single_enemy(t_enemy *enemy)
 {
-	t_animation	*current_anim;
+	t_animated_sprite	*current_anim;
 
 	if (!enemy->is_dead && is_enemy_visible(enemy))
 	{
 		current_anim = get_enemy_animation(enemy);
 		current_anim->x = enemy->x;
 		current_anim->y = enemy->y;
-		draw_animation(current_anim, &get_game()->canvas);
+		draw_animated_sprite(current_anim, &get_game()->canvas);
 	}
 }
 
 void	draw_enemy(void)
 {
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	int				i;
 
 	enemy_list = &get_game()->enemy_list;
@@ -833,10 +840,10 @@ void	draw_floor(void)
 		while (++x <= (get_game()->window_width / SPRITE_SIZE))
 		{
 			if ((x + y) % 2 == 0)
-				draw_image(&get_game()->floor, &get_game()->canvas, x
+				draw_sprite(&get_game()->floor, &get_game()->canvas, x
 					* SPRITE_SIZE, y * SPRITE_SIZE);
 			else
-				draw_image(&get_game()->floor2, &get_game()->canvas, x
+				draw_sprite(&get_game()->floor2, &get_game()->canvas, x
 					* SPRITE_SIZE, y * SPRITE_SIZE);
 		}
 	}
@@ -855,28 +862,28 @@ void	draw_collectibles(void)
 		{
 			collectible->base.x = collectible->x_positions[i];
 			collectible->base.y = collectible->y_positions[i];
-			draw_animation(&collectible->base, &get_game()->canvas);
+			draw_animated_sprite(&collectible->base, &get_game()->canvas);
 		}
 	}
 }
 
 void	draw_walls(void)
 {
-	t_wall	*wall;
-	int		i;
+	t_wall_manager	*wall;
+	int				i;
 
 	wall = &get_game()->wall;
-	update_animation(&wall->base);
+	update_sprite_animation(&wall->base);
 	i = -1;
 	while (++i < wall->count)
 	{
 		wall->base.x = wall->x_positions[i];
 		wall->base.y = wall->y_positions[i];
-		draw_animation(&wall->base, &get_game()->canvas);
+		draw_animated_sprite(&wall->base, &get_game()->canvas);
 	}
 }
 
-static void	handle_movement_keys(t_game *game, int key, char *action)
+static void	handle_movement_keys(t_game_state *game, int key, char *action)
 {
 	if (key == XK_w)
 		game->move_up = (*action == 'p');
@@ -888,7 +895,7 @@ static void	handle_movement_keys(t_game *game, int key, char *action)
 		game->move_right = (*action == 'p');
 }
 
-static void	handle_sprint_key(t_game *game, char *action)
+static void	handle_sprint_key(t_game_state *game, char *action)
 {
 	if (*action == 'p' && game->player.can_sprint)
 		game->player.is_sprinting = true;
@@ -917,11 +924,11 @@ static void	handle_attack_key(t_player *player)
 
 int	key_loop(int key, char *action)
 {
-	t_game	*game;
+	t_game_state	*game;
 
 	game = get_game();
 	if (key == XK_Escape)
-		exit_game();
+		exit_game_state();
 	if (!game->vic && !game->game_over)
 	{
 		if (key == XK_Shift_L)
@@ -956,16 +963,16 @@ static void	init_exit(void)
 			}
 		}
 	}
-	exit->sprite = make_sprite("assets/exit.xpm");
+	exit->sprite = create_sprite("assets/misc/exit.xpm");
 }
 
 void	draw_exit_bottom(void)
 {
-	t_exit	*exit;
-	t_img	temp;
-	int		i;
-	int		j;
-	int		draw_y;
+	t_exit		*exit;
+	t_sprite	temp;
+	int			i;
+	int			j;
+	int			draw_y;
 
 	exit = &get_game()->exit;
 	temp = exit->sprite;
@@ -976,9 +983,9 @@ void	draw_exit_bottom(void)
 		j = -1;
 		while (++j < temp.width)
 		{
-			if (*get_pixel(&temp, j, i) != 0xFF000000)
-				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
-					+ i) = *get_pixel(&temp, j, i);
+			if (*get_sprite_pixel(&temp, j, i) != 0xFF000000)
+				*get_sprite_pixel(&get_game()->canvas, exit->x + j, draw_y
+					+ i) = *get_sprite_pixel(&temp, j, i);
 		}
 		i++;
 	}
@@ -986,11 +993,11 @@ void	draw_exit_bottom(void)
 
 void	draw_exit_top(void)
 {
-	t_exit	*exit;
-	t_img	temp;
-	int		i;
-	int		j;
-	int		draw_y;
+	t_exit		*exit;
+	t_sprite	temp;
+	int			i;
+	int			j;
+	int			draw_y;
 
 	exit = &get_game()->exit;
 	temp = exit->sprite;
@@ -1001,9 +1008,9 @@ void	draw_exit_top(void)
 		j = -1;
 		while (++j < temp.width)
 		{
-			if (*get_pixel(&temp, j, i) != 0xFF000000)
-				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
-					+ i) = *get_pixel(&temp, j, i);
+			if (*get_sprite_pixel(&temp, j, i) != 0xFF000000)
+				*get_sprite_pixel(&get_game()->canvas, exit->x + j, draw_y
+					+ i) = *get_sprite_pixel(&temp, j, i);
 		}
 	}
 }
@@ -1015,26 +1022,26 @@ void	draw_exit_full(void)
 
 	exit = &get_game()->exit;
 	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
-	draw_image(&exit->sprite, &get_game()->canvas, exit->x, draw_y);
+	draw_sprite(&exit->sprite, &get_game()->canvas, exit->x, draw_y);
 }
 
-void	init_health(void)
+void	init_ui_elements(void)
 {
-	t_health	*health;
+	t_ui_elements	*health;
 
 	health = &get_game()->health;
-	health->health1 = make_sprite("assets/health/health1.xpm");
-	health->health2 = make_sprite("assets/health/health2.xpm");
-	health->health3 = make_sprite("assets/health/health3.xpm");
-	health->sprint = make_sprite("assets/sprint.xpm");
-	health->banner = make_sprite("assets/banner.xpm");
-	health->message = make_sprite("assets/helper_message.xpm");
+	health->health1 = create_sprite("assets/health/health1.xpm");
+	health->health2 = create_sprite("assets/health/health2.xpm");
+	health->health3 = create_sprite("assets/health/health3.xpm");
+	health->sprint = create_sprite("assets/misc/sprint.xpm");
+	health->banner = create_sprite("assets/misc/banner.xpm");
+	health->message = create_sprite("assets/misc/helper_message.xpm");
 }
 
 void	draw_health(void)
 {
-	t_health	*health;
-	t_img		*current_sprite;
+	t_ui_elements	*health;
+	t_sprite		*current_sprite;
 
 	health = &get_game()->health;
 	if (get_game()->player.lives == 3)
@@ -1045,7 +1052,7 @@ void	draw_health(void)
 		current_sprite = &health->health1;
 	else
 		return ;
-	draw_image(current_sprite, &get_game()->canvas, 10, -10);
+	draw_sprite(current_sprite, &get_game()->canvas, 10, -10);
 }
 
 static int	count_valid_positions(t_map *map)
@@ -1102,7 +1109,7 @@ void	init_mushroom(void)
 
 	mushroom = &get_game()->mushroom;
 	map = &get_game()->map;
-	mushroom->sprite = make_sprite("assets/mushroom.xpm");
+	mushroom->sprite = create_sprite("assets/misc/mushroom.xpm");
 	mushroom->active = true;
 	mushroom->collected = false;
 	valid_positions = count_valid_positions(map);
@@ -1113,8 +1120,8 @@ void	update_mushroom(void)
 {
 	t_mushroom	*mushroom;
 	t_player	*player;
-	t_coord		pos1;
-	t_coord		pos2;
+	t_position	pos1;
+	t_position	pos2;
 
 	mushroom = &get_game()->mushroom;
 	player = &get_game()->player;
@@ -1142,7 +1149,7 @@ void	draw_mushroom(void)
 	mushroom = &get_game()->mushroom;
 	if (mushroom->active && !mushroom->collected)
 	{
-		draw_image(&mushroom->sprite, &get_game()->canvas, mushroom->x,
+		draw_sprite(&mushroom->sprite, &get_game()->canvas, mushroom->x,
 			mushroom->y);
 	}
 }
@@ -1165,12 +1172,12 @@ int	count_map_char(char **map, int height, int width, char c)
 	return (count);
 }
 
-void	load_animation_sprites(t_animation *anim, char *path1, char *path2,
-		int speed)
+void	load_animation_sprites(t_animated_sprite *anim, char *path1,
+		char *path2, int speed)
 {
-	anim->sprites[0] = make_sprite(path1);
-	anim->sprites[1] = make_sprite(path2);
-	init_animation(anim, FRAME_COUNT, speed);
+	anim->sprites[0] = create_sprite(path1);
+	anim->sprites[1] = create_sprite(path2);
+	init_animated_sprite(anim, ANIMATION_FRAMES, speed);
 }
 
 void	load_player_animations(t_player *player)
@@ -1178,27 +1185,27 @@ void	load_player_animations(t_player *player)
 	load_animation_sprites(&player->idle_right,
 		"assets/player/idle_right/player_idle_right00.xpm",
 		"assets/player/idle_right/player_idle_right01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 	load_animation_sprites(&player->idle_left,
 		"assets/player/idle_left/player_idle_left00.xpm",
 		"assets/player/idle_left/player_idle_left01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 	load_animation_sprites(&player->move_right,
 		"assets/player/move_right/player_move_right00.xpm",
 		"assets/player/move_right/player_move_right01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 	load_animation_sprites(&player->move_left,
 		"assets/player/move_left/player_move_left00.xpm",
 		"assets/player/move_left/player_move_left01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 	load_animation_sprites(&player->attack_right,
 		"assets/player/attack_right/player_attack_right00.xpm",
 		"assets/player/attack_right/player_attack_right01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 	load_animation_sprites(&player->attack_left,
 		"assets/player/attack_left/player_attack_left00.xpm",
 		"assets/player/attack_left/player_attack_left01.xpm",
-		PLAYER_IDLE_ANIMATION_SPEED);
+		PLAYER_IDLE_FRAME_DELAY);
 }
 
 static void	init_player_position(t_player *player, t_map *map)
@@ -1273,14 +1280,17 @@ static void	handle_sprint_cooldown(t_player *player)
 	}
 }
 
-static void	handle_movement(t_player *player, int movement_speed, int *prev_x,
-		int *prev_y)
+static void	handle_movement(t_player *player, int movement_speed,
+		int *prev_x, int *prev_y)
 {
+	*prev_x = player->x;
+	*prev_y = player->y;
 	if (get_game()->move_left)
 		player->x -= movement_speed;
 	if (get_game()->move_right)
 		player->x += movement_speed;
 	handle_entity_collision(&player->x, &player->y, *prev_x, *prev_y);
+	*prev_x = player->x;
 	if (get_game()->move_up)
 		player->y -= movement_speed;
 	if (get_game()->move_down)
@@ -1299,7 +1309,7 @@ void	update_player_position(void)
 	player = &get_game()->player;
 	prev_x = player->x;
 	prev_y = player->y;
-	movement_speed = PLAYER_SPEED;
+	movement_speed = PLAYER_MOVE_SPEED;
 	if (player->is_sprinting)
 		handle_sprint(player, &movement_speed);
 	handle_sprint_cooldown(player);
@@ -1317,7 +1327,8 @@ void	update_player_position(void)
 	}
 }
 
-static void	handle_player_attack(t_player *player, t_animation *current_anim)
+static void	handle_player_attack(t_player *player,
+		t_animated_sprite *current_anim)
 {
 	player->attack_timer++;
 	if (player->state == ATTACK_RIGHT)
@@ -1370,8 +1381,8 @@ static void	update_player_state(t_player *player)
 
 void	update_player(void)
 {
-	t_player	*player;
-	t_animation	*current_anim;
+	t_player			*player;
+	t_animated_sprite	*current_anim;
 
 	player = &get_game()->player;
 	if (player->attack_cooldown > 0)
@@ -1390,7 +1401,7 @@ void	update_player(void)
 		current_anim = &player->move_right;
 	else
 		current_anim = &player->move_left;
-	update_animation(current_anim);
+	update_sprite_animation(current_anim);
 }
 
 static bool	is_player_visible(t_player *player)
@@ -1403,7 +1414,7 @@ static bool	is_player_visible(t_player *player)
 	return (true);
 }
 
-static t_animation	*get_player_animation(t_player *player)
+static t_animated_sprite	*get_player_animation(t_player *player)
 {
 	if (player->state == IDLE_RIGHT)
 		return (&player->idle_right);
@@ -1420,8 +1431,8 @@ static t_animation	*get_player_animation(t_player *player)
 
 void	draw_player(void)
 {
-	t_player	*player;
-	t_animation	*current_anim;
+	t_player			*player;
+	t_animated_sprite	*current_anim;
 
 	player = &get_game()->player;
 	if (!is_player_visible(player))
@@ -1429,7 +1440,7 @@ void	draw_player(void)
 	current_anim = get_player_animation(player);
 	current_anim->x = player->x;
 	current_anim->y = player->y;
-	draw_animation(current_anim, &get_game()->canvas);
+	draw_animated_sprite(current_anim, &get_game()->canvas);
 }
 
 static void	fps_cap(void)
@@ -1441,8 +1452,8 @@ static void	fps_cap(void)
 	gettimeofday(&current_time, NULL);
 	elapsed_us = (current_time.tv_sec - last_frame.tv_sec) * 1000000
 		+ (current_time.tv_usec - last_frame.tv_usec);
-	if (elapsed_us < FRAME_DELAY)
-		usleep(FRAME_DELAY - elapsed_us);
+	if (elapsed_us < FRAME_TIME_MS)
+		usleep(FRAME_TIME_MS - elapsed_us);
 	last_frame = current_time;
 }
 
@@ -1454,11 +1465,11 @@ static void	update_player_invincibility(t_player *player)
 
 static bool	check_enemy_hit(t_player *player, t_enemy *enemy)
 {
-	t_coord	pos1;
-	t_coord	pos2;
+	t_position	pos1;
+	t_position	pos2;
 
-	pos1.x = player->x + PLAYER_HITBOX_X_OFFSET;
-	pos1.y = player->y + PLAYER_HITBOX_Y_OFFSET;
+	pos1.x = player->x + PLAYER_COLLISION_X_OFFSET;
+	pos1.y = player->y + PLAYER_COLLISION_Y_OFFSET;
 	pos2.x = enemy->x + ENEMY_HITBOX_X_OFFSET;
 	pos2.y = enemy->y + ENEMY_HITBOX_Y_OFFSET;
 	return (check_collision(pos1, pos2, PLAYER_COLLISION_WIDTH,
@@ -1476,7 +1487,7 @@ static void	handle_enemy_hit(t_player *player)
 void	handle_game_state(void)
 {
 	t_player		*player;
-	t_enemy_list	*enemy_list;
+	t_enemy_manager	*enemy_list;
 	int				i;
 
 	player = &get_game()->player;
@@ -1499,10 +1510,10 @@ void	handle_game_state(void)
 
 void	helper_message(void)
 {
-	int		x;
-	int		y;
-	t_coord	pos1;
-	t_coord	pos2;
+	int			x;
+	int			y;
+	t_position	pos1;
+	t_position	pos2;
 
 	pos1.x = get_game()->player.x;
 	pos1.y = get_game()->player.y;
@@ -1513,14 +1524,14 @@ void	helper_message(void)
 	{
 		x = get_game()->exit.x + (SPRITE_SIZE - 160) / 2;
 		y = get_game()->exit.y - 40;
-		draw_image(&get_game()->health.message, &get_game()->canvas, x, y);
+		draw_sprite(&get_game()->health.message, &get_game()->canvas, x, y);
 	}
 }
 
 void	victory_check(void)
 {
-	t_coord	pos1;
-	t_coord	pos2;
+	t_position	pos1;
+	t_position	pos2;
 
 	pos1.x = get_game()->player.x;
 	pos1.y = get_game()->player.y;
@@ -1542,7 +1553,7 @@ void	draw_collectible_counter(void)
 	x = get_game()->window_width - 80;
 	y = 0;
 	collectible = &get_game()->collectible;
-	draw_image(&collectible->base.sprites[4], &get_game()->canvas, x, y);
+	draw_sprite(&collectible->base.sprites[4], &get_game()->canvas, x, y);
 }
 
 void	draw_sprint_icon(void)
@@ -1556,17 +1567,17 @@ void	draw_sprint_icon(void)
 	sprint_x = get_game()->window_width - 80;
 	sprint_y = get_game()->window_height - 80;
 	if (player->is_sprinting)
-		draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
+		draw_sprite(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
 			sprint_y);
 	else if (!player->can_sprint)
 	{
 		flash_counter++;
 		if ((flash_counter / 15) % 2)
-			draw_image(&get_game()->health.sprint, &get_game()->canvas,
+			draw_sprite(&get_game()->health.sprint, &get_game()->canvas,
 				sprint_x, sprint_y);
 	}
 	else
-		draw_image(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
+		draw_sprite(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
 			sprint_y);
 }
 
@@ -1577,21 +1588,21 @@ void	draw_ui_banners(void)
 	int	banner_bottom_right;
 
 	banner_top_right = get_game()->window_width - 80;
-	draw_image(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
 		banner_top_right, 0);
 	banner_bottom_left = 0;
-	draw_image(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
 		banner_bottom_left, get_game()->window_height - 80);
 	banner_bottom_right = get_game()->window_width - 80;
-	draw_image(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
 		banner_bottom_right, get_game()->window_height - 80);
 }
 
 void	draw_end_game_screen(void)
 {
-	t_game	*game;
-	int		x;
-	int		y;
+	t_game_state	*game;
+	int				x;
+	int				y;
 
 	game = get_game();
 	if (game->vic || game->game_over)
@@ -1599,9 +1610,9 @@ void	draw_end_game_screen(void)
 		x = (game->window_width - 400) / 2;
 		y = (game->window_height - 400) / 2;
 		if (game->vic)
-			draw_image(&game->victory, &game->canvas, x, y);
+			draw_sprite(&game->victory, &game->canvas, x, y);
 		else
-			draw_image(&game->defeat, &game->canvas, x, y);
+			draw_sprite(&game->defeat, &game->canvas, x, y);
 	}
 }
 
@@ -1616,10 +1627,10 @@ int	game_loop(void)
 	return (0);
 }
 
-void	init_game(char *map_path)
+void	init_game_state(char *map_path)
 {
-	t_game	*game;
-	t_map	*map_info;
+	t_game_state	*game;
+	t_map			*map_info;
 
 	game = get_game();
 	game->mlx = NULL;
@@ -1636,7 +1647,7 @@ void	init_game(char *map_path)
 
 void	init_window(void)
 {
-	t_game	*game;
+	t_game_state	*game;
 
 	game = get_game();
 	game->window_width = game->map.width * SPRITE_SIZE;
@@ -1652,17 +1663,17 @@ void	init_window(void)
 
 void	init_sprites(void)
 {
-	get_game()->canvas = make_sprite(NULL);
-	get_game()->floor = make_sprite("assets/terrain/floor00.xpm");
-	get_game()->floor2 = make_sprite("assets/terrain/floor01.xpm");
-	get_game()->victory = make_sprite("assets/victory.xpm");
-	get_game()->defeat = make_sprite("assets/defeat.xpm");
+	get_game()->canvas = create_sprite(NULL);
+	get_game()->floor = create_sprite("assets/terrain/floor00.xpm");
+	get_game()->floor2 = create_sprite("assets/terrain/floor01.xpm");
+	get_game()->victory = create_sprite("assets/misc/victory.xpm");
+	get_game()->defeat = create_sprite("assets/misc/defeat.xpm");
 	init_collectible();
-	init_wall();
+	init_wall_manager();
 	init_player();
 	init_enemy();
 	init_exit();
-	init_health();
+	init_ui_elements();
 	init_mushroom();
 }
 
@@ -1671,7 +1682,8 @@ void	setup_hooks(void)
 	mlx_loop_hook(get_game()->mlx, game_loop, NULL);
 	mlx_hook(get_game()->win, KeyPress, KeyPressMask, key_loop, "p");
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
-	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game, NULL);
+	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game_state,
+		NULL);
 }
 
 static bool	is_map_surrounded(t_map *map)
@@ -1689,7 +1701,7 @@ static bool	is_map_surrounded(t_map *map)
 	return (true);
 }
 
-static bool	count_entities(t_map *map, t_counter *count)
+static bool	count_entities(t_map *map, t_map_entity_counts *count)
 {
 	int	i;
 	int	j;
@@ -1836,7 +1848,7 @@ bool	check_path(t_map *map)
 
 static t_error	validate_map(t_map *map)
 {
-	t_counter	count;
+	t_map_entity_counts	count;
 
 	if (!is_map_surrounded(map))
 		return (ERR_WALLS);
@@ -1969,8 +1981,8 @@ int	main(int argc, char **argv)
 	if (!check_file_extension(argv[1]))
 		return (ft_printf("Error\nFile must have .ber extension\n"));
 	srand(time(NULL));
-	init_game(argv[1]);
+	init_game_state(argv[1]);
 	mlx_loop(get_game()->mlx);
-	exit_game();
+	exit_game_state();
 	return (0);
 }

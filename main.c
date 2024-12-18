@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 16:59:23 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:01:29 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -230,49 +230,56 @@ int	check_enemy_collisions(int x, int y, int current_enemy)
 	return (0);
 }
 
+static bool	is_valid_attack_target(t_player *player, t_enemy *enemy)
+{
+    return (!enemy->is_dead && player->is_attacking 
+        && enemy->invincibility_frames == 0
+        && ((player->state == ATTACK_RIGHT && enemy->x > player->x)
+        || (player->state == ATTACK_LEFT && enemy->x < player->x)));
+}
+
+static void	apply_damage_to_enemy(t_enemy *enemy, t_player *player)
+{
+    enemy->lives--;
+    enemy->invincibility_frames = INVINCIBILITY_DURATION;
+    
+    if (player->x < enemy->x)
+    {
+        enemy->direction = 1;
+        enemy->state = MOVE_RIGHT;
+    }
+    else
+    {
+        enemy->direction = -1;
+        enemy->state = MOVE_LEFT;
+    }
+    
+    if (enemy->lives <= 0)
+        enemy->is_dead = true;
+}
+
 void	check_attack_collision(void)
 {
-	t_player		*player;
-	t_enemy_list	*enemy_list;
-	int				i;
+    t_player		*player;
+    t_enemy_list	*enemy_list;
+    int				i;
 
-	player = &get_game()->player;
-	enemy_list = &get_game()->enemy_list;
-	i = -1;
-	while (++i < enemy_list->count)
-	{
-		if (!enemy_list->enemies[i].is_dead && player->is_attacking
-			&& enemy_list->enemies[i].invincibility_frames == 0)
-		{
-			if ((player->state == ATTACK_RIGHT
-					&& enemy_list->enemies[i].x > player->x)
-				|| (player->state == ATTACK_LEFT
-					&& enemy_list->enemies[i].x < player->x))
-			{
-				if (check_collision(player->x, player->y
-						+ ATTACK_HITBOX_Y_OFFSET, enemy_list->enemies[i].x
-						+ ENEMY_HITBOX_X_OFFSET, enemy_list->enemies[i].y
-						+ ENEMY_HITBOX_Y_OFFSET, ATTACK_RANGE,
-						ENEMY_COLLISION_HEIGHT))
-				{
-					enemy_list->enemies[i].lives--;
-					enemy_list->enemies[i].invincibility_frames = INVINCIBILITY_DURATION;
-					if (player->x < enemy_list->enemies[i].x)
-					{
-						enemy_list->enemies[i].direction = 1;
-						enemy_list->enemies[i].state = MOVE_RIGHT;
-					}
-					else
-					{
-						enemy_list->enemies[i].direction = -1;
-						enemy_list->enemies[i].state = MOVE_LEFT;
-					}
-					if (enemy_list->enemies[i].lives <= 0)
-						enemy_list->enemies[i].is_dead = true;
-				}
-			}
-		}
-	}
+    player = &get_game()->player;
+    enemy_list = &get_game()->enemy_list;
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (is_valid_attack_target(player, &enemy_list->enemies[i]))
+        {
+            if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET,
+                enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
+                enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
+                ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
+            {
+                apply_damage_to_enemy(&enemy_list->enemies[i], player);
+            }
+        }
+    }
 }
 
 unsigned int	*get_pixel(t_img *data, int x, int y)

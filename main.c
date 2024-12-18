@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:27:56 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:29:49 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1325,41 +1325,60 @@ static void	fps_cap(void)
 	last_frame = current_time;
 }
 
-void	handle_game_state(void)
+static void update_player_invincibility(t_player *player)
 {
-	t_player		*player;
-	t_enemy_list	*enemy_list;
-	int				i;
-	int				px;
-	int				py;
-	int				ex;
-	int				ey;
+    if (player->invincibility_frames > 0)
+        player->invincibility_frames--;
+}
 
-	player = &get_game()->player;
-	enemy_list = &get_game()->enemy_list;
-	if (player->invincibility_frames > 0)
-		player->invincibility_frames--;
-	i = -1;
-	while (++i < enemy_list->count)
-	{
-		if (!enemy_list->enemies[i].is_dead
-			&& player->invincibility_frames == 0)
-		{
-			px = player->x + PLAYER_HITBOX_X_OFFSET;
-			py = player->y + PLAYER_HITBOX_Y_OFFSET;
-			ex = enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET;
-			ey = enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET;
-			if (check_collision(px, py, ex, ey, PLAYER_COLLISION_WIDTH,
-					PLAYER_COLLISION_HEIGHT))
-			{
-				player->lives--;
-				player->invincibility_frames = INVINCIBILITY_DURATION;
-				if (player->lives <= 0)
-					get_game()->game_over = true;
-				break ;
-			}
-		}
-	}
+static bool check_enemy_hit(t_player *player, t_enemy *enemy)
+{
+	int px;
+	int py;
+	int ex;
+	int ey;
+
+	px = player->x + PLAYER_HITBOX_X_OFFSET;
+	py = player->y + PLAYER_HITBOX_Y_OFFSET;
+	ex = enemy->x + ENEMY_HITBOX_X_OFFSET;
+	ey = enemy->y + ENEMY_HITBOX_Y_OFFSET;
+
+    return check_collision(px, py, ex, ey, 
+        PLAYER_COLLISION_WIDTH, PLAYER_COLLISION_HEIGHT);
+}
+
+static void handle_enemy_hit(t_player *player)
+{
+    player->lives--;
+    player->invincibility_frames = INVINCIBILITY_DURATION;
+    if (player->lives <= 0)
+        get_game()->game_over = true;
+}
+
+void handle_game_state(void)
+{
+    t_player    *player;
+    t_enemy_list *enemy_list;
+    int         i;
+
+    player = &get_game()->player;
+    enemy_list = &get_game()->enemy_list;
+    
+    update_player_invincibility(player);
+    
+    i = -1;
+    while (++i < enemy_list->count)
+    {
+        if (!enemy_list->enemies[i].is_dead 
+            && player->invincibility_frames == 0)
+        {
+            if (check_enemy_hit(player, &enemy_list->enemies[i]))
+            {
+                handle_enemy_hit(player);
+                break;
+            }
+        }
+    }
 }
 
 void	helper_message(void)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 21:11:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 21:28:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -211,29 +211,33 @@ void	update_enemy_state(t_enemy *enemy)
 	update_animation(current_anim);
 }
 
-static int	check_collision(int x1, int y1, int x2, int y2, int width,
-		int height)
+static int	check_collision(t_coord pos1, t_coord pos2, int width, int height)
 {
-	return (x1 < (x2 + width) && (x1 + width) > x2 && y1 < (y2 + height) && (y1
-			+ height) > y2);
+	return (pos1.x < (pos2.x + width) && (pos1.x + width) > pos2.x
+		&& pos1.y < (pos2.y + height) && (pos1.y + height) > pos2.y);
 }
 
 int	check_enemy_collisions(int x, int y, int current_enemy)
 {
 	t_enemy_list	*enemy_list;
 	int				i;
+	t_coord			pos1;
+	t_coord			pos2;
 
 	enemy_list = &get_game()->enemy_list;
 	i = -1;
+	pos1.x = x + ENEMY_HITBOX_X_OFFSET;
+	pos1.y = y + ENEMY_HITBOX_Y_OFFSET;
 	while (++i < enemy_list->count)
 	{
-		if (i != current_enemy && !enemy_list->enemies[i].is_dead
-			&& check_collision(x + ENEMY_HITBOX_X_OFFSET, y
-				+ ENEMY_HITBOX_Y_OFFSET, enemy_list->enemies[i].x
-				+ ENEMY_HITBOX_X_OFFSET, enemy_list->enemies[i].y
-				+ ENEMY_HITBOX_Y_OFFSET, ENEMY_COLLISION_WIDTH,
-				ENEMY_COLLISION_HEIGHT))
-			return (1);
+		if (i != current_enemy && !enemy_list->enemies[i].is_dead)
+		{
+			pos2.x = enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET;
+			pos2.y = enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET;
+			if (check_collision(pos1, pos2, ENEMY_COLLISION_WIDTH,
+					ENEMY_COLLISION_HEIGHT))
+				return (1);
+		}
 	}
 	return (0);
 }
@@ -269,18 +273,22 @@ void	check_attack_collision(void)
 	t_player		*player;
 	t_enemy_list	*enemy_list;
 	int				i;
+	t_coord			pos1;
+	t_coord			pos2;
 
 	player = &get_game()->player;
 	enemy_list = &get_game()->enemy_list;
+	pos1.x = player->x;
+	pos1.y = player->y + ATTACK_HITBOX_Y_OFFSET;
 	i = -1;
 	while (++i < enemy_list->count)
 	{
 		if (is_valid_attack_target(player, &enemy_list->enemies[i]))
 		{
-			if (check_collision(player->x, player->y + ATTACK_HITBOX_Y_OFFSET,
-					enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET,
-					enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET,
-					ATTACK_RANGE, ENEMY_COLLISION_HEIGHT))
+			pos2.x = enemy_list->enemies[i].x + ENEMY_HITBOX_X_OFFSET;
+			pos2.y = enemy_list->enemies[i].y + ENEMY_HITBOX_Y_OFFSET;
+			if (check_collision(pos1, pos2, ATTACK_RANGE,
+					ENEMY_COLLISION_HEIGHT))
 			{
 				apply_damage_to_enemy(&enemy_list->enemies[i], player);
 			}
@@ -469,18 +477,22 @@ void	draw_animation(t_animation *anim, t_img *canvas)
 
 void	update_collectible(void)
 {
+	int				i;
 	t_collectible	*collectible;
 	t_player		*player;
-	int				i;
+	t_coord			player_pos;
+	t_coord			collect_pos;
 
 	collectible = &get_game()->collectible;
 	player = &get_game()->player;
+	player_pos.x = player->x;
+	player_pos.y = player->y;
 	i = -1;
 	while (++i < collectible->count)
 	{
-		if (!collectible->collected[i] && check_collision(player->x, player->y,
-				collectible->x_positions[i] + HITBOX_X_OFFSET,
-				collectible->y_positions[i] + HITBOX_Y_OFFSET, COLLECTIBLE_SIZE,
+		collect_pos.x = collectible->x_positions[i] + HITBOX_X_OFFSET;
+		collect_pos.y = collectible->y_positions[i] + HITBOX_Y_OFFSET;
+		if (check_collision(player_pos, collect_pos, COLLECTIBLE_SIZE,
 				COLLECTIBLE_SIZE))
 		{
 			collectible->collected[i] = 1;
@@ -602,13 +614,18 @@ int	check_wall_collisions(int x, int y, int width, int height)
 {
 	t_wall	*wall;
 	int		i;
+	t_coord	pos1;
+	t_coord	pos2;
 
 	wall = &get_game()->wall;
+	pos1.x = x;
+	pos1.y = y;
 	i = -1;
 	while (++i < wall->count)
 	{
-		if (check_collision(x, y, wall->x_positions[i], wall->y_positions[i],
-				width, height))
+		pos2.x = wall->x_positions[i];
+		pos2.y = wall->y_positions[i];
+		if (check_collision(pos1, pos2, width, height))
 			return (1);
 	}
 	return (0);
@@ -1077,13 +1094,18 @@ void	update_mushroom(void)
 {
 	t_mushroom	*mushroom;
 	t_player	*player;
+	t_coord		pos1;
+	t_coord		pos2;
 
 	mushroom = &get_game()->mushroom;
 	player = &get_game()->player;
 	if (!mushroom->active || mushroom->collected)
 		return ;
-	if (check_collision(player->x, player->y, mushroom->x + HITBOX_X_OFFSET,
-			mushroom->y + HITBOX_Y_OFFSET, COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
+	pos1.x = player->x;
+	pos1.y = player->y;
+	pos2.x = mushroom->x + HITBOX_X_OFFSET;
+	pos2.y = mushroom->y + HITBOX_Y_OFFSET;
+	if (check_collision(pos1, pos2, COLLECTIBLE_SIZE, COLLECTIBLE_SIZE))
 	{
 		if (player->lives < 3)
 		{
@@ -1413,16 +1435,14 @@ static void	update_player_invincibility(t_player *player)
 
 static bool	check_enemy_hit(t_player *player, t_enemy *enemy)
 {
-	int	px;
-	int	py;
-	int	ex;
-	int	ey;
+	t_coord	pos1;
+	t_coord	pos2;
 
-	px = player->x + PLAYER_HITBOX_X_OFFSET;
-	py = player->y + PLAYER_HITBOX_Y_OFFSET;
-	ex = enemy->x + ENEMY_HITBOX_X_OFFSET;
-	ey = enemy->y + ENEMY_HITBOX_Y_OFFSET;
-	return (check_collision(px, py, ex, ey, PLAYER_COLLISION_WIDTH,
+	pos1.x = player->x + PLAYER_HITBOX_X_OFFSET;
+	pos1.y = player->y + PLAYER_HITBOX_Y_OFFSET;
+	pos2.x = enemy->x + ENEMY_HITBOX_X_OFFSET;
+	pos2.y = enemy->y + ENEMY_HITBOX_Y_OFFSET;
+	return (check_collision(pos1, pos2, PLAYER_COLLISION_WIDTH,
 			PLAYER_COLLISION_HEIGHT));
 }
 
@@ -1460,11 +1480,16 @@ void	handle_game_state(void)
 
 void	helper_message(void)
 {
-	int	x;
-	int	y;
+	int		x;
+	int		y;
+	t_coord	pos1;
+	t_coord	pos2;
 
-	if (check_collision(get_game()->player.x, get_game()->player.y,
-			get_game()->exit.x, get_game()->exit.y, 40, 40)
+	pos1.x = get_game()->player.x;
+	pos1.y = get_game()->player.y;
+	pos2.x = get_game()->exit.x;
+	pos2.y = get_game()->exit.y;
+	if (check_collision(pos1, pos2, 40, 40)
 		&& get_game()->collectible_count < get_game()->collectible.count)
 	{
 		x = get_game()->exit.x + (SPRITE_SIZE - 160) / 2;
@@ -1475,9 +1500,15 @@ void	helper_message(void)
 
 void	victory_check(void)
 {
+	t_coord	pos1;
+	t_coord	pos2;
+
+	pos1.x = get_game()->player.x;
+	pos1.y = get_game()->player.y;
+	pos2.x = get_game()->exit.x;
+	pos2.y = get_game()->exit.y;
 	if (get_game()->collectible_count == get_game()->collectible.count
-		&& check_collision(get_game()->player.x, get_game()->player.y,
-			get_game()->exit.x, get_game()->exit.y, 20, 20))
+		&& check_collision(pos1, pos2, 20, 20))
 	{
 		get_game()->vic = true;
 	}
@@ -1642,16 +1673,15 @@ static bool	is_map_surrounded(t_map *map)
 	return (true);
 }
 
-static bool	count_entities(t_map *map, int *player, int *exit, int *collect,
-		int *empty)
+static bool	count_entities(t_map *map, t_counter *count)
 {
 	int	i;
 	int	j;
 
-	*player = 0;
-	*exit = 0;
-	*collect = 0;
-	*empty = 0;
+	count->player = 0;
+	count->exit = 0;
+	count->collect = 0;
+	count->empty = 0;
 	i = -1;
 	while (++i < map->height)
 	{
@@ -1659,16 +1689,17 @@ static bool	count_entities(t_map *map, int *player, int *exit, int *collect,
 		while (++j < map->width)
 		{
 			if (map->map[i][j] == 'P')
-				(*player)++;
+				count->player++;
 			else if (map->map[i][j] == 'E')
-				(*exit)++;
+				count->exit++;
 			else if (map->map[i][j] == 'C')
-				(*collect)++;
+				count->collect++;
 			else if (map->map[i][j] == '0')
-				(*empty)++;
+				count->empty++;
 		}
 	}
-	return (*player == 1 && *exit == 1 && *collect > 0 && *empty > 0);
+	return (count->player == 1 && count->exit == 1 && count->collect > 0
+		&& count->empty > 0);
 }
 
 static void	flood_fill(char **map, int x, int y, int *collect)
@@ -1789,14 +1820,11 @@ bool	check_path(t_map *map)
 
 static bool	validate_map(t_map *map)
 {
-	int	player;
-	int	exit;
-	int	collect;
-	int	empty;
+	t_counter	count;
 
 	if (!is_map_surrounded(map))
 		return (false);
-	if (!count_entities(map, &player, &exit, &collect, &empty))
+	if (!count_entities(map, &count))
 		return (false);
 	if (!check_path(map))
 		return (false);

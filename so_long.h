@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:47:35 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 21:13:27 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,20 @@ typedef struct s_animation
 	int				x;
 	int				y;
 }					t_animation;
+
+typedef struct s_counter
+{
+	int				player;
+	int				exit;
+	int				collect;
+	int				empty;
+}					t_counter;
+
+typedef struct s_coord
+{
+	int				x;
+	int				y;
+}					t_coord;
 
 typedef struct s_player
 {

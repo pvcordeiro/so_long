@@ -230,7 +230,7 @@ char				*ft_strchr(const char *s, int c);
 char				*ft_strrchr(const char *s, int c);
 int					ft_strcmp(const char *s1, const char *s2);
 char				*ft_strdup(const char *s);
-void init_entity_position(t_map *map, char c, int *x, int *y);
+void				init_entity_position(t_map *map, char c, int *x, int *y);
 void				handle_entity_collision(int *x, int *y, int prev_x,
 						int prev_y);
 void				load_player_animations(t_player *player);

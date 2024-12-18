@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:45:12 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 21:11:02 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,7 +291,7 @@ void	check_attack_collision(void)
 unsigned int	*get_pixel(t_img *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
-					/ 8))));
+				/ 8))));
 }
 
 static void	cleanup_dynamic_memory(t_game *game)
@@ -385,6 +385,7 @@ int	exit_game(void)
 	ft_printf("Game closed\n");
 	exit(EXIT_SUCCESS);
 }
+
 int	exit_error(void)
 {
 	t_game	*game;
@@ -488,6 +489,7 @@ void	update_collectible(void)
 	}
 	update_animation(&collectible->base);
 }
+
 static int	count_collectible_positions(t_map *map)
 {
 	int	count;
@@ -572,8 +574,9 @@ static void	init_wall(void)
 {
 	t_wall	*wall;
 	t_map	*map;
+	int		count;
+	int		i;
 
-	int count, i;
 	wall = &get_game()->wall;
 	map = &get_game()->map;
 	count = count_map_char(map->map, map->height, map->width, '1');
@@ -613,7 +616,9 @@ int	check_wall_collisions(int x, int y, int width, int height)
 
 void	init_entity_position(t_map *map, char c, int *x, int *y)
 {
-	int i, j;
+	int	i;
+	int	j;
+
 	i = -1;
 	while (++i < map->height)
 	{
@@ -937,7 +942,7 @@ void	draw_exit_bottom(void)
 		{
 			if (*get_pixel(&temp, j, i) != 0xFF000000)
 				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
-						+ i) = *get_pixel(&temp, j, i);
+					+ i) = *get_pixel(&temp, j, i);
 		}
 		i++;
 	}
@@ -962,10 +967,11 @@ void	draw_exit_top(void)
 		{
 			if (*get_pixel(&temp, j, i) != 0xFF000000)
 				*get_pixel(&get_game()->canvas, exit->x + j, draw_y
-						+ i) = *get_pixel(&temp, j, i);
+					+ i) = *get_pixel(&temp, j, i);
 		}
 	}
 }
+
 void	draw_exit_full(void)
 {
 	t_exit	*exit;
@@ -1102,7 +1108,10 @@ void	draw_mushroom(void)
 
 int	count_map_char(char **map, int height, int width, char c)
 {
-	int i, j, count;
+	int	i;
+	int	j;
+	int	count;
+
 	count = 0;
 	i = -1;
 	while (++i < height)
@@ -1703,7 +1712,8 @@ static void	find_player_pos(t_map *map, int *px, int *py)
 	int	i;
 	int	j;
 
-	*px = *py = -1;
+	*px = -1;
+	*py = -1;
 	i = -1;
 	while (++i < map->height)
 	{
@@ -1779,7 +1789,11 @@ bool	check_path(t_map *map)
 
 static bool	validate_map(t_map *map)
 {
-	int player, exit, collect, empty;
+	int	player;
+	int	exit;
+	int	collect;
+	int	empty;
+
 	if (!is_map_surrounded(map))
 		return (false);
 	if (!count_entities(map, &player, &exit, &collect, &empty))
@@ -1816,12 +1830,14 @@ static void	count_dimensions(t_map *map_info, int fd)
 {
 	char	*line;
 
-	while ((line = get_next_line(fd)) != NULL)
+	line = get_next_line(fd);
+	while (line != NULL)
 	{
 		if (map_info->height == 0)
 			map_info->width = ft_strlen(line) - 1;
 		map_info->height++;
 		free(line);
+		line = get_next_line(fd);
 	}
 }
 
@@ -1831,10 +1847,12 @@ static bool	read_map_content(t_map *map_info, int fd)
 	int		i;
 
 	i = 0;
-	while ((line = get_next_line(fd)) != NULL)
+	line = get_next_line(fd);
+	while (line != NULL)
 	{
 		map_info->map[i] = line;
 		i++;
+		line = get_next_line(fd);
 	}
 	map_info->map[i] = NULL;
 	if (!validate_map(map_info))

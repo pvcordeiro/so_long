@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:24:03 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 14:27:51 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,17 +109,6 @@ void draw_player_and_exit(void)
         draw_exit_top();
     }
 }
-// void print_moves(void)
-// {
-//     char *print_move;
-//     int text_x;
-//     int text_y;
-    
-//     text_x = 25;
-//     text_y = get_game()->window_height - 35;
-//     print_move = ft_itoa(get_game()->move_count);
-//     free(print_move);
-// }
 
 void draw_ui_layer(void)
 {
@@ -127,7 +116,6 @@ void draw_ui_layer(void)
     draw_ui_banners();
     draw_sprint_icon();
     draw_health();
-    // print_moves();
     draw_collectible_counter();
 }
 

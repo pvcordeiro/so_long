@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:20:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:24:13 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1559,62 +1559,105 @@ static void	flood_fill(char **map, int x, int y, int *collect)
 	flood_fill(map, x, y - 1, collect);
 }
 
-static bool	check_path(t_map *map)
+static char	**create_temp_map(t_map *map)
 {
-	char	**temp_map;
-	bool	exit_found;
+    char	**temp_map;
+    int		i;
 
-	int i, j, collect, px, py;
-	temp_map = malloc(sizeof(char *) * map->height);
-	i = -1;
-	while (++i < map->height)
-	{
-		temp_map[i] = ft_strdup(map->map[i]);
-		if (!temp_map[i])
-		{
-			while (--i >= 0)
-				free(temp_map[i]);
-			free(temp_map);
-			return (false);
-		}
-	}
-	px = py = -1;
-	i = -1;
-	while (++i < map->height)
-	{
-		j = -1;
-		while (++j < map->width)
-			if (map->map[i][j] == 'P')
-			{
-				px = j;
-				py = i;
-				break ;
-			}
-	}
-	collect = 0;
-	i = -1;
-	while (++i < map->height)
-	{
-		j = -1;
-		while (++j < map->width)
-			if (map->map[i][j] == 'C')
-				collect++;
-	}
-	flood_fill(temp_map, px, py, &collect);
-	exit_found = false;
-	i = -1;
-	while (++i < map->height)
-	{
-		j = -1;
-		while (++j < map->width)
-			if (map->map[i][j] == 'E' && temp_map[i][j] == 'X')
-				exit_found = true;
-	}
-	i = -1;
-	while (++i < map->height)
-		free(temp_map[i]);
-	free(temp_map);
-	return (exit_found && collect == 0);
+    temp_map = malloc(sizeof(char *) * map->height);
+    if (!temp_map)
+        return (NULL);
+    i = -1;
+    while (++i < map->height)
+    {
+        temp_map[i] = ft_strdup(map->map[i]);
+        if (!temp_map[i])
+        {
+            while (--i >= 0)
+                free(temp_map[i]);
+            free(temp_map);
+            return (NULL);
+        }
+    }
+    return (temp_map);
+}
+
+static void	find_player_pos(t_map *map, int *px, int *py)
+{
+    int	i;
+    int	j;
+
+    *px = *py = -1;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+        {
+            if (map->map[i][j] == 'P')
+            {
+                *px = j;
+                *py = i;
+                return ;
+            }
+        }
+    }
+}
+
+static int	count_collectibles(char **map, int height, int width)
+{
+    int	i;
+    int	j;
+    int	count;
+
+    count = 0;
+    i = -1;
+    while (++i < height)
+    {
+        j = -1;
+        while (++j < width)
+            if (map[i][j] == 'C')
+                count++;
+    }
+    return (count);
+}
+
+static bool	check_exit_access(char **temp_map, char **map, int height, int width)
+{
+    int	i;
+    int	j;
+
+    i = -1;
+    while (++i < height)
+    {
+        j = -1;
+        while (++j < width)
+            if (map[i][j] == 'E' && temp_map[i][j] == 'X')
+                return (true);
+    }
+    return (false);
+}
+
+bool	check_path(t_map *map)
+{
+    char	**temp_map;
+    int		px;
+    int		py;
+    int		collect;
+    bool	valid_path;
+
+    temp_map = create_temp_map(map);
+    if (!temp_map)
+        return (false);
+    find_player_pos(map, &px, &py);
+    collect = count_collectibles(map->map, map->height, map->width);
+    flood_fill(temp_map, px, py, &collect);
+    valid_path = check_exit_access(temp_map, map->map, map->height, map->width);
+    px = -1;
+    while (++px < map->height)
+        free(temp_map[px]);
+    free(temp_map);
+    return (valid_path && collect == 0);
 }
 
 static bool	validate_map(t_map *map)

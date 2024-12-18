@@ -1,4 +1,3 @@
-key_loop() (45 lines)
 draw_enemy() (39 lines)
 init_enemy() (29 lines)
 load_player_animations() (32 lines)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:36:59 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:38:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -714,38 +714,45 @@ void	update_enemy(void)
 		update_enemy_state(&enemy_list->enemies[i]);
 }
 
-void	draw_enemy(void)
+static bool is_enemy_visible(t_enemy *enemy)
 {
-	t_enemy_list	*enemy_list;
-	t_enemy			*enemy;
-	t_animation		*current_anim;
-	int				i;
+    if (enemy->invincibility_frames > 0)
+    {
+        enemy->is_visible = !enemy->is_visible;
+        return enemy->is_visible;
+    }
+    return true;
+}
 
-	enemy_list = &get_game()->enemy_list;
-	i = -1;
-	while (++i < enemy_list->count)
-	{
-		enemy = &enemy_list->enemies[i];
-		if (!enemy->is_dead)
-		{
-			if (enemy->invincibility_frames > 0)
-			{
-				enemy->is_visible = !enemy->is_visible;
-				if (!enemy->is_visible)
-				{
-					i++;
-					continue ;
-				}
-			}
-			if (enemy->state == MOVE_RIGHT)
-				current_anim = &enemy->move_right;
-			else
-				current_anim = &enemy->move_left;
-			current_anim->x = enemy->x;
-			current_anim->y = enemy->y;
-			draw_animation(current_anim, &get_game()->canvas);
-		}
-	}
+static t_animation *get_enemy_animation(t_enemy *enemy)
+{
+    if (enemy->state == MOVE_RIGHT)
+        return &enemy->move_right;
+    return &enemy->move_left;
+}
+
+static void draw_single_enemy(t_enemy *enemy)
+{
+    t_animation *current_anim;
+
+    if (!enemy->is_dead && is_enemy_visible(enemy))
+    {
+        current_anim = get_enemy_animation(enemy);
+        current_anim->x = enemy->x;
+        current_anim->y = enemy->y;
+        draw_animation(current_anim, &get_game()->canvas);
+    }
+}
+
+void draw_enemy(void)
+{
+    t_enemy_list *enemy_list;
+    int i;
+
+    enemy_list = &get_game()->enemy_list;
+    i = -1;
+    while (++i < enemy_list->count)
+        draw_single_enemy(&enemy_list->enemies[i]);
 }
 
 void	draw_floor(void)

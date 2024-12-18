@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:35:09 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:36:59 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -803,48 +803,61 @@ void	draw_walls(void)
 	}
 }
 
-int	key_loop(int key, char *action)
+static void handle_movement_keys(t_game *game, int key, char *action) 
 {
-	t_player	*player;
+    if (key == XK_w)
+        game->move_up = (*action == 'p');
+    if (key == XK_a)
+        game->move_left = (*action == 'p');
+    if (key == XK_s)
+        game->move_down = (*action == 'p');
+    if (key == XK_d)
+        game->move_right = (*action == 'p');
+}
 
-	player = &get_game()->player;
-	if (key == XK_Escape)
-		exit_game();
-	if (!get_game()->vic && !get_game()->game_over)
-	{
-		if (key == XK_Shift_L)
-		{
-			if (*action == 'p' && get_game()->player.can_sprint)
-				get_game()->player.is_sprinting = true;
-			else if (*action == 'r')
-				get_game()->player.is_sprinting = false;
-		}
-		if (key == XK_w)
-			get_game()->move_up = (*action == 'p');
-		if (key == XK_a)
-			get_game()->move_left = (*action == 'p');
-		if (key == XK_s)
-			get_game()->move_down = (*action == 'p');
-		if (key == XK_d)
-			get_game()->move_right = (*action == 'p');
-		if (key == XK_space && *action == 'p' && !player->is_attacking
-			&& player->attack_cooldown == 0)
-		{
-			player->is_attacking = true;
-			player->attack_frame = 0;
-			if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
-			{
-				player->state = ATTACK_RIGHT;
-				player->attack_right.current_frame = 0;
-			}
-			else
-			{
-				player->state = ATTACK_LEFT;
-				player->attack_left.current_frame = 0;
-			}
-		}
-	}
-	return (0);
+static void handle_sprint_key(t_game *game, char *action)
+{
+    if (*action == 'p' && game->player.can_sprint)
+        game->player.is_sprinting = true;
+    else if (*action == 'r')
+        game->player.is_sprinting = false;
+}
+
+static void handle_attack_key(t_player *player)
+{
+    if (!player->is_attacking && player->attack_cooldown == 0)
+    {
+        player->is_attacking = true;
+        player->attack_frame = 0;
+        if (player->state == IDLE_RIGHT || player->state == MOVE_RIGHT)
+        {
+            player->state = ATTACK_RIGHT;
+            player->attack_right.current_frame = 0;
+        }
+        else
+        {
+            player->state = ATTACK_LEFT;
+            player->attack_left.current_frame = 0;
+        }
+    }
+}
+
+int key_loop(int key, char *action)
+{
+    t_game *game;
+
+    game = get_game();
+    if (key == XK_Escape)
+        exit_game();
+    if (!game->vic && !game->game_over)
+    {
+        if (key == XK_Shift_L)
+            handle_sprint_key(game, action);
+        handle_movement_keys(game, key, action);
+        if (key == XK_space && *action == 'p')
+            handle_attack_key(&game->player);
+    }
+    return (0);
 }
 
 static void	init_exit(void)

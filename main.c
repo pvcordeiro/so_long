@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 17:01:29 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 17:04:38 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -902,52 +902,65 @@ void	draw_health(void)
 	draw_image(current_sprite, &get_game()->canvas, 10, -10);
 }
 
-static void	init_mushroom(void)
+static int count_valid_positions(t_map *map)
 {
-	t_mushroom	*mushroom;
-	t_map		*map;
-	int			valid_positions;
-	int			random_position;
-	int			current_position;
-	int			i;
-	int			j;
+    int valid_positions;
+    int i;
+    int j;
 
-	mushroom = &get_game()->mushroom;
-	map = &get_game()->map;
-	mushroom->sprite = make_sprite("assets/mushroom.xpm");
-	mushroom->active = true;
-	mushroom->collected = false;
-	valid_positions = 0;
-	i = -1;
-	while (++i < map->height)
-	{
-		j = -1;
-		while (++j < map->width)
-		{
-			if (map->map[i][j] == '0')
-				valid_positions++;
-		}
-	}
-	random_position = rand() % valid_positions;
-	current_position = 0;
-	i = -1;
-	while (++i < map->height)
-	{
-		j = -1;
-		while (++j < map->width)
-		{
-			if (map->map[i][j] == '0')
-			{
-				if (current_position == random_position)
-				{
-					mushroom->x = j * SPRITE_SIZE;
-					mushroom->y = i * SPRITE_SIZE;
-					return ;
-				}
-				current_position++;
-			}
-		}
-	}
+    valid_positions = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+            if (map->map[i][j] == '0')
+                valid_positions++;
+    }
+    return (valid_positions);
+}
+
+static void find_random_position(t_mushroom *mushroom, t_map *map, int random_position)
+{
+    int current_position;
+    int i;
+    int j;
+
+    current_position = 0;
+    i = -1;
+    while (++i < map->height)
+    {
+        j = -1;
+        while (++j < map->width)
+        {
+            if (map->map[i][j] == '0')
+            {
+                if (current_position == random_position)
+                {
+                    mushroom->x = j * SPRITE_SIZE;
+                    mushroom->y = i * SPRITE_SIZE;
+                    return;
+                }
+                current_position++;
+            }
+        }
+    }
+}
+
+void init_mushroom(void)
+{
+    t_mushroom *mushroom;
+    t_map *map;
+    int valid_positions;
+
+    mushroom = &get_game()->mushroom;  
+    map = &get_game()->map;
+    mushroom->sprite = make_sprite("assets/mushroom.xpm");
+    mushroom->active = true;
+    mushroom->collected = false;
+
+    valid_positions = count_valid_positions(map);
+    find_random_position(mushroom, map, rand() % valid_positions);
 }
 
 void	update_mushroom(void)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:19:07 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 14:43:32 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -234,8 +234,6 @@ char	*ft_strdup(const char *s);
 void init_entity_position(char **map, int height, int width, char c, int *x, int *y);
 void handle_entity_collision(int *x, int *y, int prev_x, int prev_y);
 void load_player_animations(t_player *player);
-void load_enemy_animations(t_enemy *enemy);
-void handle_entity_movement(int *pos, int *prev_pos, int direction, int speed);
 int count_map_char(char **map, int height, int width, char c);
 void load_animation_sprites(t_animation *anim, char *path1, char *path2, int speed);
 void load_player_animations(t_player *player);
@@ -276,12 +274,10 @@ void draw_ui_banners(void);
 void draw_end_game_screen(void);
 void draw_sprint_icon(void);
 void draw_collectible_counter(void);
-void print_moves(void);
 void update_entities(void);
 void draw_frame(void);
 void init_game(char *map_path);
 void	cleanup_sprites(void);
-void cleanup_game(void);
 void	init_window(void);
 void	init_sprites(void);
 void	setup_hooks(void);

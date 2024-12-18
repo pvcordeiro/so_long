@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 14:33:43 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 14:41:23 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,6 @@ t_game	*get_game(void)
 	static t_game	game;
 
 	return (&game);
-}
-
-unsigned int	ft_abs(int n)
-{
-	if (n < 0)
-		return (-n);
-	return (n);
 }
 
 void update_entities(void)
@@ -277,14 +270,6 @@ unsigned int	*get_pixel(t_img *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
 					/ 8))));
-}
-
-void cleanup_game(void)
-{
-    cleanup_sprites();
-    mlx_destroy_window(get_game()->mlx, get_game()->win);
-    mlx_destroy_display(get_game()->mlx);
-    free(get_game()->mlx);
 }
 
 void	cleanup_sprites(void)
@@ -1607,6 +1592,6 @@ int main(int argc, char **argv)
     srand(time(NULL));
     init_game(argv[1]);
     mlx_loop(get_game()->mlx);
-    cleanup_game();
+	exit_game();
     return (0);
 }

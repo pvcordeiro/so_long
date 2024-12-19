@@ -1,6 +1,6 @@
 # So_Long 🎮
 
-A captivating 2D game crafted with MinilibX graphics library, challenging players to navigate through carefully designed maps while collecting items and reaching the exit.
+A very simple 2D game crafted with MinilibX graphics library, challenging players to navigate through carefully designed maps while collecting items and reaching the exit.
 
 ## 🎯 Gameplay Overview
 In this engaging adventure, players must:

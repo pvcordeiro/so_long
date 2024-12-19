@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:19:32 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:30:03 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,110 +37,7 @@
 # include "core/map.h"
 # include "core/ui.h"
 
-# define SPRITE_SIZE 80
-# define FRAME_TIME_MS 16666
-# define ANIMATION_FRAMES 2
-# define COLLECTIBLE_FRAME_DELAY 15
-# define COLLECTIBLE_SIZE 40
-# define ATTACK_COLLISION_Y_OFFSET 10
-# define SPRINT_MULTIPLIER 2
-# define SPRINT_COOLDOWN 180
-# define SPRINT_DURATION 60
-# define ATTACK_DURATION 20
-# define ATTACK_RANGE 80
-# define ATTACK_COOLDOWN 40
 # define BUFFER_SIZE 10
-# define WALL_ANIMATION_SPEED 100
-# define ENEMY_SPEED 2
-# define ENEMY_ANIMATION_SPEED 20
-# define ENEMY_DIRECTION_CHANGE_DELAY 100
-# define ENEMY_COLLISION_WIDTH 60
-# define ENEMY_COLLISION_HEIGHT 40
-# define ENEMY_INVINCIBILITY_DURATION 90
-# define ENEMY_HITBOX_Y_OFFSET 25
-# define ENEMY_HITBOX_X_OFFSET 10
-# define HITBOX_X_OFFSET 20
-# define HITBOX_Y_OFFSET 20
-
-typedef struct s_map_entity_counts
-{
-	int					player;
-	int					exit;
-	int					collect;
-	int					empty;
-}						t_map_entity_counts;
-
-typedef struct s_enemy
-{
-	t_animated_sprite	move_right;
-	t_animated_sprite	move_left;
-	int					y_direction;
-	int					direction;
-	int					move_counter;
-	int					lives;
-	int					invincibility_frames;
-	bool				is_visible;
-	bool				is_dead;
-	int					x;
-	int					y;
-	int					state;
-}						t_enemy;
-
-typedef struct s_enemy_manager
-{
-	t_enemy				*enemies;
-	int					count;
-}						t_enemy_manager;
-
-typedef struct s_collectible
-{
-	t_animated_sprite	base;
-	int					*x_positions;
-	int					*y_positions;
-	int					*collected;
-	int					count;
-}						t_collectible;
-
-typedef struct s_wall_manager
-{
-	t_animated_sprite	base;
-	int					*x_positions;
-	int					*y_positions;
-	int					count;
-}						t_wall_manager;
-
-typedef struct s_exit
-{
-	t_sprite			sprite;
-	int					x;
-	int					y;
-}						t_exit;
-
-typedef struct s_map
-{
-	char				**map;
-	int					width;
-	int					height;
-}						t_map;
-
-typedef struct s_ui_elements
-{
-	t_sprite			health1;
-	t_sprite			health2;
-	t_sprite			health3;
-	t_sprite			sprint;
-	t_sprite			banner;
-	t_sprite			message;
-}						t_ui_elements;
-
-typedef struct s_mushroom
-{
-	t_sprite			sprite;
-	int					x;
-	int					y;
-	bool				active;
-	bool				collected;
-}						t_mushroom;
 
 typedef struct s_game_state
 {

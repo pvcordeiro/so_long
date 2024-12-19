@@ -6,12 +6,15 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:13:56 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:14:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:29:19 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef COMMON_TYPES_H
 # define COMMON_TYPES_H
+
+# define HITBOX_X_OFFSET 20
+# define HITBOX_Y_OFFSET 20
 
 typedef struct s_position
 {

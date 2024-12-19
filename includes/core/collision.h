@@ -1,27 +1,22 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   enemy.h                                            :+:      :+:    :+:   */
+/*   collision.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/19 03:10:10 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:44:51 by paude-so         ###   ########.fr       */
+/*   Created: 2024/12/19 03:45:19 by paude-so          #+#    #+#             */
+/*   Updated: 2024/12/19 03:45:47 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef ENEMY_H
-# define ENEMY_H
+#ifndef COLLISION_H
+# define COLLISION_H
 
-# include "../types/enemy_types.h"
 # include "../types/common_types.h"
 
-void    init_enemy(void);
-void    init_enemy_state(t_enemy *enemy, int x, int y);
-void    init_enemy_animations(t_enemy *enemy);
-void    update_enemy(void);
-void    draw_enemy(void);
-void    handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y);
-int     check_enemy_collisions(int x, int y, int current_enemy);
+int     check_collision(t_position pos1, t_position pos2, int width, int height);
+void    handle_entity_collision(int *x, int *y, int prev_x, int prev_y);
+void    check_attack_collision(void);
 
 #endif

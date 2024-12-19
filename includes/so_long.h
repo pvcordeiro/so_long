@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:49:40 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:50:50 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <sys/time.h>
 # include <time.h>
 # include <unistd.h>
+
 # include "types/common_types.h"
 # include "types/game_types.h"
 # include "types/sprite_types.h"
@@ -30,6 +31,7 @@
 # include "types/enemy_types.h"
 # include "types/map_types.h"
 # include "types/ui_types.h"
+
 # include "core/sprite.h"
 # include "core/player.h"
 # include "core/enemy.h"

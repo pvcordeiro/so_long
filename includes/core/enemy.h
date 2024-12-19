@@ -13,15 +13,15 @@
 #ifndef ENEMY_H
 # define ENEMY_H
 
-# include "../types/enemy_types.h"
 # include "../types/common_types.h"
+# include "../types/enemy_types.h"
 
-void    init_enemy(void);
-void    init_enemy_state(t_enemy *enemy, int x, int y);
-void    init_enemy_animations(t_enemy *enemy);
-void    update_enemy(void);
-void    draw_enemy(void);
-void    handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y);
-int     check_enemy_collisions(int x, int y, int current_enemy);
+void	init_enemy(void);
+void	init_enemy_state(t_enemy *enemy, int x, int y);
+void	init_enemy_animations(t_enemy *enemy);
+void	update_enemy(void);
+void	draw_enemy(void);
+void	handle_enemy_collision(t_enemy *enemy, int prev_x, int prev_y);
+int		check_enemy_collisions(int x, int y, int current_enemy);
 
 #endif

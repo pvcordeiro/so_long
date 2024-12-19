@@ -15,8 +15,9 @@
 
 # include "../types/common_types.h"
 
-int     check_collision(t_position pos1, t_position pos2, int width, int height);
-void    handle_entity_collision(int *x, int *y, int prev_x, int prev_y);
-void    check_attack_collision(void);
+int		check_collision(t_position pos1, t_position pos2, int width,
+			int height);
+void	handle_entity_collision(int *x, int *y, int prev_x, int prev_y);
+void	check_attack_collision(void);
 
 #endif

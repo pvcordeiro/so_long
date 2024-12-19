@@ -67,7 +67,7 @@ Follow these steps to get started with **So_Long**:
 2. Clone the repository by running:  
 
 ```
-   git clone https://github.com/yourusername/so_long.git
+git clone https://github.com/yourusername/so_long.git
 ```
 
 3. Navigate to the project folder:

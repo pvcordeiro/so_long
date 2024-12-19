@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:39 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 19:48:29 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 20:19:01 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,6 @@ static bool	read_map_content(t_map *map_info, int fd)
 		free(map_info->map);
 		free(map_info);
 		exit_error(error);
-		return (false);
 	}
 	return (true);
 }

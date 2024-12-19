@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:22:50 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:30:08 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 20:38:31 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,10 +79,29 @@ static bool	count_entities(t_map *map, t_map_entity_counts *count)
 		&& count->empty > 0);
 }
 
+static bool	check_rectangular_map(t_map *map)
+{
+	int		i;
+	size_t	current_line_len;
+
+	i = -1;
+	while (++i < map->height)
+	{
+		current_line_len = ft_strlen(map->map[i]);
+		if (map->map[i][current_line_len - 1] == '\n')
+			current_line_len--;
+		if (current_line_len != (size_t)map->width)
+			return (false);
+	}
+	return (true);
+}
+
 t_error	validate_map(t_map *map)
 {
 	t_map_entity_counts	count;
 
+	if (!check_rectangular_map(map))
+		return (ERR_MAP_NOT_RECTANGULAR);
 	if (!is_map_surrounded(map))
 		return (ERR_WALLS);
 	if (!count_entities(map, &count))

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:04:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 20:41:04 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 21:48:07 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,9 @@ static void	cleanup_misc_sprites(t_game_state *game)
 	mlx_destroy_image(game->mlx, game->ui.sprint.img);
 	mlx_destroy_image(game->mlx, game->ui.banner.img);
 	mlx_destroy_image(game->mlx, game->ui.message.img);
+	mlx_destroy_image(game->mlx, game->collectible.base.sprites[4].img);
+	mlx_destroy_image(game->mlx, game->victory.img);
+	mlx_destroy_image(game->mlx, game->defeat.img);
 }
 
 void	cleanup_sprites(void)

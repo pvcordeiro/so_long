@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:49:44 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:50:42 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:56:42 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,4 +32,3 @@ void	init_entity_position(t_map *map, char c, int *x, int *y)
 		}
 	}
 }
-

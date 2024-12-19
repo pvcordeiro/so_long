@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:44:48 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:57:38 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:56:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,4 +75,3 @@ void	handle_entity_collision(int *x, int *y, int prev_x, int prev_y)
 		*y = prev_y;
 	}
 }
-

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:45:35 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:47:52 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:57:39 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,3 @@ void	draw_frame(void)
 	}
 	draw_end_game_screen();
 }
-

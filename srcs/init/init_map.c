@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:39 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:18:42 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:48:29 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,7 @@ static void	count_dimensions(t_map *map_info, int fd)
 		free(line);
 		line = get_next_line(fd);
 	}
+	free(line);
 }
 
 static bool	read_map_content(t_map *map_info, int fd)
@@ -64,6 +65,7 @@ static bool	read_map_content(t_map *map_info, int fd)
 		i++;
 		line = get_next_line(fd);
 	}
+	free(line);
 	map_info->map[i] = NULL;
 	error = validate_map(map_info);
 	if (error != ERR_NONE)

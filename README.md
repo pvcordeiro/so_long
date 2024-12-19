@@ -2,6 +2,8 @@
 
 A very simple 2D game crafted with MinilibX graphics library, challenging players to navigate through carefully designed maps while collecting items and reaching the exit.
 
+![Screenshot from 2024-12-19 04-29-24](https://github.com/user-attachments/assets/0450b162-cf88-4929-8265-ddc26b6a4574)
+
 ## 🎯 Gameplay Overview
 In this engaging adventure, players must:
 - 🏃 Control a character through various levels

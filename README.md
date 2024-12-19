@@ -37,6 +37,7 @@ Built using:
 - `S` - Move down
 - `A` - Move left
 - `D` - Move right
+- `Shift` - Sprint
 - `Space` - Attack
 - `ESC` - Exit game
 

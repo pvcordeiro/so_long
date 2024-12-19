@@ -6,11 +6,11 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/14 04:08:38 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 23:56:27 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 00:49:31 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long.h"
+#include "../includes/so_long.h"
 
 static int	get_num_len(int n)
 {

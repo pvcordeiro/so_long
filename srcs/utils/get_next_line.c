@@ -6,11 +6,11 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/13 22:59:32 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/13 23:02:07 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 00:49:23 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long.h"
+#include "../includes/so_long.h"
 
 static size_t	len_to_nl(char *str)
 {

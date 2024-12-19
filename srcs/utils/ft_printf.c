@@ -6,11 +6,11 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/06 20:14:06 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/07 10:47:41 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 00:49:27 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "so_long.h"
+#include "../includes/so_long.h"
 
 static int	pv_putstr(char *s)
 {

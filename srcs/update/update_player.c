@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:09 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:48:33 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 23:37:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,9 @@ static void	handle_player_attack(t_player *player,
 		current_anim = &player->attack_right;
 	else
 		current_anim = &player->attack_left;
-	if (player->attack_timer < 10)
+	if (player->attack_timer < FIRST_ATTACK_DURATION)
 		current_anim->current_frame = 0;
-	else if (player->attack_timer < 20)
+	else if (player->attack_timer < SECOND_ATTACK_DURATION)
 		current_anim->current_frame = 1;
 	else
 	{

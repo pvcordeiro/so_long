@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 00:18:24 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 00:27:59 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -1286,14 +1286,11 @@ static void	handle_sprint_cooldown(t_player *player)
 static void	handle_movement(t_player *player, int movement_speed,
 		int *prev_x, int *prev_y)
 {
-	*prev_x = player->x;
-	*prev_y = player->y;
 	if (get_game()->move_left)
 		player->x -= movement_speed;
 	if (get_game()->move_right)
 		player->x += movement_speed;
 	handle_entity_collision(&player->x, &player->y, *prev_x, *prev_y);
-	*prev_x = player->x;
 	if (get_game()->move_up)
 		player->y -= movement_speed;
 	if (get_game()->move_down)

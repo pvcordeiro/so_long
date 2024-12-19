@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:06:28 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:19:32 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,18 +24,24 @@
 # include <time.h>
 # include <unistd.h>
 
+# include "types/common_types.h"
+# include "types/sprite_types.h"
+# include "types/player_types.h"
+# include "types/enemy_types.h"
+# include "types/map_types.h"
+# include "types/ui_types.h"
+
+# include "core/sprite.h"
+# include "core/player.h"
+# include "core/enemy.h"
+# include "core/map.h"
+# include "core/ui.h"
+
 # define SPRITE_SIZE 80
 # define FRAME_TIME_MS 16666
 # define ANIMATION_FRAMES 2
 # define COLLECTIBLE_FRAME_DELAY 15
 # define COLLECTIBLE_SIZE 40
-# define PLAYER_MOVE_SPEED 2
-# define PLAYER_IDLE_FRAME_DELAY 20
-# define PLAYER_COLLISION_X_OFFSET 10
-# define PLAYER_COLLISION_Y_OFFSET 25
-# define PLAYER_COLLISION_WIDTH 50
-# define PLAYER_COLLISION_HEIGHT 50
-# define PLAYER_INVINCIBILITY_DURATION 180
 # define ATTACK_COLLISION_Y_OFFSET 10
 # define SPRINT_MULTIPLIER 2
 # define SPRINT_COOLDOWN 180
@@ -56,57 +62,6 @@
 # define HITBOX_X_OFFSET 20
 # define HITBOX_Y_OFFSET 20
 
-typedef enum e_player_state
-{
-	IDLE_RIGHT,
-	IDLE_LEFT,
-	MOVE_RIGHT,
-	MOVE_LEFT,
-	ATTACK_RIGHT,
-	ATTACK_LEFT
-}						t_player_state;
-
-typedef enum e_error
-{
-	ERR_NONE = 0,
-	ERR_WALLS,
-	ERR_NO_PLAYER,
-	ERR_MULTIPLE_PLAYERS,
-	ERR_NO_EXIT,
-	ERR_MULTIPLE_EXITS,
-	ERR_NO_COLLECTIBLES,
-	ERR_NO_EMPTY_SPACE,
-	ERR_INVALID_PATH,
-	ERR_INVALID_CHAR,
-	ERR_MAP_NOT_RECTANGULAR,
-	ERR_MEMORY,
-	ERR_SPRITE_LOAD
-}						t_error;
-
-typedef struct s_sprite
-{
-	void				*img;
-	char				*addr;
-	int					bpp;
-	int					line_len;
-	int					endian;
-	int					x;
-	int					y;
-	int					width;
-	int					height;
-}						t_sprite;
-
-typedef struct s_animated_sprite
-{
-	t_sprite			sprites[5];
-	int					frame_count;
-	int					current_frame;
-	int					anim_counter;
-	int					anim_speed;
-	int					x;
-	int					y;
-}						t_animated_sprite;
-
 typedef struct s_map_entity_counts
 {
 	int					player;
@@ -114,38 +69,6 @@ typedef struct s_map_entity_counts
 	int					collect;
 	int					empty;
 }						t_map_entity_counts;
-
-typedef struct s_position
-{
-	int					x;
-	int					y;
-}						t_position;
-
-typedef struct s_player
-{
-	t_animated_sprite	idle_right;
-	t_animated_sprite	idle_left;
-	t_animated_sprite	move_right;
-	t_animated_sprite	move_left;
-	t_animated_sprite	attack_right;
-	t_animated_sprite	attack_left;
-	t_player_state		state;
-	int					last_direction;
-	int					lives;
-	int					invincibility_frames;
-	int					attack_cooldown;
-	int					max_attack_cooldown;
-	int					attack_frame;
-	int					attack_timer;
-	bool				is_visible;
-	bool				is_attacking;
-	int					x;
-	int					y;
-	bool				is_sprinting;
-	int					sprint_cooldown;
-	int					sprint_duration;
-	bool				can_sprint;
-}						t_player;
 
 typedef struct s_enemy
 {
@@ -252,8 +175,13 @@ int						game_loop(void);
 int						exit_game_state(void);
 int						exit_error(t_error error);
 void					init_game_state(char *map_path);
-void					cleanup_sprites(void);
 t_game_state			*get_game(void);
+
+
+
+
+
+
 t_error					validate_map(t_map *map);
 void					init_player(void);
 void					init_enemy(void);
@@ -272,10 +200,7 @@ void					draw_collectible_counter(void);
 unsigned int			*get_sprite_pixel(t_sprite *data, int x, int y);
 int						check_collision(t_position pos1, t_position pos2,
 							int width, int height);
-t_sprite				create_sprite(char *path);
-void					draw_sprite(t_sprite *src, t_sprite *dst, int x, int y);
-void					draw_animated_sprite(t_animated_sprite *anim,
-							t_sprite *canvas);
+
 void					draw_frame(void);
 void					handle_movement_keys(t_game_state *game, int key,
 							char *action);
@@ -291,15 +216,13 @@ void					init_wall_manager(void);
 void					init_collectible(void);
 void					init_mushroom(void);
 void					draw_mushroom(void);
-void					init_animated_sprite(t_animated_sprite *anim,
-							int frame_count, int speed);
+
 void					victory_check(void);
 bool					check_path(t_map *map);
 char					**create_temp_map(t_map *map);
 void					draw_enemy(void);
 void					draw_player(void);
 void					load_player_animations(t_player *player);
-void					update_sprite_animation(t_animated_sprite *anim);
 int						ft_printf(const char *input, ...);
 char					*get_next_line(int fd);
 t_map					*parse_map(char *filename);
@@ -314,8 +237,6 @@ void					handle_entity_collision(int *x, int *y, int prev_x,
 							int prev_y);
 int						count_map_char(char **map, int height, int width,
 							char c);
-void					load_animation_sprites(t_animated_sprite *anim,
-							char *path1, char *path2, int speed);
 int						check_wall_collisions(int x, int y, int width,
 							int height);
 int						check_enemy_collisions(int x, int y, int current_enemy);

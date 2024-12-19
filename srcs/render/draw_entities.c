@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:44:59 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:54:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 04:04:15 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,32 +67,7 @@ void	draw_collectibles(void)
 	}
 }
 
-void	draw_exit_bottom(void)
-{
-	t_exit		*exit;
-	t_sprite	temp;
-	int			i;
-	int			j;
-	int			draw_y;
-
-	exit = &get_game()->exit;
-	temp = exit->sprite;
-	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
-	i = temp.height / 2;
-	while (i < temp.height)
-	{
-		j = -1;
-		while (++j < temp.width)
-		{
-			if (*get_sprite_pixel(&temp, j, i) != 0xFF000000)
-				*get_sprite_pixel(&get_game()->canvas, exit->x + j, draw_y
-					+ i) = *get_sprite_pixel(&temp, j, i);
-		}
-		i++;
-	}
-}
-
-void	draw_exit_top(void)
+void	draw_exit_part(bool draw_top)
 {
 	t_exit		*exit;
 	t_sprite	temp;
@@ -104,7 +79,10 @@ void	draw_exit_top(void)
 	temp = exit->sprite;
 	draw_y = exit->y - (exit->sprite.height - SPRITE_SIZE);
 	i = -1;
-	while (++i < temp.height / 2)
+	if (!draw_top)
+		i = temp.height / 2;
+	while ((draw_top && ++i < temp.height / 2) || (!draw_top
+			&& i < temp.height))
 	{
 		j = -1;
 		while (++j < temp.width)
@@ -113,6 +91,8 @@ void	draw_exit_top(void)
 				*get_sprite_pixel(&get_game()->canvas, exit->x + j, draw_y
 					+ i) = *get_sprite_pixel(&temp, j, i);
 		}
+		if (!draw_top)
+			i++;
 	}
 }
 

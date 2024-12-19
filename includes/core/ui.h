@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:10:20 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:45:45 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 04:03:38 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,7 @@ void	draw_frame(void);
 void	draw_mushroom(void);
 void	draw_collectibles(void);
 void	draw_exit_full(void);
-void	draw_exit_bottom(void);
-void	draw_exit_top(void);
+void	draw_exit_part(bool draw_top);
 void	init_ui_elements(void);
 void	draw_end_game_screen(void);
 

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/14 04:08:38 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 00:49:31 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 04:05:06 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,16 +52,6 @@ char	*ft_itoa(int n)
 		num /= 10;
 	}
 	return (str);
-}
-
-size_t	ft_strlen(const char *s)
-{
-	size_t	i;
-
-	i = 0;
-	while (s[i])
-		i++;
-	return (i);
 }
 
 char	*ft_strrchr(const char *s, int c)

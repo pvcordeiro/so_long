@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:45:35 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:57:39 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 04:03:07 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,9 +28,9 @@ static void	draw_player_and_exit(void)
 	}
 	else
 	{
-		draw_exit_bottom();
+		draw_exit_part(false);
 		draw_player();
-		draw_exit_top();
+		draw_exit_part(true);
 	}
 }
 

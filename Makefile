@@ -63,5 +63,5 @@ fclean: clean
 
 re: fclean all
 
-test: re
-	./$(NAME) maps/test.ber
+run: re
+	./$(NAME) maps/abc.ber

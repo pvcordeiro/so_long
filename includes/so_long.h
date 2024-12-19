@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:30:03 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 03:42:04 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@
 # include <unistd.h>
 
 # include "types/common_types.h"
+# include "types/game_types.h"
 # include "types/sprite_types.h"
 # include "types/player_types.h"
 # include "types/enemy_types.h"
@@ -36,57 +37,25 @@
 # include "core/enemy.h"
 # include "core/map.h"
 # include "core/ui.h"
+# include "core/utils.h"
 
 # define BUFFER_SIZE 10
-
-typedef struct s_game_state
-{
-	void				*mlx;
-	void				*win;
-	t_sprite			canvas;
-	t_player			player;
-	t_collectible		collectible;
-	t_wall_manager		wall;
-	t_enemy_manager		enemy_list;
-	t_exit				exit;
-	t_map				map;
-	t_ui_elements		health;
-	t_mushroom			mushroom;
-	t_sprite			floor;
-	t_sprite			floor2;
-	t_sprite			victory;
-	t_sprite			defeat;
-	int					collectible_count;
-	int					move_up;
-	int					move_down;
-	int					move_left;
-	int					move_right;
-	int					move_count;
-	int					window_width;
-	int					window_height;
-	bool				vic;
-	bool				game_over;
-}						t_game_state;
 
 int						game_loop(void);
 int						exit_game_state(void);
 int						exit_error(t_error error);
 void					init_game_state(char *map_path);
 t_game_state			*get_game(void);
+void					handle_game_state(void);
 
 
 
 
 
-
-t_error					validate_map(t_map *map);
-void					init_player(void);
 void					init_enemy(void);
 void					init_enemy_state(t_enemy *enemy, int x, int y);
 void					init_enemy_animations(t_enemy *enemy);
 void					init_exit(void);
-void					update_player(void);
-void					update_player_position(void);
 void					update_enemy(void);
 void					update_entities(void);
 void					draw_health(void);
@@ -99,49 +68,26 @@ int						check_collision(t_position pos1, t_position pos2,
 							int width, int height);
 
 void					draw_frame(void);
-void					handle_movement_keys(t_game_state *game, int key,
-							char *action);
-void					handle_movement(t_player *player, int movement_speed,
-							int *prev_x, int *prev_y);
-void					handle_sprint_key(t_game_state *game, char *action);
-void					handle_sprint_cooldown(t_player *player);
-void					handle_sprint(t_player *player, int *movement_speed);
 void					handle_enemy_collision(t_enemy *enemy, int prev_x,
 							int prev_y);
-void					handle_attack_key(t_player *player);
-void					init_wall_manager(void);
 void					init_collectible(void);
 void					init_mushroom(void);
 void					draw_mushroom(void);
 
 void					victory_check(void);
-bool					check_path(t_map *map);
-char					**create_temp_map(t_map *map);
 void					draw_enemy(void);
-void					draw_player(void);
-void					load_player_animations(t_player *player);
 int						ft_printf(const char *input, ...);
 char					*get_next_line(int fd);
-t_map					*parse_map(char *filename);
 char					*ft_itoa(int n);
 size_t					ft_strlen(const char *s);
 char					*ft_strrchr(const char *s, int c);
 int						ft_strcmp(const char *s1, const char *s2);
 char					*ft_strdup(const char *s);
-void					init_entity_position(t_map *map, char c, int *x,
-							int *y);
 void					handle_entity_collision(int *x, int *y, int prev_x,
 							int prev_y);
-int						count_map_char(char **map, int height, int width,
-							char c);
-int						check_wall_collisions(int x, int y, int width,
-							int height);
 int						check_enemy_collisions(int x, int y, int current_enemy);
-void					handle_game_state(void);
 void					check_attack_collision(void);
-void					draw_floor(void);
 void					draw_collectibles(void);
-void					draw_walls(void);
 void					draw_exit_full(void);
 void					draw_exit_bottom(void);
 void					draw_exit_top(void);

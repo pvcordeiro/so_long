@@ -6,11 +6,29 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:24:08 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:24:30 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 02:53:46 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/so_long.h"
+
+int	count_map_char(char **map, int height, int width, char c)
+{
+	int	i;
+	int	j;
+	int	count;
+
+	count = 0;
+	i = -1;
+	while (++i < height)
+	{
+		j = -1;
+		while (++j < width)
+			if (map[i][j] == c)
+				count++;
+	}
+	return (count);
+}
 
 static bool	allocate_enemy_array(t_enemy_manager *enemy_list, int count)
 {

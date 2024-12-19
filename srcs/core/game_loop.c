@@ -6,11 +6,40 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:47:21 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:00:50 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 02:53:04 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/so_long.h"
+
+static void	update_game_state(void)
+{
+	if (get_game()->vic || get_game()->game_over)
+		return ;
+	handle_game_state();
+	update_entities();
+	victory_check();
+}
+
+static void	draw_text_layer(void)
+{
+	t_game_state	*game;
+	char			*count_str;
+
+	game = get_game();
+	if (game->vic || game->game_over)
+		return ;
+	count_str = ft_itoa(game->move_count);
+	mlx_string_put(game->mlx, game->win, 25, game->window_height - 45, 0x000000,
+		"MOVES");
+	mlx_string_put(game->mlx, game->win, 33, game->window_height - 30, 0x000000,
+		count_str);
+	free(count_str);
+	count_str = ft_itoa(game->collectible_count);
+	mlx_string_put(game->mlx, game->win, game->window_width - 34, 45, 0x000000,
+		count_str);
+	free(count_str);
+}
 
 static void	fps_cap(void)
 {
@@ -35,4 +64,17 @@ int	game_loop(void)
 		get_game()->canvas.img, 0, 0);
 	draw_text_layer();
 	return (0);
+}
+
+void	init_ui_elements(void)
+{
+	t_ui_elements	*health;
+
+	health = &get_game()->health;
+	health->health1 = create_sprite("assets/health/health1.xpm");
+	health->health2 = create_sprite("assets/health/health2.xpm");
+	health->health3 = create_sprite("assets/health/health3.xpm");
+	health->sprint = create_sprite("assets/misc/sprint.xpm");
+	health->banner = create_sprite("assets/misc/banner.xpm");
+	health->message = create_sprite("assets/misc/helper_message.xpm");
 }

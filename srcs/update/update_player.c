@@ -6,11 +6,18 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:09 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:30:05 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 02:48:33 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/so_long.h"
+
+static int	ft_abs(int n)
+{
+	if (n < 0)
+		return (-n);
+	return (n);
+}
 
 void	update_player_position(void)
 {

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:30:04 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 02:52:06 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -288,12 +288,16 @@ void	handle_attack_key(t_player *player);
 void	init_wall_manager(void);
 void	init_collectible(void);
 void	init_mushroom(void);
+void					draw_mushroom(void);
 void	init_animated_sprite(t_animated_sprite *anim, int frame_count,
 		int speed);
-int	ft_abs(int n);
 void	victory_check(void);
 bool	check_path(t_map *map);
 char	**create_temp_map(t_map *map);
+void	draw_enemy(void);
+void					draw_player(void);
+void					load_player_animations(t_player *player);
+void					update_sprite_animation(t_animated_sprite *anim);
 
 int						ft_printf(const char *input, ...);
 char					*get_next_line(int fd);
@@ -311,14 +315,11 @@ int						count_map_char(char **map, int height, int width,
 							char c);
 void					load_animation_sprites(t_animated_sprite *anim,
 							char *path1, char *path2, int speed);
-void					load_player_animations(t_player *player);
 void					init_enemy_state(t_enemy *enemy, int x, int y);
 void					init_enemy_animations(t_enemy *enemy);
 int						check_wall_collisions(int x, int y, int width,
 							int height);
 int						check_enemy_collisions(int x, int y, int current_enemy);
-void					update_sprite_animation(t_animated_sprite *anim);
-void					update_game_state(void);
 void					handle_game_state(void);
 void					update_enemy(void);
 void					check_attack_collision(void);
@@ -328,20 +329,16 @@ void					victory_check(void);
 void					draw_floor(void);
 void					draw_collectibles(void);
 void					draw_walls(void);
-void					draw_enemy(void);
-void					draw_player(void);
 void					draw_exit_full(void);
 void					draw_exit_bottom(void);
 void					draw_exit_top(void);
 
 void					init_ui_elements(void);
 
-void					draw_mushroom(void);
 
 
 void					draw_end_game_screen(void);
 void					update_entities(void);
 void					draw_frame(void);
-void					draw_text_layer(void);
 
 #endif

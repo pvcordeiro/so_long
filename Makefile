@@ -21,21 +21,26 @@ INIT_SRCS = $(INIT_DIR)init_game.c \
             $(INIT_DIR)init_player.c \
             $(INIT_DIR)init_entities.c \
 			$(INIT_DIR)init_enemy.c \
-			$(INIT_DIR)init_collectibles.c
+			$(INIT_DIR)init_collectibles.c \
+			$(INIT_DIR)init_mushroom.c
 UPDATE_SRCS = $(UPDATE_DIR)update_player.c \
               $(UPDATE_DIR)update_enemy.c \
               $(UPDATE_DIR)update_entities.c \
 			  $(UPDATE_DIR)update_game_state.c
 RENDER_SRCS = $(RENDER_DIR)draw_ui.c \
               $(RENDER_DIR)draw_entities.c \
-              $(RENDER_DIR)draw_frame.c
+              $(RENDER_DIR)draw_frame.c \
+			  $(RENDER_DIR)draw_enemy.c \
+			  $(RENDER_DIR)draw_player.c
 COLLISION_SRCS = $(COLLISION_DIR)collision.c \
 				 $(COLLISION_DIR)attack_collision.c
 UTILS_SRCS = $(UTILS_DIR)sprite_utils.c \
              $(UTILS_DIR)ft_printf.c \
              $(UTILS_DIR)get_next_line.c \
-             $(UTILS_DIR)libft.c
+             $(UTILS_DIR)libft.c \
+			 $(UTILS_DIR)animation.c
 HANDLE_SRCS = $(HANDLE_DIR)handle_movement.c \
+			  $(HANDLE_DIR)handle_movement2.c \
 			  $(HANDLE_DIR)handle_misc.c
 VALIDATION_SRCS = $(VALIDATION_DIR)map_validation.c \
 				  $(VALIDATION_DIR)map_validation2.c

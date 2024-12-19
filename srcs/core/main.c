@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:56:55 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:58:11 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,6 @@ int	main(int argc, char **argv)
 	srand(time(NULL));
 	init_game_state(argv[1]);
 	mlx_loop(get_game()->mlx);
-	exit_game_state();
+	exit_game();
 	return (0);
 }

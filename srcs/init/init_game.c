@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:47 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:52:50 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:58:11 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static int	key_loop(int key, char *action)
 
 	game = get_game();
 	if (key == XK_Escape)
-		exit_game_state();
+		exit_game();
 	if (!game->vic && !game->game_over)
 	{
 		if (key == XK_Shift_L)
@@ -35,7 +35,7 @@ static void	setup_hooks(void)
 	mlx_loop_hook(get_game()->mlx, game_loop, NULL);
 	mlx_hook(get_game()->win, KeyPress, KeyPressMask, key_loop, "p");
 	mlx_hook(get_game()->win, KeyRelease, KeyReleaseMask, key_loop, "r");
-	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game_state,
+	mlx_hook(get_game()->win, DestroyNotify, KeyPressMask, exit_game,
 		NULL);
 }
 

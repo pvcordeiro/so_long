@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:57 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 19:48:28 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 20:05:12 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,15 @@ t_game_state	*get_game(void)
 	return (&game);
 }
 
-int	exit_game_state(void)
+int	exit_game(void)
 {
-	cleanup_sprites();
-	mlx_destroy_window(get_game()->mlx, get_game()->win);
-	mlx_destroy_display(get_game()->mlx);
-	free(get_game()->mlx);
+	if (get_game()->mlx)
+	{
+		cleanup_sprites();
+		mlx_destroy_window(get_game()->mlx, get_game()->win);
+		mlx_destroy_display(get_game()->mlx);
+		free(get_game()->mlx);
+	}
 	ft_printf("Game closed\n");
 	exit(EXIT_SUCCESS);
 }
@@ -51,15 +54,12 @@ static char	*get_error_message(t_error error)
 
 int	exit_error(t_error error)
 {
-	t_game_state	*game;
-
-	game = get_game();
-	if (game->mlx)
+	if (get_game()->mlx)
 	{
 		cleanup_sprites();
-		mlx_destroy_window(game->mlx, game->win);
-		mlx_destroy_display(game->mlx);
-		free(game->mlx);
+		mlx_destroy_window(get_game()->mlx, get_game()->win);
+		mlx_destroy_display(get_game()->mlx);
+		free(get_game()->mlx);
 	}
 	ft_printf("%s\n", get_error_message(error));
 	exit(EXIT_FAILURE);

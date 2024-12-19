@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:50:50 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:58:11 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@
 # define BUFFER_SIZE 10
 
 int						game_loop(void);
-int						exit_game_state(void);
+int						exit_game(void);
 int						exit_error(t_error error);
 void					init_game_state(char *map_path);
 t_game_state			*get_game(void);

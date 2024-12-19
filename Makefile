@@ -10,10 +10,12 @@ RENDER_DIR = $(SRCS_DIR)render/
 COLLISION_DIR = $(SRCS_DIR)collision/
 UTILS_DIR = $(SRCS_DIR)utils/
 HANDLE_DIR = $(SRCS_DIR)handle/
+VALIDATION_DIR = $(SRCS_DIR)validation/
 CORE_SRCS = $(CORE_DIR)main.c \
             $(CORE_DIR)game_loop.c \
             $(CORE_DIR)game_state.c \
-			$(CORE_DIR)cleanup_sprite.c
+			$(CORE_DIR)cleanup_sprite.c \
+			$(CORE_DIR)endgame.c
 INIT_SRCS = $(INIT_DIR)init_game.c \
             $(INIT_DIR)init_map.c \
             $(INIT_DIR)init_player.c \
@@ -35,7 +37,9 @@ UTILS_SRCS = $(UTILS_DIR)sprite_utils.c \
              $(UTILS_DIR)libft.c
 HANDLE_SRCS = $(HANDLE_DIR)handle_movement.c \
 			  $(HANDLE_DIR)handle_misc.c
-SRCS = $(CORE_SRCS) $(INIT_SRCS) $(UPDATE_SRCS) $(RENDER_SRCS) $(COLLISION_SRCS) $(UTILS_SRCS) $(HANDLE_SRCS)
+VALIDATION_SRCS = $(VALIDATION_DIR)map_validation.c \
+				  $(VALIDATION_DIR)map_validation2.c
+SRCS = $(CORE_SRCS) $(INIT_SRCS) $(UPDATE_SRCS) $(RENDER_SRCS) $(COLLISION_SRCS) $(UTILS_SRCS) $(HANDLE_SRCS) $(VALIDATION_SRCS)
 OBJS = $(SRCS:.c=.o)
 
 all: $(NAME)

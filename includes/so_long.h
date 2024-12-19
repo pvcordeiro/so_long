@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:17:24 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 02:30:04 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -291,6 +291,9 @@ void	init_mushroom(void);
 void	init_animated_sprite(t_animated_sprite *anim, int frame_count,
 		int speed);
 int	ft_abs(int n);
+void	victory_check(void);
+bool	check_path(t_map *map);
+char	**create_temp_map(t_map *map);
 
 int						ft_printf(const char *input, ...);
 char					*get_next_line(int fd);

@@ -6,18 +6,11 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 00:49:59 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 01:05:22 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "so_long.h"
-
-t_game_state	*get_game(void)
-{
-	static t_game_state	game;
-
-	return (&game);
-}
 
 int	ft_abs(int n)
 {
@@ -304,129 +297,6 @@ unsigned int	*get_sprite_pixel(t_sprite *data, int x, int y)
 {
 	return ((unsigned int *)(data->addr + (y * data->line_len + x * (data->bpp
 				/ 8))));
-}
-
-static void	cleanup_dynamic_memory(t_game_state *game)
-{
-	free(game->wall.x_positions);
-	free(game->wall.y_positions);
-	free(game->collectible.x_positions);
-	free(game->collectible.y_positions);
-	free(game->collectible.collected);
-}
-
-static void	cleanup_enemy_sprites(t_game_state *game)
-{
-	int	i;
-	int	j;
-
-	i = -1;
-	while (++i < game->enemy_list.count)
-	{
-		j = -1;
-		while (++j < 2)
-		{
-			mlx_destroy_image(game->mlx,
-				game->enemy_list.enemies[i].move_right.sprites[j].img);
-			mlx_destroy_image(game->mlx,
-				game->enemy_list.enemies[i].move_left.sprites[j].img);
-		}
-	}
-	free(game->enemy_list.enemies);
-}
-
-static void	cleanup_collectible_sprites(t_game_state *game)
-{
-	int	i;
-
-	i = -1;
-	while (++i < 4)
-		mlx_destroy_image(game->mlx, game->collectible.base.sprites[i].img);
-}
-
-static void	cleanup_player_sprites(t_game_state *game)
-{
-	int	i;
-
-	i = -1;
-	while (++i < 2)
-	{
-		mlx_destroy_image(game->mlx, game->wall.base.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.idle_right.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.idle_left.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.move_right.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.move_left.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.attack_right.sprites[i].img);
-		mlx_destroy_image(game->mlx, game->player.attack_left.sprites[i].img);
-	}
-}
-
-static void	cleanup_misc_sprites(t_game_state *game)
-{
-	mlx_destroy_image(game->mlx, game->canvas.img);
-	mlx_destroy_image(game->mlx, game->floor.img);
-	mlx_destroy_image(game->mlx, game->floor2.img);
-	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
-	mlx_destroy_image(game->mlx, game->exit.sprite.img);
-	mlx_destroy_image(game->mlx, game->health.health1.img);
-	mlx_destroy_image(game->mlx, game->health.health2.img);
-	mlx_destroy_image(game->mlx, game->health.health3.img);
-	mlx_destroy_image(game->mlx, game->health.sprint.img);
-	mlx_destroy_image(game->mlx, game->health.banner.img);
-	mlx_destroy_image(game->mlx, game->health.message.img);
-}
-
-void	cleanup_sprites(void)
-{
-	t_game_state	*game;
-
-	game = get_game();
-	cleanup_dynamic_memory(game);
-	cleanup_enemy_sprites(game);
-	cleanup_collectible_sprites(game);
-	cleanup_player_sprites(game);
-	cleanup_misc_sprites(game);
-}
-
-int	exit_game_state(void)
-{
-	cleanup_sprites();
-	mlx_destroy_window(get_game()->mlx, get_game()->win);
-	mlx_destroy_display(get_game()->mlx);
-	free(get_game()->mlx);
-	ft_printf("Game closed\n");
-	exit(EXIT_SUCCESS);
-}
-
-static char	*get_error_message(t_error error)
-{
-	char	**messages;
-
-	messages = (char *[]){"", "Error\nMap must be surrounded by walls",
-		"Error\nNo player (P) found in map",
-		"Error\nMultiple players found in map",
-		"Error\nNo exit (E) found in map", "Error\nMultiple exits found in map",
-		"Error\nNo collectibles (C) found in map",
-		"Error\nNo empty spaces (0) found in map",
-		"Error\nNo valid path to exit/collectibles",
-		"Error\nInvalid character in map", "Error\nMap is not rectangular"};
-	return (messages[error]);
-}
-
-int	exit_error(t_error error)
-{
-	t_game_state	*game;
-
-	game = get_game();
-	if (game->mlx)
-	{
-		cleanup_sprites();
-		mlx_destroy_window(game->mlx, game->win);
-		mlx_destroy_display(game->mlx);
-		free(game->mlx);
-	}
-	ft_printf("%s\n", get_error_message(error));
-	exit(EXIT_FAILURE);
 }
 
 t_sprite	create_sprite(char *path)
@@ -1443,20 +1313,6 @@ void	draw_player(void)
 	draw_animated_sprite(current_anim, &get_game()->canvas);
 }
 
-static void	fps_cap(void)
-{
-	static struct timeval	last_frame = {0, 0};
-	struct timeval			current_time;
-	long					elapsed_us;
-
-	gettimeofday(&current_time, NULL);
-	elapsed_us = (current_time.tv_sec - last_frame.tv_sec) * 1000000
-		+ (current_time.tv_usec - last_frame.tv_usec);
-	if (elapsed_us < FRAME_TIME_MS)
-		usleep(FRAME_TIME_MS - elapsed_us);
-	last_frame = current_time;
-}
-
 static void	update_player_invincibility(t_player *player)
 {
 	if (player->invincibility_frames > 0)
@@ -1614,17 +1470,6 @@ void	draw_end_game_screen(void)
 		else
 			draw_sprite(&game->defeat, &game->canvas, x, y);
 	}
-}
-
-int	game_loop(void)
-{
-	fps_cap();
-	update_game_state();
-	draw_frame();
-	mlx_put_image_to_window(get_game()->mlx, get_game()->win,
-		get_game()->canvas.img, 0, 0);
-	draw_text_layer();
-	return (0);
 }
 
 void	init_game_state(char *map_path)

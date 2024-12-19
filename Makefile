@@ -11,7 +11,8 @@ COLLISION_DIR = $(SRCS_DIR)collision/
 UTILS_DIR = $(SRCS_DIR)utils/
 CORE_SRCS = $(CORE_DIR)main.c \
             $(CORE_DIR)game_loop.c \
-            $(CORE_DIR)game_state.c
+            $(CORE_DIR)game_state.c \
+			$(CORE_DIR)cleanup_sprite.c
 INIT_SRCS = $(INIT_DIR)init_game.c \
             $(INIT_DIR)init_map.c \
             $(INIT_DIR)init_player.c \

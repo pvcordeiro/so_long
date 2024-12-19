@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 23:56:30 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 01:07:56 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,16 @@ typedef struct s_game_state
 	bool				vic;
 	bool				game_over;
 }						t_game_state;
+
+int	game_loop(void);
+int	exit_game_state(void);
+int	exit_error(t_error error);
+
+
+
+
+
+
 
 int						ft_printf(const char *input, ...);
 char					*get_next_line(int fd);

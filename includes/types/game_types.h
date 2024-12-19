@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:41:08 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:41:13 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:55:48 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ typedef struct s_game_state
 	t_enemy_manager	enemy_list;
 	t_exit			exit;
 	t_map			map;
-	t_ui_elements	health;
+	t_ui_elements	ui;
 	t_mushroom		mushroom;
 	t_sprite		floor;
 	t_sprite		floor2;

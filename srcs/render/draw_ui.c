@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:45:27 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 01:48:02 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:55:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	draw_health(void)
 	t_ui_elements	*health;
 	t_sprite		*current_sprite;
 
-	health = &get_game()->health;
+	health = &get_game()->ui;
 	if (get_game()->player.lives == 3)
 		current_sprite = &health->health3;
 	else if (get_game()->player.lives == 2)
@@ -40,17 +40,17 @@ void	draw_sprint_icon(void)
 	sprint_x = get_game()->window_width - 80;
 	sprint_y = get_game()->window_height - 80;
 	if (player->is_sprinting)
-		draw_sprite(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
+		draw_sprite(&get_game()->ui.sprint, &get_game()->canvas, sprint_x,
 			sprint_y);
 	else if (!player->can_sprint)
 	{
 		flash_counter++;
 		if ((flash_counter / 15) % 2)
-			draw_sprite(&get_game()->health.sprint, &get_game()->canvas,
+			draw_sprite(&get_game()->ui.sprint, &get_game()->canvas,
 				sprint_x, sprint_y);
 	}
 	else
-		draw_sprite(&get_game()->health.sprint, &get_game()->canvas, sprint_x,
+		draw_sprite(&get_game()->ui.sprint, &get_game()->canvas, sprint_x,
 			sprint_y);
 }
 
@@ -61,13 +61,13 @@ void	draw_ui_banners(void)
 	int	banner_bottom_right;
 
 	banner_top_right = get_game()->window_width - 80;
-	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->ui.banner, &get_game()->canvas,
 		banner_top_right, 0);
 	banner_bottom_left = 0;
-	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->ui.banner, &get_game()->canvas,
 		banner_bottom_left, get_game()->window_height - 80);
 	banner_bottom_right = get_game()->window_width - 80;
-	draw_sprite(&get_game()->health.banner, &get_game()->canvas,
+	draw_sprite(&get_game()->ui.banner, &get_game()->canvas,
 		banner_bottom_right, get_game()->window_height - 80);
 }
 
@@ -99,6 +99,6 @@ void	draw_helper_message(void)
 	{
 		x = get_game()->exit.x + (SPRITE_SIZE - 160) / 2;
 		y = get_game()->exit.y - 40;
-		draw_sprite(&get_game()->health.message, &get_game()->canvas, x, y);
+		draw_sprite(&get_game()->ui.message, &get_game()->canvas, x, y);
 	}
 }

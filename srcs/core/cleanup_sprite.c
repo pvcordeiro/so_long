@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:04:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 19:45:49 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:55:46 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,12 @@ static void	cleanup_misc_sprites(t_game_state *game)
 	mlx_destroy_image(game->mlx, game->floor2.img);
 	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
 	mlx_destroy_image(game->mlx, game->exit.sprite.img);
-	mlx_destroy_image(game->mlx, game->health.health1.img);
-	mlx_destroy_image(game->mlx, game->health.health2.img);
-	mlx_destroy_image(game->mlx, game->health.health3.img);
-	mlx_destroy_image(game->mlx, game->health.sprint.img);
-	mlx_destroy_image(game->mlx, game->health.banner.img);
-	mlx_destroy_image(game->mlx, game->health.message.img);
+	mlx_destroy_image(game->mlx, game->ui.health1.img);
+	mlx_destroy_image(game->mlx, game->ui.health2.img);
+	mlx_destroy_image(game->mlx, game->ui.health3.img);
+	mlx_destroy_image(game->mlx, game->ui.sprint.img);
+	mlx_destroy_image(game->mlx, game->ui.banner.img);
+	mlx_destroy_image(game->mlx, game->ui.message.img);
 }
 
 void	cleanup_sprites(void)

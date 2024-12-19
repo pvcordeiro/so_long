@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:47:21 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:53:04 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 19:55:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void	init_ui_elements(void)
 {
 	t_ui_elements	*health;
 
-	health = &get_game()->health;
+	health = &get_game()->ui;
 	health->health1 = create_sprite("assets/health/health1.xpm");
 	health->health2 = create_sprite("assets/health/health2.xpm");
 	health->health3 = create_sprite("assets/health/health3.xpm");

@@ -58,5 +58,58 @@ Maps use `.ber` extension with these elements:
 - Contains at least one collectible
 - Must have a valid path to exit
 
+## 🕹️ How to Play
+
+Follow these steps to get started with **So_Long**:
+
+### 📥 Clone the Repository
+1. Open your terminal.  
+2. Clone the repository by running:  
+
+```
+   git clone https://github.com/yourusername/so_long.git
+```
+
+3. Navigate to the project folder:
+
+```
+cd so_long
+```
+
+
+🛠️ Build the Game
+
+1. Compile the game using the provided Makefile:
+
+```
+make
+```
+
+
+🎮 Start the Game
+
+1. Run the game with:
+
+```
+make run
+```
+
+2. Alternatively, you can execute the binary directly:
+
+```
+./so_long path/to/map.ber
+```
+
+Replace path/to/map.ber with the path to your desired map file.
+
+
+
+🚀 Enjoy!
+
+Use the controls listed above to navigate the map, collect items, and reach the exit.
+
+Make sure to follow the map format and requirements for custom maps!
+
+
 ## ⚖️ License
 This project is developed as part of the 42 School curriculum.

@@ -25,24 +25,24 @@
 
 typedef struct s_enemy
 {
-    t_animated_sprite    move_right;
-    t_animated_sprite    move_left;
-    int                 y_direction;
-    int                 direction;
-    int                 move_counter;
-    int                 lives;
-    int                 invincibility_frames;
-    bool                is_visible;
-    bool                is_dead;
-    int                 x;
-    int                 y;
-    int                 state;
-} t_enemy;
+	t_animated_sprite	move_right;
+	t_animated_sprite	move_left;
+	int					y_direction;
+	int					direction;
+	int					move_counter;
+	int					lives;
+	int					invincibility_frames;
+	bool				is_visible;
+	bool				is_dead;
+	int					x;
+	int					y;
+	int					state;
+}						t_enemy;
 
 typedef struct s_enemy_manager
 {
-    t_enemy            *enemies;
-    int                count;
-} t_enemy_manager;
+	t_enemy				*enemies;
+	int					count;
+}						t_enemy_manager;
 
 #endif

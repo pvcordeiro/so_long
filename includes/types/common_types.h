@@ -18,9 +18,9 @@
 
 typedef struct s_position
 {
-    int x;
-    int y;
-} t_position;
+	int	x;
+	int	y;
+}		t_position;
 
 typedef enum e_error
 {
@@ -37,6 +37,6 @@ typedef enum e_error
 	ERR_MAP_NOT_RECTANGULAR,
 	ERR_MEMORY,
 	ERR_SPRITE_LOAD
-}						t_error;
+}		t_error;
 
 #endif

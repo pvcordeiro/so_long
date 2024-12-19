@@ -19,26 +19,26 @@
 
 typedef struct s_sprite
 {
-	void				*img;
-	char				*addr;
-	int					bpp;
-	int					line_len;
-	int					endian;
-	int					x;
-	int					y;
-	int					width;
-	int					height;
-}						t_sprite;
+	void		*img;
+	char		*addr;
+	int			bpp;
+	int			line_len;
+	int			endian;
+	int			x;
+	int			y;
+	int			width;
+	int			height;
+}				t_sprite;
 
 typedef struct s_animated_sprite
 {
-	t_sprite			sprites[5];
-	int					frame_count;
-	int					current_frame;
-	int					anim_counter;
-	int					anim_speed;
-	int					x;
-	int					y;
-}						t_animated_sprite;
+	t_sprite	sprites[5];
+	int			frame_count;
+	int			current_frame;
+	int			anim_counter;
+	int			anim_speed;
+	int			x;
+	int			y;
+}				t_animated_sprite;
 
 #endif

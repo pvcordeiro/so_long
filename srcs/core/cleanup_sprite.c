@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:04:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 19:55:46 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 20:41:04 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,9 +21,8 @@ static void	cleanup_dynamic_memory(t_game_state *game)
 	free(game->collectible.x_positions);
 	free(game->collectible.y_positions);
 	free(game->collectible.collected);
-
 	i = -1;
-	while(++i < game->map.height)
+	while (++i < game->map.height)
 		free(game->map.map[i]);
 	free(game->map.map);
 }

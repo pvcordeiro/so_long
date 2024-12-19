@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 23:14:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/18 23:56:30 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@
 # define PLAYER_COLLISION_X_OFFSET 10
 # define PLAYER_COLLISION_Y_OFFSET 25
 # define PLAYER_COLLISION_WIDTH 50
-# define PLAYER_COLLISION_HEIGHT 40
+# define PLAYER_COLLISION_HEIGHT 50
 # define PLAYER_INVINCIBILITY_DURATION 180
 # define ATTACK_COLLISION_Y_OFFSET 10
 # define SPRINT_MULTIPLIER 2
@@ -254,7 +254,6 @@ t_game_state			*get_game(void);
 t_map					*parse_map(char *filename);
 char					*ft_itoa(int n);
 size_t					ft_strlen(const char *s);
-char					*ft_strchr(const char *s, int c);
 char					*ft_strrchr(const char *s, int c);
 int						ft_strcmp(const char *s1, const char *s2);
 char					*ft_strdup(const char *s);

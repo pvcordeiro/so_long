@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:14:46 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/18 23:32:37 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/19 00:18:24 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,10 +200,13 @@ void	update_enemy_state(t_enemy *enemy)
 	if (enemy->invincibility_frames > 0)
 		enemy->invincibility_frames--;
 	update_enemy_movement(enemy);
-	if (enemy->direction > 0)
-		enemy->state = MOVE_RIGHT;
-	else
-		enemy->state = MOVE_LEFT;
+	if (enemy->direction != 0)
+	{
+		if (enemy->direction > 0)
+			enemy->state = MOVE_RIGHT;
+		else
+			enemy->state = MOVE_LEFT;
+	}
 	if (enemy->state == MOVE_RIGHT)
 		current_anim = &enemy->move_right;
 	else

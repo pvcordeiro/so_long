@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:47 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/22 18:29:15 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 18:33:06 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,10 +65,10 @@ static void	init_window(void)
 	game->mlx = mlx_init();
 	game->win = mlx_new_window(game->mlx, game->window_width,
 			game->window_height, "so_long");
-	game->game_over = false;
-	game->vic = false;
 	if (!game->mlx || !game->win)
 		exit_error(ERR_MEMORY);
+	game->game_over = false;
+	game->vic = false;
 }
 
 void	init_game_state(char *map_path)

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:47 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 21:19:56 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 18:29:15 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,8 +77,6 @@ void	init_game_state(char *map_path)
 	t_map			*map_info;
 
 	game = get_game();
-	game->mlx = NULL;
-	game->win = NULL;
 	map_info = parse_map(map_path);
 	if (!map_info)
 		exit_error(ERR_MEMORY);

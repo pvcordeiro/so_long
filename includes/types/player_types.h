@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:10:01 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 23:36:42 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 14:34:03 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 # define PLAYER_COLLISION_WIDTH 50
 # define PLAYER_COLLISION_HEIGHT 50
 # define PLAYER_INVINCIBILITY_DURATION 180
-# define ATTACK_COLLISION_Y_OFFSET 10
+# define ATTACK_COLLISION_Y_OFFSET 20
 # define FIRST_ATTACK_DURATION 15
 # define SECOND_ATTACK_DURATION 30
 # define ATTACK_RANGE 80

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:44:59 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 04:04:15 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 18:39:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ void	draw_floor(void)
 		while (++x <= (get_game()->window_width / SPRITE_SIZE))
 		{
 			if ((x + y) % 2 == 0)
-				draw_sprite(&get_game()->floor, &get_game()->canvas, x
+				draw_sprite(&get_game()->floor00, &get_game()->canvas, x
 					* SPRITE_SIZE, y * SPRITE_SIZE);
 			else
-				draw_sprite(&get_game()->floor2, &get_game()->canvas, x
+				draw_sprite(&get_game()->floor01, &get_game()->canvas, x
 					* SPRITE_SIZE, y * SPRITE_SIZE);
 		}
 	}

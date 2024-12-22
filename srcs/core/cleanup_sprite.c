@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 01:04:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 21:48:07 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 18:39:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ static void	cleanup_player_and_col_sprites(t_game_state *game)
 static void	cleanup_misc_sprites(t_game_state *game)
 {
 	mlx_destroy_image(game->mlx, game->canvas.img);
-	mlx_destroy_image(game->mlx, game->floor.img);
-	mlx_destroy_image(game->mlx, game->floor2.img);
+	mlx_destroy_image(game->mlx, game->floor00.img);
+	mlx_destroy_image(game->mlx, game->floor01.img);
 	mlx_destroy_image(game->mlx, game->mushroom.sprite.img);
 	mlx_destroy_image(game->mlx, game->exit.sprite.img);
 	mlx_destroy_image(game->mlx, game->ui.health1.img);

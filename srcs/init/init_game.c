@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:47 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/22 18:33:06 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 18:39:17 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,8 @@ static void	setup_hooks(void)
 static void	init_sprites(void)
 {
 	get_game()->canvas = create_sprite(NULL);
-	get_game()->floor = create_sprite("assets/terrain/floor00.xpm");
-	get_game()->floor2 = create_sprite("assets/terrain/floor01.xpm");
+	get_game()->floor00 = create_sprite("assets/terrain/floor00.xpm");
+	get_game()->floor01 = create_sprite("assets/terrain/floor01.xpm");
 	get_game()->victory = create_sprite("assets/misc/victory.xpm");
 	get_game()->defeat = create_sprite("assets/misc/defeat.xpm");
 	init_collectible();

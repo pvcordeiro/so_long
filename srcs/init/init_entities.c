@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:18 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:56:15 by paude-so         ###   ########.fr       */
+/*   Updated: 2024/12/22 14:02:43 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,10 +75,9 @@ void	init_wall_manager(void)
 
 	wall = &get_game()->wall;
 	map = &get_game()->map;
-	count = count_map_char(map->map, map->height, map->width, '1');
-	wall->count = count;
-	wall->x_positions = malloc(sizeof(int) * count);
-	wall->y_positions = malloc(sizeof(int) * count);
+	wall->count = count_map_char(map->map, map->height, map->width, '1');
+	wall->x_positions = malloc(sizeof(int) * wall->count);
+	wall->y_positions = malloc(sizeof(int) * wall->count);
 	count = 0;
 	i = -1;
 	while (++i < map->height * map->width)

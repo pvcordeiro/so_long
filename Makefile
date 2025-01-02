@@ -63,5 +63,5 @@ fclean: clean
 
 re: fclean all
 
-run: re
-	./$(NAME) maps/test.ber
+lib:
+	cd minilibx-linux && ./configure

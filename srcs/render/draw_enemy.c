@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:40:17 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:42:19 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:27:58 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,8 @@ static void	draw_single_enemy(t_enemy *enemy)
 		current_anim = get_enemy_animation(enemy);
 		current_anim->x = enemy->x;
 		current_anim->y = enemy->y;
-		draw_animated_sprite(current_anim, &get_game()->canvas);
+		draw_sprite(&current_anim->sprites[current_anim->current_frame],
+			&get_game()->canvas, current_anim->x, current_anim->y);
 	}
 }
 

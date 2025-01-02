@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:44:36 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:57:10 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:34:57 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,9 +67,4 @@ void	load_animation_sprites(t_animated_sprite *anim, char *path1,
 	anim->sprites[0] = create_sprite(path1);
 	anim->sprites[1] = create_sprite(path2);
 	init_animated_sprite(anim, ANIMATION_FRAMES, speed);
-}
-
-void	draw_animated_sprite(t_animated_sprite *anim, t_sprite *canvas)
-{
-	draw_sprite(&anim->sprites[anim->current_frame], canvas, anim->x, anim->y);
 }

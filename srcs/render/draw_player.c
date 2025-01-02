@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:42:36 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:43:36 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:29:21 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,5 +76,6 @@ void	draw_player(void)
 	current_anim = get_player_animation(player);
 	current_anim->x = player->x;
 	current_anim->y = player->y;
-	draw_animated_sprite(current_anim, &get_game()->canvas);
+	draw_sprite(&current_anim->sprites[current_anim->current_frame],
+		&get_game()->canvas, current_anim->x, current_anim->y);
 }

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:45:35 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 04:03:07 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:52:48 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,20 +43,13 @@ static void	draw_ui_layer(void)
 	draw_collectible_counter();
 }
 
-static void	draw_background_layer(void)
-{
-	draw_floor();
-	draw_walls();
-	update_sprite_animation(&get_game()->wall.base);
-	draw_animated_sprite(&get_game()->wall.base, &get_game()->canvas);
-}
-
 void	draw_frame(void)
 {
 	t_game_state	*game;
 
 	game = get_game();
-	draw_background_layer();
+	draw_floor();
+	draw_walls();
 	if (!game->vic && !game->game_over)
 	{
 		draw_entity_layer();

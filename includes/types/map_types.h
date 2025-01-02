@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:09:58 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:29:39 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:50:54 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define MAP_TYPES_H
 # include "sprite_types.h"
 
-# define WALL_ANIMATION_SPEED 100
+# define WALL_ANIMATION_SPEED 50
 
 typedef struct s_map_entity_counts
 {

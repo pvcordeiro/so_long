@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:44:59 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/22 18:39:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:50:05 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,16 +45,19 @@ void	draw_walls(void)
 	{
 		wall->base.x = wall->x_positions[i];
 		wall->base.y = wall->y_positions[i];
-		draw_animated_sprite(&wall->base, &get_game()->canvas);
+		draw_sprite(&wall->base.sprites[wall->base.current_frame],
+			&get_game()->canvas, wall->base.x, wall->base.y);
 	}
 }
 
 void	draw_collectibles(void)
 {
-	t_collectible	*collectible;
-	int				i;
+	t_collectible		*collectible;
+	t_animated_sprite	*col_base;
+	int					i;
 
 	collectible = &get_game()->collectible;
+	col_base = &collectible->base;
 	i = -1;
 	while (++i < collectible->count)
 	{
@@ -62,7 +65,8 @@ void	draw_collectibles(void)
 		{
 			collectible->base.x = collectible->x_positions[i];
 			collectible->base.y = collectible->y_positions[i];
-			draw_animated_sprite(&collectible->base, &get_game()->canvas);
+			draw_sprite(&col_base->sprites[col_base->current_frame],
+				&get_game()->canvas, col_base->x, col_base->y);
 		}
 	}
 }

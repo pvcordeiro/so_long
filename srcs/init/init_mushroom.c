@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:44:32 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:56:05 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 12:26:23 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,13 @@ void	init_mushroom(void)
 	mushroom = &get_game()->mushroom;
 	map = &get_game()->map;
 	mushroom->sprite = create_sprite("assets/misc/mushroom.xpm");
-	mushroom->active = true;
-	mushroom->collected = false;
 	valid_positions = count_valid_positions(map);
-	find_random_position(mushroom, map, rand() % valid_positions);
+	if (valid_positions > 0)
+	{
+		mushroom->active = true;
+		mushroom->collected = false;
+		find_random_position(mushroom, map, rand() % valid_positions);
+	}
 }
 
 void	draw_mushroom(void)

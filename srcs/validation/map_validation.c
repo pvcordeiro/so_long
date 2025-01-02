@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:22:50 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 20:38:31 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 12:23:03 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,8 +116,6 @@ t_error	validate_map(t_map *map)
 			return (ERR_MULTIPLE_EXITS);
 		if (count.collect == 0)
 			return (ERR_NO_COLLECTIBLES);
-		if (count.empty == 0)
-			return (ERR_NO_EMPTY_SPACE);
 	}
 	if (!check_path(map))
 		return (ERR_INVALID_PATH);

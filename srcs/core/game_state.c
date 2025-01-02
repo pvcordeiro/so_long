@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:57 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 20:05:12 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 12:26:39 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,6 @@ static char	*get_error_message(t_error error)
 		"Error\nNo exit (E) found in map",
 		"Error\nMultiple exits found in map",
 		"Error\nNo collectibles (C) found in map",
-		"Error\nNo empty spaces (0) found in map",
 		"Error\nNo valid path to exit/collectibles",
 		"Error\nInvalid character in map",
 		"Error\nMap is not rectangular"

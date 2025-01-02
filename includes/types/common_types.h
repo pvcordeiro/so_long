@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:13:56 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 03:29:19 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 12:40:09 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,9 +31,7 @@ typedef enum e_error
 	ERR_NO_EXIT,
 	ERR_MULTIPLE_EXITS,
 	ERR_NO_COLLECTIBLES,
-	ERR_NO_EMPTY_SPACE,
 	ERR_INVALID_PATH,
-	ERR_INVALID_CHAR,
 	ERR_MAP_NOT_RECTANGULAR,
 	ERR_MEMORY,
 	ERR_SPRITE_LOAD

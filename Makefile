@@ -1,7 +1,7 @@
 NAME = so_long
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -Iincludes
-MLX_FLAGS = -Lminilibx-linux -lmlx -Iminilibx-linux -lXext -lX11
+MLX_FLAGS = -Lminilibx-linux -lmlx -Iminilibx-linux -lXext -lX11 -O3
 SRCS_DIR = srcs/
 CORE_DIR = $(SRCS_DIR)core/
 INIT_DIR = $(SRCS_DIR)init/

@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:10:01 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/22 14:34:03 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 13:38:33 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,13 @@
 # define PLAYER_COLLISION_HEIGHT 50
 # define PLAYER_INVINCIBILITY_DURATION 180
 # define ATTACK_COLLISION_Y_OFFSET 20
-# define FIRST_ATTACK_DURATION 15
-# define SECOND_ATTACK_DURATION 30
-# define ATTACK_RANGE 80
+# define FIRST_ATTACK_DURATION 10
+# define SECOND_ATTACK_DURATION 20
+# define ATTACK_RANGE 120
 # define ATTACK_COOLDOWN 40
 # define SPRINT_MULTIPLIER 2
-# define SPRINT_COOLDOWN 180
-# define SPRINT_DURATION 60
+# define SPRINT_COOLDOWN 240
+# define SPRINT_DURATION 120
 
 typedef enum e_player_state
 {

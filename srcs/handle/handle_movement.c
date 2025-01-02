@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:03:26 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 02:06:13 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 13:46:29 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,13 @@
 
 void	handle_movement_keys(t_game_state *game, int key, char *action)
 {
-	if (key == XK_w)
+	if (key == XK_w || key == XK_Up)
 		game->move_up = (*action == 'p');
-	if (key == XK_a)
+	if (key == XK_a || key == XK_Left)
 		game->move_left = (*action == 'p');
-	if (key == XK_s)
+	if (key == XK_s || key == XK_Down)
 		game->move_down = (*action == 'p');
-	if (key == XK_d)
+	if (key == XK_d || key == XK_Right)
 		game->move_right = (*action == 'p');
 }
 

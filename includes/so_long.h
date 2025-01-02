@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/07 10:15:11 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 19:58:11 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 11:15:14 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 # include <X11/X.h>
 # include <X11/keysym.h>
 # include <fcntl.h>
-# include <mlx.h>
+# include "../minilibx-linux/mlx.h"
 # include <stdarg.h>
 # include <stdbool.h>
 # include <stdlib.h>

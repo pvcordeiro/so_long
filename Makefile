@@ -1,7 +1,7 @@
 NAME = so_long
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I includes
-MLX_FLAGS = -Lmlx_linux -lmlx_Linux -Imlx_linux -lXext -lX11 -lm -lz -O3
+MLX_FLAGS = -Lminilibx-linux -lmlx -Iminilibx-linux -lXext -lX11 -lm -lz -O3
 SRCS_DIR = srcs/
 CORE_DIR = $(SRCS_DIR)core/
 INIT_DIR = $(SRCS_DIR)init/
@@ -53,7 +53,7 @@ $(NAME): $(OBJS)
 	$(CC) $(OBJS) $(MLX_FLAGS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(MLX_FLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	rm -f $(OBJS)
@@ -64,4 +64,4 @@ fclean: clean
 re: fclean all
 
 run: re
-	./$(NAME) maps/abc.ber
+	./$(NAME) maps/test.ber

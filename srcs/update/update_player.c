@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:09 by paude-so          #+#    #+#             */
-/*   Updated: 2024/12/19 23:37:17 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/01/02 11:16:26 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ void	update_player(void)
 	t_animated_sprite	*current_anim;
 
 	player = &get_game()->player;
+	current_anim = NULL;
 	if (player->attack_cooldown > 0)
 		player->attack_cooldown--;
 	if (player->is_attacking)

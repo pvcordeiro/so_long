@@ -12,6 +12,9 @@ In this engaging adventure, players must:
 - 👾 Try to finish without dying
 
 ## 🎨 Core Features
+
+![output](https://github.com/user-attachments/assets/6823b8bf-d770-466c-91ca-fd7bbbd55451)
+
 - Smooth character movement
 - Precise collision detection
 - Map validation system

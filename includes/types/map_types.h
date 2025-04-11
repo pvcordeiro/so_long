@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:09:58 by paude-so          #+#    #+#             */
-/*   Updated: 2025/01/02 14:50:54 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/04/11 15:53:28 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ typedef struct s_map_entity_counts
 	int					exit;
 	int					collect;
 	int					empty;
+	int					invalid;
 }						t_map_entity_counts;
 
 typedef struct s_map

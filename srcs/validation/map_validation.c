@@ -6,10 +6,12 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 02:22:50 by paude-so          #+#    #+#             */
-/*   Updated: 2025/01/02 12:23:03 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/04/11 16:13:29 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+
+#include <stdio.h>
 #include "../includes/so_long.h"
 
 char	**create_temp_map(t_map *map)
@@ -59,6 +61,7 @@ static bool	count_entities(t_map *map, t_map_entity_counts *count)
 	count->exit = 0;
 	count->collect = 0;
 	count->empty = 0;
+	count->invalid = 0;
 	i = -1;
 	while (++i < map->height)
 	{
@@ -73,10 +76,15 @@ static bool	count_entities(t_map *map, t_map_entity_counts *count)
 				count->collect++;
 			else if (map->map[i][j] == '0')
 				count->empty++;
+			else if (map->map[i][j] != '1' && map->map[i][j] != '0' && 
+				map->map[i][j] != 'P' && map->map[i][j] != 'E' && 
+				map->map[i][j] != 'C' && map->map[i][j] != 'X' && 
+				map->map[i][j] != '\n')
+			count->invalid++;
 		}
 	}
 	return (count->player == 1 && count->exit == 1 && count->collect > 0
-		&& count->empty > 0);
+		&& count->empty > 0 && count->invalid == 0);
 }
 
 static bool	check_rectangular_map(t_map *map)
@@ -106,6 +114,8 @@ t_error	validate_map(t_map *map)
 		return (ERR_WALLS);
 	if (!count_entities(map, &count))
 	{
+		if (count.invalid > 0)
+			return (ERR_INVALID_CHAR);
 		if (count.player == 0)
 			return (ERR_NO_PLAYER);
 		if (count.player > 1)

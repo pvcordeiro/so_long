@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 03:13:56 by paude-so          #+#    #+#             */
-/*   Updated: 2025/01/02 12:40:09 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/04/11 16:05:40 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ typedef struct s_position
 
 typedef enum e_error
 {
-	ERR_NONE = 0,
+	ERR_NONE,
 	ERR_WALLS,
 	ERR_NO_PLAYER,
 	ERR_MULTIPLE_PLAYERS,
@@ -33,6 +33,7 @@ typedef enum e_error
 	ERR_NO_COLLECTIBLES,
 	ERR_INVALID_PATH,
 	ERR_MAP_NOT_RECTANGULAR,
+	ERR_INVALID_CHAR,
 	ERR_MEMORY,
 	ERR_SPRITE_LOAD
 }		t_error;

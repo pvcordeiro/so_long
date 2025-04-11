@@ -6,7 +6,7 @@
 /*   By: paude-so <paude-so@student.42lisboa.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/19 00:46:57 by paude-so          #+#    #+#             */
-/*   Updated: 2025/01/02 12:26:39 by paude-so         ###   ########.fr       */
+/*   Updated: 2025/04/11 16:05:37 by paude-so         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,10 @@ static char	*get_error_message(t_error error)
 		"Error\nMultiple exits found in map",
 		"Error\nNo collectibles (C) found in map",
 		"Error\nNo valid path to exit/collectibles",
+		"Error\nMap is not rectangular",
 		"Error\nInvalid character in map",
-		"Error\nMap is not rectangular"
+		"Error\nMemory Error",
+		"Error\nSprite Load Error"
 	};
 	return (messages[error]);
 }
